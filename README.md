@@ -1,5 +1,7 @@
 # Applied Statistics for Data Science, Machine Learning, and AI Engineers
 
+![Book cover: Applied Statistics for Data Science, Machine Learning, and AI Engineers](assets/cover.png)
+
 **A free, open-source statistics book where every chart is a slider, not a screenshot.**
 
 [![Read the book](https://img.shields.io/badge/read-the%20live%20book-D97757?style=for-the-badge)](https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/)
