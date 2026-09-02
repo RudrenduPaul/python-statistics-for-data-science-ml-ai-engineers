@@ -1,0 +1,15 @@
+numpy
+scipy
+pandas
+statsmodels
+plotly
+altair
+vl-convert-python
+pymc
+arviz
+scikit-learn
+xgboost
+lightgbm
+pymc-bart
+optuna
+ngboost

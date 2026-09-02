@@ -1,0 +1,55 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Applied Statistics for Data Science, Machine Learning, and AI Engineers"
+  subtitle: "A Practical, Open-Source Guide to Regression, Gradient Boosting, Bayesian Methods, and A/B Testing in Python"
+  author:
+    - name: Rudrendu Paul
+      url: https://github.com/RudrenduPaul
+      orcid: 0009-0008-0141-4690
+  reader-mode: true
+  cover-image: assets/cover.png
+  repo-url: https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers
+  repo-actions: [issue]
+  site-url: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/
+  page-footer:
+    left: "Open source, free to read and reuse."
+  chapters:
+    - index.md
+    - part: "Part 1: Foundations of Applied Statistics"
+      chapters:
+        - chapters/chapter-01-descriptive-statistics.md
+        - chapters/chapter-02-hypothesis-testing.md
+        - chapters/chapter-03-probability-and-distributions.md
+    - part: "Part 2: Regression and Predictive Modeling"
+      chapters:
+        - chapters/chapter-04-regression-modeling.md
+        - chapters/chapter-05-cross-validation.md
+        - chapters/chapter-06-regression-splines.md
+        - chapters/chapter-07-decision-trees-random-forests.md
+        - chapters/chapter-08-gradient-boosting.md
+    - part: "Part 3: Bayesian Methods"
+      chapters:
+        - chapters/chapter-09-bayesian-regression.md
+        - chapters/chapter-10-bayesian-model-selection.md
+        - chapters/chapter-11-bayesian-gaussian-processes.md
+        - chapters/chapter-12-bayesian-bart.md
+        - chapters/chapter-13-bayesian-boosting.md
+        - chapters/chapter-14-bayesian-ab-testing.md
+    - chapters/chapter-15-conclusion.md
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    code-fold: false
+    toc: true
+    number-depth: 2
+
+execute:
+  freeze: auto
+  echo: false
+  warning: false
