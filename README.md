@@ -15,10 +15,11 @@ Each chapter is a pair of files in `chapters/`:
 - `chapter-0N-<slug>-plots.py`: the plotting code for that chapter, standalone and runnable on
   its own (e.g. `python chapters/chapter-01-descriptive-statistics-plots.py`). Each function
   builds one Plotly figure and writes it to `_generated/` as a self-contained interactive HTML
-  page that the matching `.md` file embeds.
-
-Every chapter also carries its own `.plagiarism-report.md` (citation/attribution audit) and
-`.humanize-log-*.md` (AI-writing-pattern audit) alongside it.
+  page that the matching `.md` file embeds. This is the source of truth for regenerating figures.
+- `chapter-0N-<slug>-plots.ipynb`: an executed, rendered preview of the same code for browsing
+  on GitHub, with each figure's static output baked in as an image (GitHub's notebook viewer
+  cannot run the interactive JS the live book uses). Not used by the build; regenerate it by
+  rerunning the notebook-export step, not by hand-editing it.
 
 Chapter order:
 
@@ -62,7 +63,7 @@ quarto render                                                  # build the book 
 
 Every chapter's `-plots.py` file needs to be run once (or whenever the figure code changes) to
 populate `_generated/` before `quarto render`. Requires the Quarto CLI
-(`brew install --cask quarto`, not yet installed on this machine as of this writing).
+(`brew install --cask quarto`).
 
 ## License
 
