@@ -52,7 +52,7 @@ bibliography: references.bib
 format:
   html:
     theme: cosmo
-    css: assets/custom.css
+    css: assets/custom-v2.css
     code-fold: false
     toc: true
     number-depth: 2
