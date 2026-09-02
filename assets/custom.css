@@ -1,11 +1,17 @@
-/* Make the book's native cover image (injected by Quarto's book `cover-image:`
-   setting right after the Preface H1) render as a full-width banner instead
-   of a small floated thumbnail. */
+/* Quarto's book `cover-image:` setting auto-injects a native cover image right
+   after the Preface heading (class quarto-cover-image). The cover needs to sit
+   above the Preface heading instead, so index.md places its own image before
+   the heading (class book-cover-banner) and the native one is hidden here to
+   avoid a duplicate. cover-image: stays set in _quarto.yml for the OG/Twitter
+   meta tags, which read the file path directly and do not render this class. */
 .quarto-cover-image {
-  float: none !important;
+  display: none !important;
+}
+
+.book-cover-banner {
   display: block;
   width: 100%;
   max-width: 720px;
   height: auto;
-  margin: 1rem 0 1.5rem 0;
+  margin: 0 0 1.5rem 0;
 }

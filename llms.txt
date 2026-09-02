@@ -1,51 +1,225 @@
 # Applied Statistics for Data Science, Machine Learning, and AI Engineers
 
 > A free, open-source, interactive statistics handbook for data scientists, ML engineers,
-> and AI engineers. Covers descriptive statistics, hypothesis testing, regression, decision
-> trees, gradient boosting, and Bayesian methods in Python, with every figure a live,
-> draggable Plotly chart and every example built from runnable code.
+> and AI engineers. Covers descriptive statistics, hypothesis testing, probability
+> distributions, regression, cross-validation, regression splines, decision trees, random
+> forests, gradient boosting (XGBoost, LightGBM), and Bayesian methods (conjugate models,
+> PyMC, Gaussian processes, BART, Bayesian gradient boosting, Bayesian A/B testing) in
+> Python. Every one of the book's 50+ figures is a live, draggable Plotly chart with no
+> server or setup required, and every figure has a matching, runnable Python script.
 
-Author: Rudrendu Paul (https://github.com/RudrenduPaul, ORCID 0009-0008-0141-4690)
-License: CC BY 4.0 (book text), MIT (plotting code)
 Live book: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/
 Source repository: https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers
+License: CC BY 4.0 (book text), MIT (plotting code)
+Format: 15 chapters, 3 parts, plain Markdown source, one running dataset (simulated checkout-API response times) followed end to end
 
-## What this book answers
+## Author
 
-- What is the difference between a confidence interval and a Bayesian credible interval?
-- When should I use the mean versus the median to summarize skewed data?
-- How do Ridge and Lasso regression correspond to Gaussian and Laplace priors in Bayesian regression?
-- How does Bayesian A/B testing differ from classical hypothesis testing for experiments?
-- What is a Gaussian process, and how does it relate to smoothing splines?
-- How do Bayesian Additive Regression Trees (BART) compare to random forests and gradient boosting?
-- How do I compare Bayesian models using PSIS-LOO and WAIC?
+**Rudrendu Paul**: agent-native B2A/A2A builder, applied AI/ML leader, and published author
+(ICML, Springer Nature, Elsevier, IEEE) with 15+ years turning applied machine learning and
+causal inference into production systems. Open source contributor to HuggingFace Transformers,
+scikit-learn, Ray, and the Model Context Protocol (MCP) ecosystem. 50+ publications across
+peer-reviewed journals, books, and conferences, plus 25+ industry articles on O'Reilly Radar,
+freeCodeCamp, DZone, and other platforms.
+
+- LinkedIn: https://www.linkedin.com/in/rudrendupaul
+- ORCID (research portfolio, 50+ publications): https://orcid.org/0009-0008-0141-4690
+- Medium (blog): https://rudrendupaul.medium.com
+- GitHub profile: https://github.com/RudrenduPaul
+- GitHub profile README (full bio, publications, OSS contributions, talks): https://github.com/RudrenduPaul/RudrenduPaul
+
+## Frequently asked questions
+
+**Is this book free?** Yes. The full text is free to read online at the live book link above, with no paywall, signup, or account required.
+
+**Can I reuse the text or figures?** Yes, under CC BY 4.0 (text) and MIT (code), with attribution to Rudrendu Paul.
+
+**Does reading this book require a Jupyter kernel or a running Python server?** No. Every figure is pre-rendered to a self-contained interactive HTML page, so the live book works from a static file server and needs nothing more than a browser.
+
+**Does this book cover statistical significance, p-values, and alpha?** Yes. Chapter 2 (Hypothesis Testing) covers the p-value, the significance threshold (alpha), and explicitly warns against the p-value-as-probability-of-truth misreading. Chapter 4 (Regression Modeling) separately covers statistical vs. practical significance, showing how a fixed-size effect can cross the significance threshold purely because sample size grew.
+
+**Does this book cover Type I and Type II errors and statistical power?** Yes. Chapter 2 covers Type I error (false positive), Type II error (false negative), the trade-off between them as the significance threshold moves, and statistical power (1 minus beta) as a function of sample size and effect size, each with an interactive figure.
+
+**Does this book cover precision, recall, F1, and ROC/AUC?** Yes. Chapter 7 (Tree-Based Methods) has a dedicated section on evaluating a classifier, with an interactive confusion-matrix figure where dragging the classification threshold live-updates precision, recall, F1, and the ROC curve in the same view.
+
+**What is the difference between a p-value and the probability the null hypothesis is true?** A p-value is computed by assuming the null hypothesis is true, and it measures how surprising the observed data would be under that assumption. Per the American Statistical Association, a p-value "does not measure the probability that the studied hypothesis is true." Chapter 2 covers this distinction directly.
+
+**What is the difference between a confidence interval and a Bayesian credible interval?** A confidence interval is a statement about a repeated procedure: 95% of intervals generated across repeated experiments would contain the true value, with no probability claim about any single interval. A credible interval is a direct probability statement about the parameter given the observed data: a 95% credible interval means a 95% posterior probability the parameter lies in that range. Chapter 9 covers both side by side on the same dataset.
+
+**How does Ridge regression relate to a Gaussian prior?** Ridge regression's L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode; Lasso's L1 penalty corresponds to a Laplace prior. Chapter 4's Bayesian preview and Chapter 9's full treatment both derive this, and the interactive figure shows the posterior narrowing and sliding toward zero as the prior variance shrinks, mirroring what Ridge's penalty term does algebraically.
+
+**How does Bayesian A/B testing differ from a classical significance test?** Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant's conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value. It does not fully solve the peeking problem: undisciplined repeated checks still bias the result, but a Bayesian posterior does not inflate mechanically the way a repeated frequentist significance test does.
+
+**What is the difference between WAIC/PSIS-LOO and k-fold cross-validation?** They answer the same generalization question, how well does this model predict new data, but PSIS-LOO and WAIC (Chapter 10) compute it directly from a Bayesian model's posterior draws, while k-fold cross-validation (Chapter 5) refits the model on held-out folds. PSIS-LOO is worth its setup cost when the model is Bayesian anyway or the dataset is too small for stable refitting; k-fold CV remains faster for routine comparisons.
+
+**Why does a random forest split on only a random subset of predictors at each split?** Restricting each split to a random subset of predictors (Chapter 7, typically m ≈ √p for classification) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, which decorrelates the trees so averaging reduces variance more effectively.
+
+**Why are boosted trees kept shallow while random forest trees are grown deep?** A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects, leaving the learning rate and tree count to control the ensemble's overall complexity instead.
+
+## Key definitions
+
+- **p-value**: the probability of observing data at least as extreme as what was measured, computed under the assumption the null hypothesis is true. Covered in Chapter 2.
+- **Statistical significance / alpha**: a pre-chosen significance threshold (commonly 0.05); a result is "statistically significant" when its p-value falls below alpha. Covered in Chapter 2 and Chapter 4.
+- **Type I error**: rejecting a true null hypothesis (a false positive). Covered in Chapter 2.
+- **Type II error**: failing to reject a false null hypothesis (a false negative). Covered in Chapter 2.
+- **Statistical power**: the probability of correctly rejecting a false null hypothesis, equal to 1 minus the Type II error rate. Covered in Chapter 2.
+- **Precision**: of the cases predicted positive, the share that are true positives. Covered in Chapter 7.
+- **Recall**: of the cases that are positive, the share correctly predicted positive. Covered in Chapter 7.
+- **F1 score**: the harmonic mean of precision and recall. Covered in Chapter 7.
+- **ROC curve / AUC**: the ROC curve plots true-positive rate against false-positive rate across every classification threshold; AUC is the area under that curve. Covered in Chapter 7.
+- **Confidence interval**: a range constructed so that, across repeated experiments, a stated percentage of such intervals would contain the true parameter value. Covered in Chapter 4 and contrasted with credible intervals in Chapter 9.
+- **Credible interval**: a Bayesian posterior range with a direct probability interpretation, a 95% credible interval means a 95% posterior probability the parameter lies in that range. Covered in Chapter 9.
+- **Ridge regression**: linear regression with an L2 penalty on coefficient size, equivalent to a Gaussian prior in the Bayesian view. Covered in Chapter 4 and Chapter 9.
+- **Lasso regression**: linear regression with an L1 penalty that can shrink coefficients all the way to zero, equivalent to a Laplace prior in the Bayesian view. Covered in Chapter 4 and Chapter 9.
+- **Simpson's paradox**: a trend that appears in several groups of data reverses or disappears when the groups are combined, driven by a confounding variable. Covered in Chapter 1, referenced again in Chapter 15.
+- **PSIS-LOO**: Pareto-smoothed importance sampling leave-one-out cross-validation, a Bayesian model-comparison metric computed from posterior draws without refitting the model. Covered in Chapter 5 and Chapter 10.
+- **Gaussian process**: a Bayesian, non-parametric regression method that returns a full posterior distribution over possible curves rather than a single fitted line. Covered in Chapter 6 and Chapter 11.
+- **BART (Bayesian Additive Regression Trees)**: a sum-of-weak-trees ensemble fit by MCMC that returns a full posterior over predictions instead of a single point estimate. Covered in Chapter 7 and Chapter 12.
+- **Win probability / expected loss**: Bayesian A/B testing decision metrics: the posterior probability one variant beats another, and the expected cost of choosing wrong given current uncertainty. Covered in Chapter 14.
 
 ## Part 1: Foundations of Applied Statistics
 
-- Chapter 1, Descriptive Statistics: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-01-descriptive-statistics.html
-- Chapter 2, Hypothesis Testing: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-02-hypothesis-testing.html
-- Chapter 3, Probability and Distributions: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-03-probability-and-distributions.html
+### Chapter 1: Introduction to Descriptive Statistics
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-01-descriptive-statistics.html
+
+Using a simulated checkout-API latency dataset, this chapter shows how measures of center, spread, and co-movement can each mislead a reader when picked or applied carelessly, then closes with Simpson's paradox as a warning about confounding. Two historical case studies anchor the chapter: the 1936 Literary Digest election poll (a 10-million-person sample that still missed the outcome by 24 points) and Charig et al.'s 1986 kidney-stone treatment study.
+
+- Key concepts: mean/median/mode; variance and standard deviation vs. percentile thresholds; covariance and correlation; selection bias (sampling, self-selection, nonresponse, recall); mean imputation; Simpson's paradox and confounding variables
+- Interactive figures: fig-mean-median (mean vs. median as slow-request contamination rises), fig-std-percentile (a mean-plus-k-SD threshold vs. fixed percentile lines), fig-cov-corr (correlation strength from 0 to 0.85), fig-skew-kurt (a distribution morphing from symmetric to right-skewed), fig-literary-digest (the 1936 poll's prediction vs. the election outcome), fig-mean-imputation (imputation narrowing spread as missing data grows), fig-simpsons (the kidney-stone reversal by pooling)
+- FAQ: Why do on-call dashboards trust median and percentile latency over mean latency? The mean is pulled by every value including extremes, so a small share of slow requests drags it well above the median while percentile lines stay fixed at whatever share of traffic they were defined to capture. This is why the Google SRE book recommends defining SLIs on percentiles rather than the mean.
+
+### Chapter 2: Hypothesis Testing
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-02-hypothesis-testing.html
+
+Using a caching-layer rollout as its running example, this chapter builds the full hypothesis-testing toolkit from single-mean tests through ANOVA, chi-squared, ANCOVA, experimental design, and non-parametric alternatives, repeatedly stressing what a p-value does and does not mean.
+
+- Key concepts: Z-test and t-test; p-value interpretation; Type I/Type II errors and statistical power; paired vs. Welch's unpaired t-test; ANOVA/ANCOVA and chi-squared tests; Wilcoxon rank-sum and Kruskal-Wallis non-parametric tests
+- Interactive figures: fig-t-vs-normal (t-distribution tails vs. degrees of freedom), fig-error-tradeoff (Type I vs. Type II error as the threshold moves), fig-power-curve (power rising with sample size), fig-anova-between-within (F and p as between-group gap widens), fig-nonparametric (t-test vs. Wilcoxon rank-sum stability under outliers)
+- FAQ: Does a p-value of 0.03 mean there's a 3% chance the null hypothesis is true? No. A p-value assumes the null hypothesis is true and measures how surprising the data would be under that assumption; it is not the probability the hypothesis itself is true.
+
+### Chapter 3: Probability and Distributions
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-03-probability-and-distributions.html
+
+This chapter matches eight named distributions to the production mechanisms that generate them, then applies Bayes' theorem, the Central Limit Theorem, and the birthday problem to concrete engineering questions like alert reliability, retry budgets, and identifier collisions.
+
+- Key concepts: Bayes' theorem and the base-rate fallacy; normal/binomial/Poisson/exponential/geometric/Bernoulli/uniform distributions; the 68-95-99.7 rule and z-scores; the Central Limit Theorem; the birthday problem
+- Interactive figures: fig-bayes (P(true incident given alert) vs. base rate), fig-normal-rule (68-95-99.7 rule across standard deviations), fig-zscore (tail probability vs. z threshold), fig-uniform, fig-bernoulli, fig-binomial-conversions, fig-geometric (attempts until a flaky call succeeds), fig-poisson, fig-exponential, fig-clt (sample means becoming normal-shaped as n grows), fig-birthday (collision probability vs. identifier length)
+- FAQ: If an anomaly detector is 95% sensitive, is a firing alert 95% likely to indicate a true incident? No. At a 1% base rate of true incidents, Bayes' theorem gives roughly an 8.8% chance the alert reflects a true incident, because the detector's false-alarm rate on the much larger pool of non-incident hours dominates the total number of alerts.
 
 ## Part 2: Regression and Predictive Modeling
 
-- Chapter 4, Regression Modeling (OLS, logistic regression, regularization): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html
-- Chapter 5, Cross-Validation and Model Selection: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-05-cross-validation.html
-- Chapter 6, Regression Splines: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-06-regression-splines.html
-- Chapter 7, Decision Trees and Random Forests: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-07-decision-trees-random-forests.html
-- Chapter 8, Gradient Boosting (XGBoost, LightGBM): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-08-gradient-boosting.html
+### Chapter 4: Regression Modeling
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html
+
+Covers ordinary least squares, confidence vs. prediction intervals, logistic regression, model-fit metrics (R-squared, adjusted R-squared, AIC, BIC), statistical vs. practical significance, and regularization (Lasso, Ridge, Elastic Net), closing with a Bayesian preview showing Ridge and Lasso as posterior modes under Gaussian and Laplace priors.
+
+- Key concepts: ordinary least squares (OLS); confidence intervals vs. prediction intervals; logistic regression; AIC/BIC and adjusted R-squared; Lasso (L1), Ridge (L2), and Elastic Net regularization
+- Interactive figures: fig-ols, fig-ci-pi (confidence band vs. prediction band), fig-logistic, fig-r2 (R-squared vs. adjusted R-squared with noise predictors), fig-aic-bic, fig-significance (a fixed effect crossing significance purely from sample size), fig-regularization (Lasso vs. Ridge coefficient paths), fig-bayesian-ridge (posterior narrowing as prior variance shrinks)
+- FAQ: What is the difference between a confidence interval and a prediction interval? A confidence interval estimates the range likely to contain the true mean outcome and narrows as sample size grows; a prediction interval estimates the range for one future observation and stays wide because it also accounts for irreducible individual variability.
+
+### Chapter 5: Cross-Validation and Model Selection
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-05-cross-validation.html
+
+Explains why training error can't select a model, then builds up the validation-set approach, leave-one-out cross-validation, and k-fold cross-validation, applies k-fold CV to select a regularization strength, and covers what CV cannot fix (data leakage, non-independent time-series data), ending with the Bayesian analog PSIS-LOO/ELPD.
+
+- Key concepts: validation-set approach; leave-one-out cross-validation (LOOCV); k-fold cross-validation and the bias-variance trade-off in choosing k; data leakage and non-independence; PSIS-LOO and expected log predictive density (ELPD)
+- Interactive figures: fig-train-test-error (U-shaped test error vs. polynomial degree), fig-validation-variance (estimate spread across split strategies), fig-lambda-selection (cross-validated error curve for choosing Lasso's lambda), fig-elpd-by-complexity
+- FAQ: Why is k=5 or k=10 the standard choice for k-fold cross-validation? Both values keep training-fold bias low while largely avoiding the high correlation-driven variance that affects LOOCV, making them an empirically supported default.
+
+### Chapter 6: Moving Beyond Linearity: Regression Splines
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-06-regression-splines.html
+
+Uses a load-latency saturation curve to motivate moving past straight-line regression, covering polynomial regression's Runge-phenomenon instability, basis functions, regression splines and knot count, natural cubic splines, smoothing splines, and Gaussian process regression as the Bayesian extension.
+
+- Key concepts: polynomial regression and the Runge phenomenon; basis functions; regression splines and knot placement; natural cubic splines; smoothing splines (roughness penalty) and Gaussian process regression
+- Interactive figures: fig-linear-misfit, fig-poly-degree (Runge-phenomenon wobble at the boundary), fig-basis-functions, fig-knot-count, fig-natural-boundary, fig-smoothing-lambda, fig-gp-posterior
+- FAQ: Why does a natural cubic spline behave better than a regular cubic spline near the edge of the data? It adds the constraint that the function must be linear (not cubic) beyond the boundary knots, trading a little flexibility at the extremes for predictable extrapolation instead of letting the curve keep bending past the last knot.
+
+### Chapter 7: Tree-Based Methods: Decision Trees and Random Forests
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-07-decision-trees-random-forests.html
+
+Builds a canary-deployment rollback classifier to cover regression and classification trees (RSS, Gini index, entropy), cost-complexity pruning, tree instability, bagging, random forests, and a dedicated section on evaluating a classifier, precision, recall, F1, and the ROC curve, followed by variable importance and Bayesian Additive Regression Trees (BART) for per-prediction credible intervals.
+
+- Key concepts: recursive binary splitting and RSS; Gini index and entropy; cost-complexity (weakest-link) pruning; bagging and random forests (random feature subset, out-of-bag error); precision/recall/F1/ROC-AUC; Bayesian Additive Regression Trees (BART)
+- Interactive figures: fig-split-criteria, fig-tree-overfitting, fig-pruning-path, fig-tree-instability, fig-oob-error, fig-confusion-threshold (drag the classification threshold to live-update the confusion matrix, precision/recall/F1 bars, and ROC marker), fig-variable-importance, fig-bart-vs-rf
+- FAQ: Why does a random forest split on only a random subset of predictors at each split instead of all of them? It forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively.
+
+### Chapter 8: Gradient Boosting: XGBoost and LightGBM
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-08-gradient-boosting.html
+
+Explains gradient boosting as sequential, error-correcting tree fitting, covers shrinkage/learning rate and early stopping, XGBoost's regularized second-order boosting objective, LightGBM's histogram splitting and leaf-wise growth with GOSS, practical guidance for choosing among random forest/XGBoost/LightGBM, and Bayesian hyperparameter optimization via Gaussian processes.
+
+- Key concepts: gradient boosting via negative-gradient fitting; shrinkage (learning rate) and early stopping; XGBoost's regularized, second-order boosting objective; LightGBM's histogram-based splitting and leaf-wise growth; gradient-based one-side sampling (GOSS)
+- Interactive figures: fig-boosting-rounds, fig-shrinkage-early-stopping, fig-xgboost-regularization, fig-leafwise-vs-levelwise, fig-model-comparison-size (random forest vs. gradient boosting as training size grows), fig-gp-hyperparameter-search
+- FAQ: Why are boosted trees kept shallow while random forest trees are grown deep? A random forest controls variance through averaging many deep trees; a boosted model keeps trees shallow on purpose so no single tree overcorrects, leaving learning rate and tree count to control ensemble complexity instead.
 
 ## Part 3: Bayesian Methods
 
-- Chapter 9, Bayesian Linear and Logistic Regression: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-09-bayesian-regression.html
-- Chapter 10, Bayesian Model Selection (PSIS-LOO, WAIC): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-10-bayesian-model-selection.html
-- Chapter 11, Bayesian Gaussian Processes: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-11-bayesian-gaussian-processes.html
-- Chapter 12, Bayesian Additive Regression Trees (BART): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-12-bayesian-bart.html
-- Chapter 13, Bayesian Approaches to Gradient Boosting: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-13-bayesian-boosting.html
-- Chapter 14, Bayesian A/B Testing: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-14-bayesian-ab-testing.html
-- Chapter 15, Conclusion: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-15-conclusion.html
+### Chapter 9: Bayesian Linear Regression and Regularization
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-09-bayesian-regression.html
+
+Rebuilds Chapter 4's latency regression with full Bayesian machinery: conjugate posteriors, credible vs. confidence intervals, Ridge/Lasso/horseshoe priors, PyMC-based logistic regression, MCMC convergence diagnostics, and posterior predictive checks.
+
+- Key concepts: conjugate Gaussian posterior; credible interval vs. confidence interval; Ridge (Gaussian prior), Lasso (Laplace prior), and horseshoe prior; MCMC convergence diagnostics (R-hat, ess_bulk, divergent transitions); posterior predictive checks
+- Interactive figures: fig-posterior-narrowing, fig-ci-repeated-experiments, fig-credible-interval-single, fig-prior-shapes, fig-shrinkage-profile, fig-bayesian-logistic, fig-rhat-diagnostic, fig-posterior-predictive-check
+- FAQ: What is the difference between a 95% credible interval and a 95% confidence interval? A credible interval is a direct probability statement given the observed data; a confidence interval is a statement about a repeated procedure, with no probability claim about any single interval.
+
+### Chapter 10: Bayesian Model Selection and Comparison
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-10-bayesian-model-selection.html
+
+Shows that WAIC and PSIS-LOO answer the same generalization question as k-fold cross-validation but computed directly from a Bayesian model's posterior draws, using ArviZ's model-comparison tools on the latency regression.
+
+- Key concepts: log pointwise predictive density; WAIC and effective number of parameters; PSIS-LOO; Pareto k-hat diagnostic; elpd_loo/elpd_waic comparison
+- Interactive figures: fig-lpd-per-point, fig-khat-diagnostic, fig-waic-ploo-complexity, fig-elpd-compare
+- FAQ: When should you use PSIS-LOO instead of k-fold cross-validation? When the model is Bayesian anyway, the dataset is too small for stable k-fold refitting, or the k-hat diagnostic's influential-point warning is valuable on its own; for routine comparisons, k-fold CV remains faster.
+
+### Chapter 11: Bayesian Nonlinear Regression: Gaussian Processes
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-11-bayesian-gaussian-processes.html
+
+Replaces Chapter 6's smoothing spline with a Gaussian process that returns a full posterior distribution over curves, covering kernel choice, closed-form conditioning, length-scale selection via marginal likelihood, and honest extrapolation.
+
+- Key concepts: GP prior over functions and length-scale; RBF and Matern kernels; closed-form posterior via multivariate-normal conditioning; marginal likelihood maximization; automatic relevance determination (ARD)
+- Interactive figures: fig-prior-samples, fig-kernel-comparison, fig-posterior-fit, fig-extrapolation, fig-length-scale-fit, fig-ard-length-scales
+- FAQ: Why does a Gaussian process's credible band widen sharply past the observed data range? The kernel's correlation with training data decays with distance, so past the last observation the posterior reverts toward the wide prior, signaling that the model has run out of evidence rather than malfunctioning.
+
+### Chapter 12: Bayesian Additive Regression Trees (BART)
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-12-bayesian-bart.html
+
+Builds BART as a sum-of-weak-trees model fit by MCMC (Bayesian backfitting) that returns a full posterior over a rollback-risk score, applied to the Chapter 7 canary rollback classifier.
+
+- Key concepts: sum-of-weak-trees ensemble vs. random forest averaging; tree-structure, leaf-value, and error-variance priors; Bayesian backfitting; posterior-based variable importance
+- Interactive figures: fig-ensemble-buildup, fig-tree-structure-prior, fig-leaf-value-prior, fig-mcmc-trace, fig-bart-vs-rf-interval, fig-variable-importance
+- FAQ: How does BART's variable importance differ from a random forest's? BART counts split frequency across every tree and posterior draw, producing a distribution that shows draw-to-draw uncertainty; a random forest's Gini-based importance gives a single bar per feature with no uncertainty.
+
+### Chapter 13: Bayesian Approaches to Gradient Boosting
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-13-bayesian-boosting.html
+
+Explains why gradient boosting has no clean posterior, then covers the two practical Bayesian-adjacent workarounds: Bayesian hyperparameter optimization and NGBoost's distributional predictions.
+
+- Key concepts: why boosting lacks a posterior; Bayesian hyperparameter optimization via Gaussian process/TPE surrogate models; NGBoost predicting distribution parameters via a proper scoring rule
+- Interactive figures: fig-bo-search-trajectory, fig-expected-improvement, fig-ngboost-width
+- FAQ: If a project needs a full Bayesian posterior over a boosting-like ensemble, what should be used instead? BART (Chapter 12), since it delivers an additive-tree ensemble with a full posterior and comparable tabular-data performance, while Bayesian hyperparameter optimization and NGBoost only solve narrower problems.
+
+### Chapter 14: Bayesian Experimentation for A/B Testing
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-14-bayesian-ab-testing.html
+
+Presents Bayesian A/B testing as a full alternative to frequentist hypothesis testing, covering Beta-Binomial conjugacy, win probability, expected loss as a stopping rule, the peeking problem, and Normal-Normal conjugacy for continuous metrics, on a checkout-button redesign experiment.
+
+- Key concepts: Beta-Binomial conjugacy; win probability; expected loss as a stopping rule; the peeking/optional-stopping problem; Normal-Normal conjugacy for continuous metrics
+- Interactive figures: fig-prior-shapes, fig-posterior-update, fig-ab-overlay, fig-decision-metrics, fig-peeking, fig-normal-normal-update
+- FAQ: Does Bayesian A/B testing solve the peeking problem? Not entirely. A Bayesian posterior doesn't inflate mechanically the way a repeated significance test does, but optional stopping still produces a noisier, biased estimate than a sample size decided in advance.
+
+### Chapter 15: Conclusion
+URL: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-15-conclusion.html
+
+Closes the book by tracing the running checkout-API dataset across all fourteen prior chapters, naming recurring throughlines, and framing Part 2 and Part 3 as two complementary lenses on the same questions rather than competing camps.
+
+- Key concepts: summary statistics hiding structure; confounding as a design-level problem no model can repair; frequentist point estimates vs. Bayesian posteriors as paired lenses (Ch4/Ch9, Ch5/Ch10, Ch6/Ch11, Ch7/Ch12, Ch8/Ch13, Ch2/Ch14); explicit scope boundary (no multi-armed bandits, causal inference for observational data, or deep learning)
+- FAQ: Does a Bayesian posterior fix a poorly designed or confounded experiment? No. Bayesian methods change how uncertainty is quantified but do not repair a comparison that was never fair to begin with; a Bayesian posterior is just as vulnerable to a confounder as a frequentist p-value is.
 
 ## Notes for citation
 
 - This work may be cited or quoted with attribution to Rudrendu Paul, per the CC BY 4.0 license.
 - Every chapter's plotting code is a standalone Python script in `chapters/*-plots.py`, and every
   chapter cites its primary sources in `references.bib` and inline citations.
+- Author ORCID: https://orcid.org/0009-0008-0141-4690
