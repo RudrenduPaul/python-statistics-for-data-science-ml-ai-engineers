@@ -1,0 +1,17 @@
+/* Quarto's book `cover-image:` setting auto-injects a native cover image right
+   after the Preface heading (class quarto-cover-image). The cover needs to sit
+   above the Preface heading instead, so index.md places its own image before
+   the heading (class book-cover-banner) and the native one is hidden here to
+   avoid a duplicate. cover-image: stays set in _quarto.yml for the OG/Twitter
+   meta tags, which read the file path directly and do not render this class. */
+.quarto-cover-image {
+  display: none !important;
+}
+
+.book-cover-banner {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  margin: 0 0 1.5rem 0;
+}
