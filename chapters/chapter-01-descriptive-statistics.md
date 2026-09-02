@@ -60,8 +60,6 @@ variable clusters around a small number of repeated values (a request that alway
 from cache in 4 ms, for instance).
 
 ::: {#fig-mean-median}
-![mean median](../_generated/chapter-01-fig-mean-vs-median.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-mean-vs-median.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -132,8 +130,6 @@ rule, since it works well for data that is roughly symmetric and bell-shaped.
 Latency data almost never is.
 
 ::: {#fig-std-percentile}
-![std percentile](../_generated/chapter-01-fig-std-vs-percentile.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-std-vs-percentile.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -192,8 +188,6 @@ here), which makes the raw number hard to interpret on its own.
 $$r = \frac{\text{cov}(X, Y)}{\sigma_X \sigma_Y}.$$
 
 ::: {#fig-cov-corr}
-![cov corr](../_generated/chapter-01-fig-covariance-correlation.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-covariance-correlation.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -245,8 +239,6 @@ distribution is roughly symmetric.
 means more of the extreme values than a normal curve would predict, low kurtosis means fewer.
 
 ::: {#fig-skew-kurt}
-![skew kurt](../_generated/chapter-01-fig-skewness-kurtosis.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-skewness-kurtosis.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -370,8 +362,6 @@ One of the starkest illustrations of selection bias in the historical record has
 do with software.
 
 ::: {#fig-literary-digest}
-![literary digest](../_generated/chapter-01-fig-literary-digest.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-literary-digest.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -437,8 +427,6 @@ still be used. The simplest version, *mean imputation*, replaces each missing va
 mean of the observed values for that field.
 
 ::: {#fig-mean-imputation}
-![mean imputation](../_generated/chapter-01-fig-mean-imputation.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-mean-imputation.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -485,8 +473,6 @@ Each statistic in this chapter has been building toward a single warning: a patt
 holds within each group can reverse itself when the groups are combined.
 
 ::: {#fig-simpsons}
-![simpsons](../_generated/chapter-01-fig-simpsons-paradox.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-simpsons-paradox.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

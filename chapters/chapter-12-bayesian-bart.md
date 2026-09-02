@@ -23,8 +23,6 @@ The chart below approximates a step-shaped rollback-risk curve with a growing su
 trees.
 
 ::: {#fig-ensemble-buildup}
-![ensemble buildup](../_generated/chapter-bayes-bart-fig-ensemble-buildup.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-ensemble-buildup.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -78,8 +76,6 @@ The chart below plots the split probability by depth for the first of the three,
 tree-structure prior.
 
 ::: {#fig-tree-structure-prior}
-![tree structure prior](../_generated/chapter-bayes-bart-fig-tree-structure-prior.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-tree-structure-prior.html" width="100%"
         height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -169,8 +165,6 @@ The chart below simulates two independently started MCMC chains for a single lea
 parameter.
 
 ::: {#fig-mcmc-trace}
-![mcmc trace](../_generated/chapter-bayes-bart-fig-mcmc-trace.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-mcmc-trace.html" width="100%" height="480"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -243,8 +237,6 @@ The chart below compares BART's posterior mean and 94% credible interval against
 forest's point estimate, for eight held-out deployments spanning a range of canary error rates.
 
 ::: {#fig-bart-vs-rf-interval}
-![bart vs rf interval](../_generated/chapter-bayes-bart-fig-bart-vs-rf-interval.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-bart-vs-rf-interval.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -313,8 +305,6 @@ The chart below shows the same four rollback features Chapter 7 ranked, but as a
 across MCMC draws rather than a single number per feature.
 
 ::: {#fig-variable-importance}
-![variable importance](../_generated/chapter-bayes-bart-fig-variable-importance.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-variable-importance.html" width="100%" height="480"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

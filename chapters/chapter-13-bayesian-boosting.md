@@ -100,8 +100,6 @@ by which a new trial would beat the best result seen so far, under the surrogate
 posterior.
 
 ::: {#fig-bo-search-trajectory}
-![bo search trajectory](../_generated/chapter-bayes-boosting-fig-search-trajectory.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-boosting-fig-search-trajectory.html" width="100%"
         height="580" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -131,8 +129,6 @@ excellent. The second point, by contrast, is unlikely to turn out much better th
 trial found so far.
 
 ::: {#fig-expected-improvement}
-![expected improvement](../_generated/chapter-bayes-boosting-fig-expected-improvement.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-boosting-fig-expected-improvement.html" width="100%"
         height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -235,8 +231,6 @@ That geometry-aware approach turns out to matter a great deal for training stabi
 thing being predicted is a distribution's parameters rather than a single value.
 
 ::: {#fig-ngboost-width}
-![ngboost width](../_generated/chapter-bayes-boosting-fig-ngboost-width.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-boosting-fig-ngboost-width.html" width="100%"
         height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

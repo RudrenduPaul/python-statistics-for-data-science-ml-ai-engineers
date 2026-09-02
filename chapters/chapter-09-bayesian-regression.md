@@ -43,8 +43,6 @@ set by how much each one is trusted: a tight prior ($\tau_0^2$ small) pulls the 
 lot of data ($S_{xx}$ large relative to $\sigma^2$) pulls it toward $\hat\beta_1$ instead.
 
 ::: {#fig-posterior-narrowing}
-![posterior narrowing](../_generated/chapter-bayes-regression-fig-posterior-narrowing.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-posterior-narrowing.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -86,8 +84,6 @@ the good ones or one of the 5% that is too small. A 95% confidence interval is a
 about a procedure, not about this particular interval.
 
 ::: {#fig-ci-repeated-experiments}
-![ci repeated experiments](../_generated/chapter-bayes-regression-fig-ci-repeated-experiments.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-ci-repeated-experiments.html" width="100%" height="620"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -111,8 +107,6 @@ interval alone.
 A 95% credible interval claims something different and, for a single dataset, more direct.
 
 ::: {#fig-credible-interval-single}
-![credible interval single](../_generated/chapter-bayes-regression-fig-credible-interval-single.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-credible-interval-single.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -148,8 +142,6 @@ prior on each coefficient, and the Lasso is the posterior mode under an independ
 prior, citing Park and Casella's treatment of the Bayesian Lasso [@parkcasella2008].
 
 ::: {#fig-prior-shapes}
-![prior shapes](../_generated/chapter-bayes-regression-fig-prior-shapes.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-prior-shapes.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -188,8 +180,6 @@ tightening around the sampler as it explores.
 :::
 
 ::: {#fig-shrinkage-profile}
-![shrinkage profile](../_generated/chapter-bayes-regression-fig-shrinkage-profile.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-shrinkage-profile.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -296,8 +286,6 @@ differ noticeably: an equal-tailed interval always cuts the same probability fro
 regardless of the posterior's shape, while the HDI does not.
 
 ::: {#fig-bayesian-logistic}
-![bayesian logistic](../_generated/chapter-bayes-regression-fig-bayesian-logistic.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-bayesian-logistic.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -367,8 +355,6 @@ az.plot_ppc(ppc, kind="cumulative")
 ```
 
 ::: {#fig-posterior-predictive-check}
-![posterior predictive check](../_generated/chapter-bayes-regression-fig-posterior-predictive-check.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-posterior-predictive-check.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

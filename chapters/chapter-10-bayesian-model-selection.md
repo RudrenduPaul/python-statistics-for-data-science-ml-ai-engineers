@@ -21,8 +21,6 @@ checkout-API latency on payload size and concurrent-request count (the same two 
 Chapter 4 used), sorted from worst-predicted to best-predicted.
 
 ::: {#fig-lpd-per-point}
-![lpd per point](../_generated/chapter-bayes-model-selection-fig-lpd-per-point.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-model-selection-fig-lpd-per-point.html" width="100%"
         height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -100,8 +98,6 @@ The chart below runs a diagnostic this section builds toward on a version of the
 with two intentionally extreme outliers planted in it.
 
 ::: {#fig-khat-diagnostic}
-![khat diagnostic](../_generated/chapter-bayes-model-selection-fig-khat-diagnostic.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-model-selection-fig-khat-diagnostic.html" width="100%"
         height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -170,8 +166,6 @@ The chart below fits three versions of the latency model and compares training l
 against elpd_waic and elpd_loo for each.
 
 ::: {#fig-waic-ploo-complexity}
-![waic ploo complexity](../_generated/chapter-bayes-model-selection-fig-waic-ploo-complexity.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-model-selection-fig-waic-ploo-complexity.html"
         width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;"

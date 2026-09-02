@@ -45,8 +45,6 @@ Roughly speaking, the theorem takes a starting belief and reshapes it in light o
 just observed.
 
 ::: {#fig-bayes}
-![bayes](../_generated/chapter-03-fig-bayes-base-rate.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-bayes-base-rate.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -134,8 +132,6 @@ collector pauses). Sums of many small independent effects tend toward normal, th
 the Central Limit Theorem formalizes later in this chapter.
 
 ::: {#fig-normal-rule}
-![normal rule](../_generated/chapter-03-fig-normal-empirical-rule.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-normal-empirical-rule.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -223,8 +219,6 @@ probability of any one specific order, gives the total probability of ending up 
 successes, no matter which trials they land on.
 
 ::: {#fig-binomial-conversions}
-![binomial conversions](../_generated/chapter-03-fig-binomial-conversions.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-binomial-conversions.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -264,8 +258,6 @@ given a fixed per-trial success probability $p$:
 $$f(x) = p (1-p)^{x-1} \quad \text{for } x = 1, 2, 3, \dots$$
 
 ::: {#fig-geometric}
-![geometric](../_generated/chapter-03-fig-geometric-retries.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-geometric-retries.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -298,8 +290,6 @@ known average rate $\lambda$:
 $$f(x) = \frac{\lambda^x e^{-\lambda}}{x!} \quad \text{for } x = 0, 1, 2, \dots$$
 
 ::: {#fig-poisson}
-![poisson](../_generated/chapter-03-fig-poisson-shape.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-poisson-shape.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -385,8 +375,6 @@ of the sample mean approaches normal, regardless of the shape of the population 
 drawn from.
 
 ::: {#fig-clt}
-![clt](../_generated/chapter-03-fig-clt-simulation.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-clt-simulation.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -436,8 +424,6 @@ people, and pairs grow quadratically.
 Those 23 people produce 253 distinct pairs, each an independent chance of a match.
 
 ::: {#fig-birthday}
-![birthday](../_generated/chapter-03-fig-birthday-collision.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-03-fig-birthday-collision.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

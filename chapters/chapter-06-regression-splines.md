@@ -32,8 +32,6 @@ its capacity: mean latency grows roughly in proportion to $1 / (1 - \rho)$, wher
 utilization, the ratio of incoming load to the service's processing capacity.
 
 ::: {#fig-linear-misfit}
-![linear misfit](../_generated/chapter-splines-fig-linear-misfit.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-linear-misfit.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -69,8 +67,6 @@ curve.
 ## Polynomial regression and its instability at the edges
 
 ::: {#fig-poly-degree}
-![poly degree](../_generated/chapter-splines-fig-poly-degree.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-poly-degree.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -113,8 +109,6 @@ the Runge phenomenon shows up first.
 ## Basis functions: the idea underneath every fix in this chapter
 
 ::: {#fig-basis-functions}
-![basis functions](../_generated/chapter-splines-fig-basis-functions.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-basis-functions.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -169,8 +163,6 @@ the way a change to a degree-9 polynomial's coefficients does.
 ## Regression splines: piecewise polynomials joined at knots
 
 ::: {#fig-knot-count}
-![knot count](../_generated/chapter-splines-fig-knot-count.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-knot-count.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -239,8 +231,6 @@ specifically to prevent that failure mode.
 ## Smoothing splines: a penalty instead of a knot count
 
 ::: {#fig-smoothing-lambda}
-![smoothing lambda](../_generated/chapter-splines-fig-smoothing-lambda.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-smoothing-lambda.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -308,8 +298,6 @@ Conditioning that prior on the observed load-latency pairs produces a posterior 
 over functions, with a posterior mean curve that looks similar to a smoothing spline fit.
 
 ::: {#fig-gp-posterior}
-![gp posterior](../_generated/chapter-splines-fig-gp-posterior.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-splines-fig-gp-posterior.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

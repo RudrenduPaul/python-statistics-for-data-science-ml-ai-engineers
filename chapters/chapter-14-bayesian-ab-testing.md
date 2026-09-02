@@ -66,8 +66,6 @@ An *informative prior* goes further still, behaving like thousands of pseudo-obs
 concentrated tightly around a known rate.
 
 ::: {#fig-prior-shapes}
-![prior shapes](../_generated/chapter-05-fig-beta-prior-shapes.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-beta-prior-shapes.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -120,8 +118,6 @@ No integral, no simulation, and no specialized software are required. This is
 is tractable by hand.
 
 ::: {#fig-posterior-update}
-![posterior update](../_generated/chapter-05-fig-posterior-update.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-posterior-update.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -151,8 +147,6 @@ An experiment needs two posteriors, one per variant, computed the same way and c
 directly.
 
 ::: {#fig-ab-overlay}
-![ab overlay](../_generated/chapter-05-fig-posteriors-ab-overlay.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-posteriors-ab-overlay.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -223,8 +217,6 @@ to keep watching, not to ship.
 :::
 
 ::: {#fig-decision-metrics}
-![decision metrics](../_generated/chapter-05-fig-decision-metrics.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-decision-metrics.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -271,8 +263,6 @@ roughly triple the error rate.
 :::
 
 ::: {#fig-peeking}
-![peeking](../_generated/chapter-05-fig-peeking-problem.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-peeking-problem.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

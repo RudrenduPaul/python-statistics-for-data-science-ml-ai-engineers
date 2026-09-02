@@ -45,8 +45,6 @@ gap between each observed latency and the value the line predicts for that reque
 size.
 
 ::: {#fig-ols}
-![ols](../_generated/chapter-04-fig-ols-fit.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-ols-fit.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -98,8 +96,6 @@ observation, which is wider because it accounts for both the uncertainty in esti
 and the natural variability of any single request around that mean.
 
 ::: {#fig-ci-pi}
-![ci pi](../_generated/chapter-04-fig-ci-vs-pi.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-ci-vs-pi.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -150,8 +146,6 @@ Suppose the team wants to model the probability that a request times out as a fu
 concurrent load on the service.
 
 ::: {#fig-logistic}
-![logistic](../_generated/chapter-04-fig-logistic-timeout.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-logistic-timeout.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -202,8 +196,6 @@ term $(1 - R^2)$ enough to counteract R-squared's automatic rise; a predictor th
 reduce unexplained variance now pulls adjusted R-squared down instead of leaving it unchanged.
 
 ::: {#fig-r2}
-![r2](../_generated/chapter-04-fig-r2-vs-adjusted.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-r2-vs-adjusted.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -253,8 +245,6 @@ outcome, is not a meaningful comparison, even though the two numbers can be plac
 :::
 
 ::: {#fig-aic-bic}
-![aic bic](../_generated/chapter-04-fig-aic-bic.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-aic-bic.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -336,8 +326,6 @@ The practical difference between Lasso and Ridge shows up clearly once several c
 predictors are in the model together.
 
 ::: {#fig-regularization}
-![regularization](../_generated/chapter-04-fig-regularization-paths.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-regularization-paths.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -422,8 +410,6 @@ regularization strength $\lambda$ in both formulas is the precision of the prior
 that prior clusters around zero before any data arrives.
 
 ::: {#fig-bayesian-ridge}
-![bayesian ridge](../_generated/chapter-04-fig-bayesian-ridge.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

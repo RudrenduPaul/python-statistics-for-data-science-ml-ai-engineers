@@ -100,8 +100,6 @@ a liability.
 :::
 
 ::: {#fig-split-criteria}
-![split criteria](../_generated/chapter-trees-fig-split-criteria.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-split-criteria.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -166,8 +164,6 @@ Nothing stops recursive binary splitting on its own; left unchecked, it keeps gr
 until its fit looks like the figure below.
 
 ::: {#fig-tree-overfitting}
-![tree overfitting](../_generated/chapter-trees-fig-tree-overfitting.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-tree-overfitting.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -229,8 +225,6 @@ structure.
 :::
 
 ::: {#fig-tree-instability}
-![tree instability](../_generated/chapter-trees-fig-tree-instability.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-tree-instability.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -304,8 +298,6 @@ tune, and hand-picking $m$ rarely beats the default by much.
 :::
 
 ::: {#fig-oob-error}
-![oob error](../_generated/chapter-trees-fig-oob-error.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-oob-error.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -366,8 +358,6 @@ high-scoring one.
 :::
 
 ::: {#fig-variable-importance}
-![variable importance](../_generated/chapter-trees-fig-variable-importance.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-variable-importance.html" width="100%" height="480"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -465,8 +455,6 @@ needs a human look before acting on it, even when the point estimate looks confi
 :::
 
 ::: {#fig-bart-vs-rf}
-![bart vs rf](../_generated/chapter-trees-fig-bart-vs-rf.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-trees-fig-bart-vs-rf.html" width="100%" height="480"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

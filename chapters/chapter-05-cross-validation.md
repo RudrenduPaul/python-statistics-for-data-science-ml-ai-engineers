@@ -26,8 +26,6 @@ This chapter works through four questions that come up whenever a model has a kn
 ## Why training error is the wrong yardstick
 
 ::: {#fig-train-test-error}
-![train test error](../_generated/chapter-cv-fig-train-vs-test-error.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-cv-fig-train-vs-test-error.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -136,8 +134,6 @@ LOOCV is the special case where $k$ equals $n$; a single validation split is the
 where $k$ equals 2 and the split happens only once instead of $k$ times.
 
 ::: {#fig-validation-variance}
-![validation variance](../_generated/chapter-cv-fig-validation-strategy-variance.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-cv-fig-validation-strategy-variance.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -185,8 +181,6 @@ worth checking by hand rather than defaulting to $k=10$ automatically.
 ## Cross-validation for model selection: picking lambda
 
 ::: {#fig-lambda-selection}
-![lambda selection](../_generated/chapter-cv-fig-lambda-selection.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-cv-fig-lambda-selection.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -296,8 +290,6 @@ model's posterior assigns higher probability, on average, to data it did not tra
 direct Bayesian counterpart to a lower cross-validated mean squared error.
 
 ::: {#fig-elpd-by-complexity}
-![elpd by complexity](../_generated/chapter-cv-fig-elpd-by-complexity.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-cv-fig-elpd-by-complexity.html" width="100%" height="520"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

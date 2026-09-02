@@ -29,8 +29,6 @@ The chart below draws five functions from a Gaussian process prior with a square
 (RBF) kernel, at four different length-scale settings.
 
 ::: {#fig-prior-samples}
-![prior samples](../_generated/chapter-bayes-gp-fig-prior-samples.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-gp-fig-prior-samples.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -77,8 +75,6 @@ length-scale, so the smoothness assumption each one encodes is visible directly 
 described in the abstract.
 
 ::: {#fig-kernel-comparison}
-![kernel comparison](../_generated/chapter-bayes-gp-fig-kernel-comparison.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-gp-fig-kernel-comparison.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -142,8 +138,6 @@ The chart below fits this same model to the concurrent-load-versus-latency data 
 at growing sample sizes.
 
 ::: {#fig-posterior-fit}
-![posterior fit](../_generated/chapter-bayes-gp-fig-posterior-fit.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-gp-fig-posterior-fit.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -213,8 +207,6 @@ model to load data that never exceeded 75% utilization, then extends the predict
 97%.
 
 ::: {#fig-extrapolation}
-![extrapolation](../_generated/chapter-bayes-gp-fig-extrapolation.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-gp-fig-extrapolation.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -260,8 +252,6 @@ interval, there is now one at every point along the curve.
 The chart below holds the length-scale fixed instead of letting the optimizer choose it.
 
 ::: {#fig-length-scale-fit}
-![length scale fit](../_generated/chapter-bayes-gp-fig-length-scale-fit.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-bayes-gp-fig-length-scale-fit.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

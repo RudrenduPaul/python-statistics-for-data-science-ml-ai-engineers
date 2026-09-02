@@ -99,8 +99,6 @@ sample, which the Z-test simply ignores.
 :::
 
 ::: {#fig-t-vs-normal}
-![t vs normal](../_generated/chapter-02-fig-t-vs-normal.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-02-fig-t-vs-normal.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -190,8 +188,6 @@ default.
 :::
 
 ::: {#fig-error-tradeoff}
-![error tradeoff](../_generated/chapter-02-fig-type1-type2.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-02-fig-type1-type2.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -233,8 +229,6 @@ Power depends on four things: sample size, the significance level $\alpha$, the 
 effect being tested for, and the variability of the data.
 
 ::: {#fig-power-curve}
-![power curve](../_generated/chapter-02-fig-power-curve.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-02-fig-power-curve.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -376,8 +370,6 @@ each group:
 $$F = \frac{\text{variance between groups}}{\text{variance within groups}}$$
 
 ::: {#fig-anova-between-within}
-![anova between within](../_generated/chapter-02-fig-anova-between-within.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-02-fig-anova-between-within.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -558,8 +550,6 @@ than their means. The **Kruskal-Wallis test** extends the same idea to three or 
 the non-parametric counterpart to ANOVA.
 
 ::: {#fig-nonparametric}
-![nonparametric](../_generated/chapter-02-fig-parametric-vs-nonparametric.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-02-fig-parametric-vs-nonparametric.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>

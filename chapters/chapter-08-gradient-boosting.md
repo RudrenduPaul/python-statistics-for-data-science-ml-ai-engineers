@@ -60,8 +60,6 @@ prediction crossed a decision threshold. The mechanism stays the same across los
 each tree is a small step in the direction that most reduces the loss.
 
 ::: {#fig-boosting-rounds}
-![boosting rounds](../_generated/chapter-boosting-fig-boosting-rounds.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-boosting-rounds.html" width="100%" height="540"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -91,8 +89,6 @@ same fit, but the resulting ensemble generalizes better because no single tree i
 overcorrect.
 
 ::: {#fig-shrinkage-early-stopping}
-![shrinkage early stopping](../_generated/chapter-boosting-fig-shrinkage-early-stopping.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-shrinkage-early-stopping.html" width="100%"
         height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -208,8 +204,6 @@ A leaf-wise tree instead always splits whichever leaf, anywhere in the tree, wou
 the most, regardless of the resulting tree's shape.
 
 ::: {#fig-leafwise-vs-levelwise}
-![leafwise vs levelwise](../_generated/chapter-boosting-fig-leafwise-vs-levelwise.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-leafwise-vs-levelwise.html" width="100%"
         height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -252,8 +246,6 @@ same way.
 ## Random forest, gradient boosting, or LightGBM
 
 ::: {#fig-model-comparison-size}
-![model comparison size](../_generated/chapter-boosting-fig-model-comparison-size.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-model-comparison-size.html" width="100%"
         height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -318,8 +310,6 @@ This balances exploration of unfamiliar regions against exploitation of regions 
 promising so far.
 
 ::: {#fig-gp-hyperparameter-search}
-![gp hyperparameter search](../_generated/chapter-boosting-fig-gp-hyperparameter-search.png)
-
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-gp-hyperparameter-search.html" width="100%"
         height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
