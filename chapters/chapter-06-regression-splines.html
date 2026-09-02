@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -441,7 +441,7 @@ Tip
 <iframe src="../_generated/chapter-splines-fig-poly-degree.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poly-degree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.2: The fit improves through degree 3 or 4, tracking the saturation curve closely, then starts oscillating near the high-load boundary as degree keeps rising: the Runge phenomenon in practice, worst in precisely the region an operator cares about most.
+Figure&nbsp;6.2: The fit improves through degree 4 to 6, tracking the saturation curve closely, then starts wobbling through the middle of the range and swinging near the high-load boundary as degree keeps rising: the Runge phenomenon in practice, worst in precisely the region an operator cares about most.
 </figcaption>
 </figure>
 </div>
@@ -451,7 +451,7 @@ Figure&nbsp;6.2: The fit improves through degree 3 or 4, tracking the saturation
 <p>It is natural to expect that adding still more degree terms should only improve the fit further. Surprisingly, that is not what happens.</p>
 <p>As the polynomial degree rises, the fitted curve starts to oscillate wildly near the boundaries of the data, even while fitting the interior points almost perfectly. This is known as the Runge phenomenon, after Carl Runge’s 1901 demonstration that interpolating a smooth function at evenly spaced points with a high-degree polynomial can diverge near the edges of the interval.</p>
 <p>That divergence happens even though the underlying function itself is well-behaved <span class="citation" data-cites="runge1901">(<a href="chapter-01-descriptive-statistics.html#ref-runge1901" role="doc-biblioref">Runge 1901</a>)</span>.</p>
-<p><a href="#fig-poly-degree" class="quarto-xref">Figure&nbsp;<span>6.2</span></a> fits polynomials of increasing degree to the load-latency data and shows this directly: degree 3 or 4 tracks the saturation curve reasonably well, but by degree 9 or 10 the fitted curve swings above and below the true relationship near the high-load edge, the region an operator cares about most.</p>
+<p><a href="#fig-poly-degree" class="quarto-xref">Figure&nbsp;<span>6.2</span></a> fits polynomials of increasing degree to a small sample of the load-latency data and shows this directly: degree 4 to 6 tracks the saturation curve reasonably well, but by degree 14 the fitted curve is chasing individual points, swinging above and below the true relationship through the middle of the range and again near the high-load edge, the region an operator cares about most. A small sample size makes the swings easier to see; the same instability is present with more data, just harder to spot at a glance.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -483,6 +483,19 @@ Figure&nbsp;6.3: The polynomial basis grows without bound and covers the whole r
 <p><span class="math display">\[Y = \beta_0 + \beta_1 b_1(X) + \beta_2 b_2(X) + \dots + \beta_K b_K(X) + \varepsilon.\]</span></p>
 <p>A polynomial regression is the special case where <span class="math inline">\(b_k(X) = X^k\)</span>. A <em>step function</em> is the special case where each <span class="math inline">\(b_k(X)\)</span> is an indicator variable for whether <span class="math inline">\(X\)</span> falls in a particular range, for instance whether concurrent load falls between 60% and 70% of capacity.</p>
 <p>Step functions are easy to interpret and immune to the boundary instability polynomials show, since each region is fit independently. But they produce a fitted curve with hard jumps at every cut point, not the smooth saturation curve the underlying queueing behavior has.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Step functions fit best when the underlying relationship has a true jump, a pricing tier or a rate limit that kicks in above a threshold. Forcing hard edges onto a smooth process like queueing latency trades away the shape the data has.</p>
+</div>
+</div>
 <p>A regression spline’s own basis functions, covered next, are a third option: instead of a global power series or a set of hard-edged boxes, each one is a smooth bump that is nonzero over only part of the range, what mathematicians call its support.</p>
 <p><a href="#fig-basis-functions" class="quarto-xref">Figure&nbsp;<span>6.3</span></a> plots the individual basis functions for each family side by side: the raw ingredients that go into a fit, separate from the fitted curve they eventually produce.</p>
 <p>The right choice of basis functions is what separates a fit that tracks the data’s shape from one that merely bends in its general direction.</p>
@@ -540,6 +553,17 @@ Tip
 <p>A cubic regression spline is still a cubic polynomial in its two outermost regions, which means it inherits some of the same boundary instability polynomials show, particularly if the last knot sits close to the edge of the observed data.</p>
 <p>A <em>natural cubic spline</em> adds one more constraint: the function must be linear, not merely cubic, beyond the two boundary knots. This trades a small amount of flexibility at the extremes for a curve that behaves predictably when extrapolating.</p>
 <p>That matters directly here, since the highest-load observations in any given hour of traffic are the region where the next hour’s traffic might land slightly beyond what has been observed so far.</p>
+<div id="fig-natural-boundary" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-natural-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-splines-fig-natural-boundary.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-natural-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.5: Both curves are fit to the same knots and agree everywhere the data covers. Past the last knot, the unconstrained cubic spline keeps curving on its own terms; the natural cubic spline continues in a straight line instead, matching the value and slope it held at the boundary.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-natural-boundary" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> fits both curves to load-latency data cut off at a utilization of 0.85, standing in for a fitting run that has not yet seen the busiest traffic, then extends both past that cutoff. They track each other up to the last knot, since both interpolate the same four points; past it, the unconstrained spline is free to keep bending however the shape of its last piece dictates, while the natural spline holds to the straight line implied by its boundary condition. Neither is a substitute for more data. The natural spline is simply the more conservative choice for the region beyond it.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -562,7 +586,7 @@ Important
 <iframe src="../_generated/chapter-splines-fig-smoothing-lambda.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-smoothing-lambda-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.5: A small lambda produces a wiggly curve that chases individual points, and a large lambda flattens the fit back toward a straight line, recovering something close to the OLS fit that opened this chapter.
+Figure&nbsp;6.6: A small lambda produces a wiggly curve that chases individual points, and a large lambda flattens the fit back toward a straight line, recovering something close to the OLS fit that opened this chapter.
 </figcaption>
 </figure>
 </div>
@@ -571,7 +595,7 @@ Figure&nbsp;6.5: A small lambda produces a wiggly curve that chases individual p
 <p><span class="math display">\[\sum_{i=1}^{n} (y_i - f(x_i))^2 + \lambda \int f''(t)^2 \, dt\]</span></p>
 <p>where the first term is the usual sum of squared errors and the second term penalizes how much the fitted function curves, since a large second derivative means the function is bending sharply.</p>
 <p>This is the same idea Chapter 4 used for Lasso and Ridge regression: a tuning parameter <span class="math inline">\(\lambda\)</span> trades fit against complexity, except here the penalty targets the curvature of an entire function rather than the size of a fixed set of coefficients.</p>
-<p><a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> shows the smoothing spline at several values of <span class="math inline">\(\lambda\)</span>, tracing the path from near-interpolation of every point at small <span class="math inline">\(\lambda\)</span> to a nearly straight line at large <span class="math inline">\(\lambda\)</span>.</p>
+<p><a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows the smoothing spline at several values of <span class="math inline">\(\lambda\)</span>, tracing the path from near-interpolation of every point at small <span class="math inline">\(\lambda\)</span> to a nearly straight line at large <span class="math inline">\(\lambda\)</span>.</p>
 <p>Recall from Chapter 5’s discussion of cross-validation that a tuning parameter like <span class="math inline">\(\lambda\)</span> should not be picked by eye. In practice, <span class="math inline">\(\lambda\)</span> is chosen the same way the regularization strength for Lasso or Ridge was chosen: by cross-validating over a range of candidate values and picking the one that minimizes estimated test error, not training error.</p>
 </section>
 <section id="a-bayesian-perspective" class="level2" data-number="6.7">
@@ -582,6 +606,19 @@ Figure&nbsp;6.5: A small lambda produces a wiggly curve that chases individual p
 <p>A Gaussian process defines a prior distribution not over parameters, as in Chapter 4’s Bayesian linear regression, but directly over functions: before seeing any data, the model treats every smooth function consistent with a chosen <em>kernel</em> as plausible.</p>
 <p>The kernel encodes assumptions like how quickly the function is allowed to change <span class="citation" data-cites="rasmussenwilliams2006">(<a href="chapter-01-descriptive-statistics.html#ref-rasmussenwilliams2006" role="doc-biblioref">Rasmussen and Williams 2006</a>)</span>.</p>
 <p>The most common choice, the squared-exponential kernel, has a single <em>length-scale</em> parameter that plays much the same role as a smoothing spline’s <span class="math inline">\(\lambda\)</span>: a short length-scale allows the function to bend quickly across small changes in load, a long length-scale forces it to change slowly.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Gaussian process’s length-scale is a tuning parameter, not a value to set by eye. Cross-validate it against held-out load-latency pairs the same way Chapter 5 cross-validated <span class="math inline">\(\lambda\)</span> for the smoothing spline.</p>
+</div>
+</div>
 <p>Conditioning that prior on the observed load-latency pairs produces a posterior distribution over functions, with a posterior mean curve that looks similar to a smoothing spline fit.</p>
 <div id="fig-gp-posterior" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -589,12 +626,12 @@ Figure&nbsp;6.5: A small lambda produces a wiggly curve that chases individual p
 <iframe src="../_generated/chapter-splines-fig-gp-posterior.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.6: The credible band widens noticeably at the high-load edge, where observations are sparser, an honest signal that the model is least certain in the region that matters most, something a single fitted spline curve cannot say about itself.
+Figure&nbsp;6.7: The credible band widens noticeably at the high-load edge, where observations are sparser, an honest signal that the model is least certain in the region that matters most, something a single fitted spline curve cannot say about itself.
 </figcaption>
 </figure>
 </div>
 <p>That posterior also provides something the smoothing spline does not offer on its own: a credible band around the curve at every load level, wide where data is sparse or noisy and narrow where the model has seen consistent evidence.</p>
-<p><a href="#fig-gp-posterior" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows a Gaussian process fit to the load-latency data at several length-scales, with the 95% credible band shaded around the posterior mean. Watch what happens at the high-load edge: the band widens, right where a single fitted spline curve would stay quiet about its own uncertainty.</p>
+<p><a href="#fig-gp-posterior" class="quarto-xref">Figure&nbsp;<span>6.7</span></a> shows a Gaussian process fit to the load-latency data at several length-scales, with the 95% credible band shaded around the posterior mean. Watch what happens at the high-load edge: the band widens, right where a single fitted spline curve would stay quiet about its own uncertainty.</p>
 <p>The credible band is not free. A Gaussian process’s computational cost grows roughly with the cube of the number of observations, since fitting one requires inverting an <span class="math inline">\(n \times n\)</span> matrix.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

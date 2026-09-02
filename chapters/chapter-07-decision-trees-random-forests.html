@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -367,9 +367,10 @@ window.Quarto = {
   <li><a href="#bagging-bootstrap-aggregation" id="toc-bagging-bootstrap-aggregation" class="nav-link" data-scroll-target="#bagging-bootstrap-aggregation"><span class="header-section-number">7.6</span> Bagging: bootstrap aggregation</a></li>
   <li><a href="#random-forests-decorrelating-trees-with-random-feature-selection" id="toc-random-forests-decorrelating-trees-with-random-feature-selection" class="nav-link" data-scroll-target="#random-forests-decorrelating-trees-with-random-feature-selection"><span class="header-section-number">7.7</span> Random forests: decorrelating trees with random feature selection</a></li>
   <li><a href="#out-of-bag-error-estimation" id="toc-out-of-bag-error-estimation" class="nav-link" data-scroll-target="#out-of-bag-error-estimation"><span class="header-section-number">7.8</span> Out-of-bag error estimation</a></li>
-  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance"><span class="header-section-number">7.9</span> Variable importance</a></li>
-  <li><a href="#when-to-reach-for-a-single-tree-a-forest-or-boosting" id="toc-when-to-reach-for-a-single-tree-a-forest-or-boosting" class="nav-link" data-scroll-target="#when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.10</span> When to reach for a single tree, a forest, or boosting</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">7.11</span> A Bayesian perspective</a></li>
+  <li><a href="#evaluating-a-classifier-precision-recall-and-the-roc-curve" id="toc-evaluating-a-classifier-precision-recall-and-the-roc-curve" class="nav-link" data-scroll-target="#evaluating-a-classifier-precision-recall-and-the-roc-curve"><span class="header-section-number">7.9</span> Evaluating a classifier: precision, recall, and the ROC curve</a></li>
+  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance"><span class="header-section-number">7.10</span> Variable importance</a></li>
+  <li><a href="#when-to-reach-for-a-single-tree-a-forest-or-boosting" id="toc-when-to-reach-for-a-single-tree-a-forest-or-boosting" class="nav-link" data-scroll-target="#when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.11</span> When to reach for a single tree, a forest, or boosting</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">7.12</span> A Bayesian perspective</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -408,6 +409,19 @@ window.Quarto = {
 <p>Working a small version of this same idea concretely: suppose eight historical rollbacks have durations of 2, 3, 3, 4, 9, 10, 11, and 12 minutes. A candidate split on canary error rate above versus at or below 3% sorts the first four into one region and the last four into the other.</p>
 <p>Measured against the overall mean of 6.75 minutes, the unsplit RSS is 119.5. After the split, region <span class="math inline">\(R_1\)</span>’s mean is 3.0 and region <span class="math inline">\(R_2\)</span>’s mean is 10.5, and RSS drops to 7.0. That drop from 119.5 to 7.0 is the kind of signal recursive binary splitting looks for: the algorithm searches every predictor and every threshold, then keeps whichever candidate split shrinks RSS the most.</p>
 <p>This is a <em>greedy</em> algorithm: at each step, it picks the best split available right then, without looking ahead to see whether a different split now would enable a better split later. That greediness is also what makes trees fast to fit, since the alternative, searching every possible sequence of splits jointly, is computationally out of reach for anything but a tiny dataset.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recursive binary splitting never reconsiders a split once made. A split that looks mediocre now but would have opened up a much better split two levels down is never tried, since the algorithm only ever asks which split helps most right away.</p>
+</div>
+</div>
 </section>
 <section id="classification-trees-gini-index-entropy-and-error-rate" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="classification-trees-gini-index-entropy-and-error-rate"><span class="header-section-number">7.2</span> Classification trees: Gini index, entropy, and error rate</h2>
@@ -492,6 +506,17 @@ Tip
 <p>Rather than stopping the tree early using an ad hoc rule (which risks stopping just before a split that would have paid off later), the standard approach grows the tree as large as reasonably possible, then prunes it back.</p>
 <p>Pruning selects a sequence of subtrees indexed by a complexity parameter <span class="math inline">\(\alpha\)</span> that penalizes the number of terminal nodes (each terminal node, also called a leaf, is one of the regions like <span class="math inline">\(R_1\)</span> and <span class="math inline">\(R_2\)</span> from the earlier regression-tree example).</p>
 <p>Cross-validation (the previous chapter’s subject) then picks the value of <span class="math inline">\(\alpha\)</span>, and therefore the tree size, that minimizes estimated test error.</p>
+<div id="fig-pruning-path" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pruning-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-trees-fig-pruning-path.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pruning-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.3: Five-fold cross-validated error against the cost-complexity parameter <span class="math inline">\(\alpha\)</span> for a regression tree. Error stays fairly flat while <span class="math inline">\(\alpha\)</span> is small, bottoms out at the marked value, then climbs sharply once the penalty starts trimming leaves the data still needed.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-pruning-path" class="quarto-xref">Figure&nbsp;<span>7.3</span></a> is that search made visible. Small <span class="math inline">\(\alpha\)</span> barely penalizes extra leaves, so the tree stays close to its fully grown, high-variance size and cross-validated error stays close to its worst level. Past the marked <span class="math inline">\(\alpha\)</span>, the penalty starts removing splits the data supports, and error climbs, sharply once too few leaves are left to capture the underlying shape. The marked point is not a fixed rule of thumb; it comes from evaluating this particular tree on this particular dataset, which is why cross-validation, not a guessed leaf count, is what selects it.</p>
 </section>
 <section id="why-a-single-tree-has-high-variance" class="level2" data-number="7.5">
 <h2 data-number="7.5" class="anchored" data-anchor-id="why-a-single-tree-has-high-variance"><span class="header-section-number">7.5</span> Why a single tree has high variance</h2>
@@ -516,11 +541,11 @@ Warning
 <iframe src="../_generated/chapter-trees-fig-tree-instability.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree-instability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.3: Six depth-3 trees fit on six bootstrap resamples of the same underlying data. Every tree sees data drawn from the same distribution; no two trees agree on where to place their splits.
+Figure&nbsp;7.4: Six depth-3 trees fit on six bootstrap resamples of the same underlying data. Every tree sees data drawn from the same distribution; no two trees agree on where to place their splits.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-tree-instability" class="quarto-xref">Figure&nbsp;<span>7.3</span></a> makes the claim concrete rather than asserted. Each colored line is a tree of the same depth, fit on a random resample of the same 60 observations. The trees mostly agree on the broad shape, but disagree by a full unit or more on where each step happens and how tall it is, particularly in the busiest region of the data between <span class="math inline">\(x = 0\)</span> and <span class="math inline">\(x = 2\)</span>.</p>
+<p><a href="#fig-tree-instability" class="quarto-xref">Figure&nbsp;<span>7.4</span></a> makes the claim concrete rather than asserted. Each colored line is a tree of the same depth, fit on a random resample of the same 60 observations. The trees mostly agree on the broad shape, but disagree by a full unit or more on where each step happens and how tall it is, particularly in the busiest region of the data between <span class="math inline">\(x = 0\)</span> and <span class="math inline">\(x = 2\)</span>.</p>
 <p>Average enough of these disagreeing trees together, weighting each one equally, and the individual disagreements cancel out far more than any one tree’s error does, which is the entire mechanism bagging exploits next.</p>
 </section>
 <section id="bagging-bootstrap-aggregation" class="level2" data-number="7.6">
@@ -568,11 +593,11 @@ Tip
 <iframe src="../_generated/chapter-trees-fig-oob-error.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-oob-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.4: Out-of-bag error for the rollback classifier falls sharply in the first handful of trees, then flattens around 34% by roughly 25 trees. Adding trees past that point costs training time, not accuracy.
+Figure&nbsp;7.5: Out-of-bag error for the rollback classifier falls sharply in the first handful of trees, then flattens around 34% by roughly 25 trees. Adding trees past that point costs training time, not accuracy.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-oob-error" class="quarto-xref">Figure&nbsp;<span>7.4</span></a> shows out-of-bag error (defined next) falling and then flattening as more trees are added to the forest. Note that adding more trees past that flattening point does not increase overfitting risk the way growing a single tree deeper does; it mainly costs training time. Random forests are far more forgiving to tune than a single pruned tree.</p>
+<p><a href="#fig-oob-error" class="quarto-xref">Figure&nbsp;<span>7.5</span></a> shows out-of-bag error (defined next) falling and then flattening as more trees are added to the forest. Note that adding more trees past that flattening point does not increase overfitting risk the way growing a single tree deeper does; it mainly costs training time. Random forests are far more forgiving to tune than a single pruned tree.</p>
 </section>
 <section id="out-of-bag-error-estimation" class="level2" data-number="7.8">
 <h2 data-number="7.8" class="anchored" data-anchor-id="out-of-bag-error-estimation"><span class="header-section-number">7.8</span> Out-of-bag error estimation</h2>
@@ -580,10 +605,92 @@ Figure&nbsp;7.4: Out-of-bag error for the rollback classifier falls sharply in t
 0.368\)</span> as the sample size grows). Those left-out observations are called <em>out-of-bag</em> (OOB) for that particular tree.</p>
 <p>Since the tree never saw them during training, predicting on them is a legitimate estimate of test error, computed for free as a byproduct of fitting the forest rather than requiring a held-out validation set or a cross-validation loop.</p>
 <p>For the rollback forest, OOB error settles around 34% after a couple dozen trees. That number comes for free, without touching a separate validation set.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>OOB error is only a fair stand-in for test error when bootstrap resampling matches how the model will see new data going forward. If deployment behavior drifts across quarters, an OOB estimate computed on an older training set can look fine while the forest is stale.</p>
+</div>
+</div>
 <p>A 1-in-3 error rate is not something to fully automate on its own. It is cheap enough to recompute every time the model retrains, which makes it a useful early warning: a sudden jump in OOB error after a retrain is a signal worth investigating before trusting the forest’s rollback calls again.</p>
 </section>
-<section id="variable-importance" class="level2" data-number="7.9">
-<h2 data-number="7.9" class="anchored" data-anchor-id="variable-importance"><span class="header-section-number">7.9</span> Variable importance</h2>
+<section id="evaluating-a-classifier-precision-recall-and-the-roc-curve" class="level2" data-number="7.9">
+<h2 data-number="7.9" class="anchored" data-anchor-id="evaluating-a-classifier-precision-recall-and-the-roc-curve"><span class="header-section-number">7.9</span> Evaluating a classifier: precision, recall, and the ROC curve</h2>
+<p>The out-of-bag error above collapses the rollback classifier’s whole performance into one number, roughly 34% wrong. That single figure treats every mistake as the same size, but the two ways a classifier can be wrong are not equally costly. Missing a deployment that truly needed a rollback (a <em>false negative</em>) lets a bad release reach the rest of the fleet. Flagging a deployment that was fine (a <em>false positive</em>) delays a release for nothing. A metric that folds both into one error rate cannot tell a team which kind of mistake the model is making.</p>
+<p>A <em>confusion matrix</em> keeps the two kinds of mistakes separate. It cross-tabulates every prediction against what happened, in a 2x2 grid: how many rollback deployments the model correctly flagged (true positives, TP), how many it missed (false negatives, FN), how many healthy deployments it wrongly flagged (false positives, FP), and how many it correctly left alone (true negatives, TN).</p>
+<p>Suppose the rollback classifier is checked against 200 held-out canary deployments, of which 20 needed a rollback and 180 did not, a class split close to what a healthy deployment pipeline should look like. The classifier catches 16 of the 20 true rollbacks (TP = 16, FN = 4) and wrongly flags 18 of the 180 healthy deployments (FP = 18, TN = 162).</p>
+<p><em>Precision</em> asks: of every deployment the model flagged, how many needed a rollback?</p>
+<p><span class="math display">\[\text{Precision} = \frac{TP}{TP + FP} = \frac{16}{16 + 18} = 0.47\]</span></p>
+<p>Under half the flagged deployments turn out to need a rollback. Every flag costs an engineer’s time to review, so low precision means a team spends most of that review time on deployments that were never a problem.</p>
+<p><em>Recall</em> (also called sensitivity or the true positive rate) asks a different question: of every deployment that truly needed a rollback, how many did the model catch?</p>
+<p><span class="math display">\[\text{Recall} = \frac{TP}{TP + FN} = \frac{16}{16 + 4} = 0.80\]</span></p>
+<p>The model catches 80% of the deployments that needed a rollback and lets the remaining 20% through. Precision and recall pull in opposite directions: flagging more deployments to raise recall means flagging more borderline cases too, which drags precision down, and the reverse holds for tightening the flag to raise precision.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chasing precision and recall separately never settles which threshold is best; a stakeholder still has to decide which mistake, a missed rollback or a wasted review, costs more. Precision and recall describe the trade-off. They do not resolve it.</p>
+</div>
+</div>
+<p><em>F1 score</em> summarizes the trade-off in one number, the harmonic mean of precision and recall:</p>
+<p><span class="math display">\[F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} = 2 \times \frac{0.47 \times 0.80}{0.47 + 0.80} \approx 0.59\]</span></p>
+<p>The harmonic mean punishes a lopsided score more than a plain average would: a model with precision 0.9 and recall 0.1 averages to 0.5 but F1-scores closer to 0.18, because a model that almost never flags anything is not a useful rollback classifier no matter how clean its few flags are.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Accuracy on this same held-out set is <span class="math inline">\((16 + 162) / 200 = 89\%\)</span>, which sounds close to good. A classifier that predicted “no rollback” for every single deployment, doing no work at all, would score <span class="math inline">\(180 / 200 = 90\%\)</span>: higher than the model that is catching four out of five true rollbacks. On an imbalanced dataset like this one, where most deployments never need a rollback, accuracy rewards the model for agreeing with the majority class and says almost nothing about whether it catches the rare, costly case. Precision, recall, and F1 do not carry that blind spot, since each one is computed against the minority class directly.</p>
+</div>
+</div>
+<div id="fig-confusion-threshold" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-trees-fig-confusion-threshold.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.6: The confusion matrix, precision/recall/F1, and the ROC curve for the rollback classifier as the classification threshold moves. Lowering the threshold catches more true rollbacks and trades away precision; raising it does the opposite. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-confusion-threshold" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> ties the two views together on a single held-out set. The classifier does not output “rollback” or “no rollback” directly; it outputs a predicted probability, and a <em>threshold</em> turns that probability into a decision. The rollback numbers worked by hand above used a threshold of 0.5, but nothing forces that choice. Drag the slider down toward 0.1 and the model flags almost every deployment with any elevated risk at all: the confusion matrix’s false positive count climbs, precision falls, and recall climbs toward 1.0. Drag it up toward 0.9 and the opposite happens: the model only flags deployments it is highly confident about, precision climbs, and recall falls as more true rollbacks slip through unflagged.</p>
+<p>The third panel plots the same sweep a different way. A <em>ROC curve</em> (receiver operating characteristic, a name left over from its origin in World War II radar signal detection) plots the true positive rate against the false positive rate at every possible threshold, tracing out one continuous curve instead of a single point.</p>
+<p>A model with no signal at all traces the diagonal line, since raising the threshold in a coin-flip model raises both rates by the same amount. A model worth deploying bows up and to the left of that diagonal, meaning it can raise its true positive rate while keeping the false positive rate low.</p>
+<p><em>AUC</em> (area under that curve) compresses the whole curve into one number between 0.5 (no better than a coin flip) and 1.0 (perfect separation). AUC has a plain-language reading that does not require picking a threshold at all: it is the probability that the model ranks a randomly chosen rollback deployment above a randomly chosen healthy one. An AUC of 0.85, for instance, means that roughly nine times out of ten, a true rollback deployment gets a higher predicted risk score than a healthy deployment picked at random.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Precision, recall, and F1 all depend on picking a threshold first, then judging the model on that one operating point. AUC judges the model’s ranking across every threshold at once, which is the right lens when a threshold has not been chosen yet, for instance while comparing candidate models before committing to a production cutoff. Once a threshold is fixed, for instance because engineering review capacity puts a hard cap on how many deployments can be flagged per day, precision, recall, and F1 at that specific threshold matter more than the model’s AUC across thresholds it will never operate at.</p>
+</div>
+</div>
+<p>Putting the guidance in one place: reach for precision, recall, or F1 over plain accuracy the moment one class is rare relative to the other, which describes most of the production classification problems this book’s methods get applied to. Reach for AUC when comparing models before a threshold is set, or when the cost of a false positive and a false negative are close enough that no single threshold is an obviously correct default. Reach for a fixed-threshold metric once the threshold is locked in by a concrete operational constraint, since AUC alone cannot tell a team whether the threshold it ended up choosing is a good one.</p>
+</section>
+<section id="variable-importance" class="level2" data-number="7.10">
+<h2 data-number="7.10" class="anchored" data-anchor-id="variable-importance"><span class="header-section-number">7.10</span> Variable importance</h2>
 <p>A single decision tree is easy to read directly: trace the path from root to leaf. A forest of several hundred trees is not, which is the trade-off random forests make for their lower-variance predictions.</p>
 <p><em>Variable importance</em> recovers some of that lost interpretability. For each predictor, it measures the total decrease in RSS (regression) or Gini index (classification) produced by splits on that predictor, summed across every tree in the forest and averaged.</p>
 <p>This measure is a rough ranking, not a precise decomposition of credit. A predictor with many candidate split thresholds gets more chances to turn up a locally good split than one with few distinct values, which can inflate its importance for reasons unrelated to how much it drives the outcome.</p>
@@ -607,15 +714,15 @@ Warning
 <iframe src="../_generated/chapter-trees-fig-variable-importance.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.5: Variable importance for the rollback classifier: canary error rate dominates, but the other three features carry measurable signal too.
+Figure&nbsp;7.7: Variable importance for the rollback classifier: canary error rate dominates, but the other three features carry measurable signal too.
 </figcaption>
 </figure>
 </div>
-<p><a href="chapter-12-bayesian-bart.html#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.5</span></a> ranks the four rollback features by importance. Canary error rate dominates, which matches intuition.</p>
+<p><a href="chapter-12-bayesian-bart.html#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.6</span></a> ranks the four rollback features by importance. Canary error rate dominates, which matches intuition.</p>
 <p>But service dependency count carries more signal than hour of day, a finding worth acting on: a deployment touching many downstream services is meaningfully riskier at a given error rate than a deployment with few dependencies. That is the kind of interaction a human reviewer skimming a dashboard of raw error rates would likely miss.</p>
 </section>
-<section id="when-to-reach-for-a-single-tree-a-forest-or-boosting" class="level2" data-number="7.10">
-<h2 data-number="7.10" class="anchored" data-anchor-id="when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.10</span> When to reach for a single tree, a forest, or boosting</h2>
+<section id="when-to-reach-for-a-single-tree-a-forest-or-boosting" class="level2" data-number="7.11">
+<h2 data-number="7.11" class="anchored" data-anchor-id="when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.11</span> When to reach for a single tree, a forest, or boosting</h2>
 <p>Four different tree-based tools have appeared across this chapter, and it is worth being explicit about when each earns its place, since defaulting to the fanciest available option is its own kind of mistake.</p>
 <p>A single pruned tree is the right choice when the audience for the model needs to see the reasoning behind a prediction, not just trust a number. A compliance reviewer asking why a particular deployment was auto-rolled-back wants an answer like “canary error rate exceeded 2% and the deployment touched more than 6 downstream services,” which only a small, interpretable tree delivers directly. A 400-tree forest cannot be read that way at all.</p>
 <p>A random forest is the right default for most production prediction problems where accuracy matters more than a fully traceable explanation. It trains fast, tunes with almost no effort (the number of trees and the number of features sampled per split are close to the only knobs), and gives OOB error and variable importance essentially for free.</p>
@@ -623,8 +730,8 @@ Figure&nbsp;7.5: Variable importance for the rollback classifier: canary error r
 <p>Gradient boosting, the subject of the next chapter, usually edges out a random forest on raw predictive accuracy on structured, tabular data like this one, at the cost of being more sensitive to hyperparameter choices and slower to reason about informally. It fits trees sequentially, each one correcting the errors of the ensemble built so far, rather than fitting many independent trees in parallel the way bagging and random forests do.</p>
 <p>BART is worth the added compute specifically when a wrong prediction is costly enough that the team needs to know how much to trust each individual prediction, not just the aggregate error rate. An automated rollback system with no human review is a much stronger candidate for BART’s credible intervals, the per-prediction uncertainty ranges the next section works through, than a dashboard a human glances at before making the final call.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="7.11">
-<h2 data-number="7.11" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">7.11</span> A Bayesian perspective</h2>
+<section id="a-bayesian-perspective" class="level2" data-number="7.12">
+<h2 data-number="7.12" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">7.12</span> A Bayesian perspective</h2>
 <p>Picture asking a group of cautious forecasters for a prediction, where no single one is allowed to move the answer far from where the group started. Their small, careful adjustments add up to both a final guess and a sense of how much the group agrees, which is what BART delivers below.</p>
 <p>Random forests give a point prediction and, through OOB error, a rough sense of how often the forest is wrong overall. <em>Bayesian Additive Regression Trees</em> (BART), introduced by Chipman, George, and McCulloch, go further and treat the sum of trees itself as the object of Bayesian inference rather than a black box averaged after the fact. That produces a full uncertainty interval around each individual prediction <span class="citation" data-cites="chipman2010bart">(<a href="chapter-01-descriptive-statistics.html#ref-chipman2010bart" role="doc-biblioref">Chipman, George, and McCulloch 2010</a>)</span>.</p>
 <p>That interval tends to be well calibrated in practice, but calibration is not automatic: it depends on the priors chosen for tree structure and leaf values and on the MCMC chain having converged, the kind of check Chapter 9 introduces for diagnosing a model fit by MCMC.</p>
@@ -652,11 +759,11 @@ Note
 <iframe src="../_generated/chapter-trees-fig-bart-vs-rf.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bart-vs-rf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.6: A random forest’s point predictions next to BART’s posterior mean and credible interval for the same eight deployments. BART’s interval width is not constant: it flags which predictions rest on thin evidence.
+Figure&nbsp;7.8: A random forest’s point predictions next to BART’s posterior mean and credible interval for the same eight deployments. BART’s interval width is not constant: it flags which predictions rest on thin evidence.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-bart-vs-rf" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> lines the two models up on the same eight held-out deployments. The point predictions mostly agree, but BART’s credible intervals are not the same width from deployment to deployment: the model is honest about which predictions rest on thin evidence and which ones it can stand behind.</p>
+<p><a href="#fig-bart-vs-rf" class="quarto-xref">Figure&nbsp;<span>7.8</span></a> lines the two models up on the same eight held-out deployments. The point predictions mostly agree, but BART’s credible intervals are not the same width from deployment to deployment: the model is honest about which predictions rest on thin evidence and which ones it can stand behind.</p>
 <p>The trade-off is computational. Fitting a random forest of several hundred trees is fast and trivially parallel across trees; fitting BART requires running an MCMC chain to convergence, which is slower and does not parallelize the same way, since each MCMC iteration depends on the last.</p>
 <p>For the rollback classifier, a random forest retrained nightly on the latest deployment data is a reasonable production choice. BART is worth reaching for when the cost of an overconfident prediction, not just an incorrect one, is high enough to justify the extra compute, for instance when the rollback decision feeds directly into an automated action with no human in the loop.</p>
 </section>

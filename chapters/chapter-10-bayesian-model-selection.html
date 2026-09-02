@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -489,6 +489,19 @@ Figure&nbsp;10.2: Pareto k-hat per observation on a dataset with two planted out
 <p>Leave-one-out testing is like practicing free throws: take one shot out of ten, guess whether you’d make it based on the other nine, then check. Doing that literally, refitting a whole model once per data point, is too slow. PSIS-LOO is a shortcut that gets nearly the same answer without refitting anything.</p>
 <p>WAIC works well in most everyday cases but degrades when a model is close to misspecified or when a handful of observations wield outsized influence on the fit.</p>
 <p><em>Pareto-smoothed importance sampling leave-one-out cross-validation</em> (PSIS-LOO) is the alternative Vehtari, Gelman, and Gabry (2017) built to answer the same question with better guarantees. It is the default <code>arviz.loo()</code> computes <span class="citation" data-cites="vehtarigelmangabry2017 kumar2019arviz">(<a href="chapter-01-descriptive-statistics.html#ref-vehtarigelmangabry2017" role="doc-biblioref">Vehtari, Gelman, and Gabry 2017</a>; <a href="chapter-01-descriptive-statistics.html#ref-kumar2019arviz" role="doc-biblioref">Kumar et al. 2019</a>)</span>.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Default to PSIS-LOO over WAIC in practice. <code>az.compare()</code> uses it as the default measure, and PSIS-LOO’s <span class="math inline">\(\hat{k}\)</span> diagnostic flags the influential-point and near-misspecification failures that leave WAIC’s number looking fine when it should not.</p>
+</div>
+</div>
 <p>The idea starts from a shortcut. Literally leaving out one observation, refitting, and repeating <span class="math inline">\(n\)</span> times is precisely as expensive for a Bayesian model as LOOCV was for the linear models in Chapter 5. PSIS-LOO instead reuses the posterior draws from the single full-data fit, reweighting them to approximate what a leave-one-out posterior would have looked like.</p>
 <p>The importance weight for observation <span class="math inline">\(i\)</span> under draw <span class="math inline">\(s\)</span> is proportional to <span class="math inline">\(1/p(y_i \mid
 \theta_s)\)</span>: a draw that explained <span class="math inline">\(y_i\)</span> well needs little adjustment to stand in for the leave-one-out posterior, and a draw that explained <span class="math inline">\(y_i\)</span> poorly needs a much larger adjustment.</p>
@@ -577,6 +590,19 @@ Tip
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"payload_concurrent"</span>: idata_payload_concurrent,</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"payload_concurrent_noise"</span>: idata_payload_concurrent_noise,</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>noise_feature</code> is not a parameter of <code>fit_latency_model</code>; it works only because Python resolves it as a free variable from the enclosing scope when <code>use_noise=True</code> runs. Reuse this pattern in your own code only after passing the array in explicitly, or a <code>NameError</code> is one refactor away.</p>
+</div>
+</div>
 <p>Running the equivalent computation directly from posterior draws (the approach this chapter’s figures use, to keep every number reproducible without an MCMC sampler) on 80 simulated requests produces the table <code>az.compare()</code> would print:</p>
 <table class="caption-top table">
 <thead>
@@ -612,6 +638,17 @@ Tip
 </tr>
 </tbody>
 </table>
+<div id="fig-elpd-compare" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-elpd-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-model-selection-fig-elpd-compare.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-elpd-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.4: The same three models plotted by elpd_loo with a standard-error bar around each point, best model first. <code>payload_concurrent</code> and <code>payload_concurrent_noise</code> overlap heavily; <code>payload_only</code> sits far enough left that its error bar never comes close to the other two.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-elpd-compare" class="quarto-xref">Figure&nbsp;<span>10.4</span></a> puts the table’s first three columns on an axis: each point is a model’s elpd_loo, and the horizontal bar through it is one standard error in each direction. The overlap between the top two error bars is the same “well within noise” story the <code>d_elpd</code>/<code>dSE</code> columns tell numerically; the gap between those two and <code>payload_only</code>’s bar is the same seven-standard- error separation, visible directly rather than computed from the table.</p>
 <p>Read the last two columns first: <code>d_elpd</code> is the gap between each model’s elpd_loo and the best model’s, and <code>dSE</code> is the standard error on that specific gap. That is a different quantity from the plain <code>SE</code> column, which is the standard error of each model’s own elpd_loo estimate considered on its own, with no reference to any other model in the table.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">

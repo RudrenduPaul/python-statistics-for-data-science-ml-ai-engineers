@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -589,6 +589,19 @@ Figure&nbsp;9.5: Shrinkage applied by Ridge, Lasso, and the horseshoe prior, as 
 <p>That 94% is ArviZ’s own default width, not the 95% used earlier in this chapter; the two are different conventions, not different results for the same quantity.</p>
 <p>It is also a different kind of interval: a <em>highest-density interval</em> (HDI) is the narrowest range that contains the stated probability, rather than the equal-tailed interval computed by hand for the conjugate Gaussian posterior earlier in this chapter.</p>
 <p>For a symmetric posterior like that one, the two nearly coincide. For a skewed posterior they can differ noticeably: an equal-tailed interval always cuts the same probability from each tail regardless of the posterior’s shape, while the HDI does not.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For a symmetric, unimodal posterior it rarely matters which interval type gets reported. For a skewed or multimodal one, prefer the HDI: an equal-tailed interval can exclude the single most probable value if enough posterior mass sits in one tail.</p>
+</div>
+</div>
 <div id="fig-bayesian-logistic" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayesian-logistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -607,7 +620,31 @@ Figure&nbsp;9.6: Posterior for the timeout-probability logistic coefficient, at 
 <p>Unlike the conjugate Gaussian case earlier in this chapter, <code>pm.sample</code> gives no guarantee its draws represent the posterior correctly. MCMC can fail quietly: a chain can get stuck in one region of the parameter space, or several chains can wander off and never agree with each other. Either way, the output still looks like a normal set of posterior draws unless it is checked.</p>
 <p>Two numbers from <code>az.summary</code> catch most of these failures before they reach a report. Picture four friends separately guessing the outdoor temperature, then comparing notes: similar guesses mean the average is trustworthy, but one friend far off from the rest is a warning sign.</p>
 <p><span class="math inline">\(\hat{R}\)</span> works on that same logic: it compares the variance within each of the four chains to the variance across all four, and a value above 1.01 means the chains have not mixed and have not converged on the same distribution.</p>
+<div id="fig-rhat-diagnostic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rhat-diagnostic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-rhat-diagnostic.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rhat-diagnostic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.7: Four simulated MCMC chains for one parameter. Well-mixed, all four land on the same distribution and <span class="math inline">\(\hat{R}\)</span> stays near 1.00; poorly-mixed, one chain gets stuck near a different value for the whole run and <span class="math inline">\(\hat{R}\)</span> climbs well past the 1.01 warning line.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-rhat-diagnostic" class="quarto-xref">Figure&nbsp;<span>9.7</span></a> makes the “four friends guessing a temperature” analogy concrete: the well-mixed view shows four chains started from different values converging onto the same band and staying there, the pattern behind an <span class="math inline">\(\hat{R}\)</span> near 1.00. The poorly-mixed view keeps that same setup except one chain never leaves the region it started in, and <span class="math inline">\(\hat{R}\)</span> rises well above the 1.01 line as a direct consequence, since the variance across chains dwarfs the variance within any single one of them.</p>
 <p><code>ess_bulk</code>, the effective sample size, estimates how many independent draws the correlated MCMC samples are worth; an effective sample size under a few hundred, even with thousands of raw draws, means the posterior summary is noisier than it looks.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A good <span class="math inline">\(\hat{R}\)</span> does not guarantee a good <code>ess_bulk</code>: chains can agree with each other on average while each one is still highly autocorrelated internally. Check both diagnostics before trusting a posterior summary, not just the one that happens to look reassuring.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -638,11 +675,11 @@ Warning
 <iframe src="../_generated/chapter-bayes-regression-fig-posterior-predictive-check.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-predictive-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9.7: Observed latency against data simulated from the fitted model’s posterior, under two different noise assumptions. Only the log-normal assumption reproduces the observed right tail.
+Figure&nbsp;9.8: Observed latency against data simulated from the fitted model’s posterior, under two different noise assumptions. Only the log-normal assumption reproduces the observed right tail.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-posterior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.7</span></a> runs this check on a regression model for latency itself rather than the timeout classifier, comparing two different assumptions about the noise term.</p>
+<p><a href="#fig-posterior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.8</span></a> runs this check on a regression model for latency itself rather than the timeout classifier, comparing two different assumptions about the noise term.</p>
 <p>The first assumes <span class="math inline">\(\varepsilon\)</span> is normally distributed, the default behind both OLS and the conjugate Gaussian posterior used earlier in this chapter. The second draws <span class="math inline">\(\varepsilon\)</span> from a distribution matching the log-normal noise Chapter 1 established for this data.</p>
 <p>Under the Gaussian-noise assumption, the simulated draws spread symmetrically around the fitted line and undershoot the right tail the observed data has. Recall from Chapter 1 that checkout-API latency is right-skewed by construction, a hard floor near zero and an unbounded upside; a symmetric noise model cannot reproduce that shape no matter how its variance is tuned.</p>
 <p>Switching the noise assumption to match the log-normal shape closes the gap in the tail. That is the kind of mismatch a posterior predictive check exists to catch before a model with a wrong noise assumption gets used to set an alerting threshold or a service-level objective.</p>

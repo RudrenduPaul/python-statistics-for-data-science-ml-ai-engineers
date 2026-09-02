@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -531,6 +531,19 @@ Figure&nbsp;5.3: Cross-validated error traces a U-shape in lambda: the minimum m
 <p>Return to the question this chapter opened with: what value of <span class="math inline">\(\lambda\)</span> should the latency model’s Lasso penalty use? <a href="#fig-lambda-selection" class="quarto-xref">Figure&nbsp;<span>5.3</span></a> answers it directly, computing k-fold cross-validated error across a range of <span class="math inline">\(\lambda\)</span> values for the same latency model, with a toggle between <span class="math inline">\(k=3\)</span> and <span class="math inline">\(k=10\)</span>.</p>
 <p>The curve is U-shaped for the same reason <a href="#fig-train-test-error" class="quarto-xref">Figure&nbsp;<span>5.1</span></a> was: too small a <span class="math inline">\(\lambda\)</span> barely regularizes the model at all, leaving it free to fit noise the way an unregularized OLS fit would; too large a <span class="math inline">\(\lambda\)</span> shrinks every coefficient toward zero so aggressively that the model underfits, losing useful signal along with the noise.</p>
 <p>The <span class="math inline">\(\lambda\)</span> at the bottom of the curve is the value cross-validation recommends. Switching the toggle from <span class="math inline">\(k=3\)</span> to <span class="math inline">\(k=10\)</span> shows the curve firming up.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The cross-validated error at that minimum is not a fair estimate of the selected model’s performance on new data, because the same folds that picked <span class="math inline">\(\lambda\)</span> also scored it. Reporting a final performance number requires a further split, or nested cross-validation, that never touched the folds used to choose <span class="math inline">\(\lambda\)</span>.</p>
+</div>
+</div>
 <p>With only 3 folds, each fold’s error estimate rests on a smaller, noisier training set, so the curve’s minimum can shift meaningfully from one run to the next. That instability stabilizes as <span class="math inline">\(k\)</span> grows.</p>
 <p>This same procedure, sweeping a candidate value and picking the one with the lowest cross-validated error, generalizes far past <span class="math inline">\(\lambda\)</span>: choosing a polynomial’s degree, a smoothing parameter, or the number of trees in a forest are all the same search, applied to a different knob.</p>
 </section>
@@ -578,6 +591,19 @@ Important
 <p>Refitting a Bayesian model <span class="math inline">\(n\)</span> times, once per left-out observation, is every bit as expensive as classical LOOCV, and just as impractical for anything but small datasets.</p>
 <p>Vehtari, Gelman, and Gabry (2017) addressed this with Pareto smoothed importance sampling (PSIS), a technique that approximates each leave-one-out fit from the posterior draws of the single full-data fit, avoiding the need to refit the model at all in most cases <span class="citation" data-cites="vehtarigelmangabry2017">(<a href="chapter-01-descriptive-statistics.html#ref-vehtarigelmangabry2017" role="doc-biblioref">Vehtari, Gelman, and Gabry 2017</a>)</span>.</p>
 <p>The approximation is not reliable by default when a handful of observations wield an unusually large influence on the fit. The method’s own diagnostic, a Pareto shape-parameter estimate called Pareto-k, flags those cases directly, and an observation whose k value crosses the paper’s threshold needs a direct refit rather than a trusted PSIS estimate.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Check the Pareto-k diagnostic before trusting a PSIS-LOO result. A shape-parameter value above the paper’s threshold means the approximation for that observation cannot be relied on, and the fix is a direct refit for that point rather than the PSIS shortcut.</p>
+</div>
+</div>
 <p>The resulting number is the <em>expected log predictive density</em> (ELPD): a higher value means the model’s posterior assigns higher probability, on average, to data it did not train on, the direct Bayesian counterpart to a lower cross-validated mean squared error.</p>
 <div id="fig-elpd-by-complexity" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">

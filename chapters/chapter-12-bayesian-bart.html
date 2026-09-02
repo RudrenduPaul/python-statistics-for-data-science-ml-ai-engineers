@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -482,8 +482,32 @@ Figure&nbsp;12.2: The x-axis is node depth and the y-axis is the probability a n
 <p>The <em>tree-structure prior</em> favors shallow trees. Formally, the probability that a given node splits further decays as the node gets deeper in the tree, so most trees in the ensemble stay two or three levels deep. This is the prior that keeps any single tree from carving out a narrow, high-variance region of the feature space and memorizing it.</p>
 <p><a href="#fig-tree-structure-prior" class="quarto-xref">Figure&nbsp;<span>12.2</span></a> plots that split probability at the slider’s starting penalty of beta=1: a root node splits with near certainty (0.95), and by depth 3 that probability has fallen under one-in-four.</p>
 <p>Drag the slider toward beta=2, the value BART’s default hyperparameters use later in this section, and the same depth-3 probability drops under one-in-ten instead.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The slider above starts at beta=1 for a clearer visual, not because that is what pymc-bart uses by default. Its own default is beta=2, the steeper-decay curve mentioned a paragraph up, so don’t mistake the beta=1 curve for the shape a default BART fit grows.</p>
+</div>
+</div>
 <p>The <em>leaf-value prior</em> is a Normal distribution centered at zero with a small variance, placed on the value each leaf predicts. Because that variance is small, no leaf is allowed to swing far from zero on its own; a leaf’s contribution to the final prediction is meant to be a small nudge, not a decisive vote.</p>
 <p>The variance is chosen so that, roughly, the sum of all the trees’ contributions covers the plausible range of the outcome. That is why adding more trees to the ensemble (each contributing a smaller expected nudge) does not blow up the total prediction the way adding more unconstrained trees would.</p>
+<div id="fig-leaf-value-prior" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-leaf-value-prior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-bart-fig-leaf-value-prior.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-leaf-value-prior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: The x-axis is the value a single leaf can predict and the y-axis is prior density. At ten trees, the position shown here, the prior is wide enough that one leaf can plausibly swing the prediction by several tenths on its own. Dragging the slider toward two hundred trees pulls that same density into a sharp spike within a few hundredths of zero: with two hundred leaves each contributing a nudge, none of them needs to (or is allowed to) carry much weight alone.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-leaf-value-prior" class="quarto-xref">Figure&nbsp;<span>12.3</span></a> makes that scaling concrete: the peak at ten trees sits under 3, while the peak at two hundred trees rises past 11, all while the area under each curve still integrates to 1. A wider ensemble does not mean a wilder one; it means every member of it is individually quieter.</p>
 <p>The <em>error-variance prior</em> governs how much unexplained noise the model expects in the outcome itself, playing the same role a residual-variance term plays in ordinary regression. It lets the model calibrate how tightly its posterior predictive interval should hug the fitted curve.</p>
 <p>Together, these three priors are the entire regularization mechanism. There is no separate cost-complexity pruning step, no cross-validated depth parameter to select the way Chapter 7’s single decision tree needed one. The priors do that job continuously, as part of fitting the model rather than after it.</p>
 <p>Chipman, George, and McCulloch’s original paper settled on default values for four hyperparameters: the tree-depth penalty (<span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>), the leaf-value prior scale (<span class="math inline">\(k\)</span>), and the number of trees (<span class="math inline">\(m\)</span>). Most implementations, <code>pymc-bart</code> included, still match the paper’s defaults for the first three.</p>
@@ -515,7 +539,7 @@ Note
 <iframe src="../_generated/chapter-bayes-bart-fig-mcmc-trace.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mcmc-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.3: The x-axis is MCMC iteration and the y-axis is the sampled value of one leaf-value parameter. Chain 1 (blue) and chain 2 (orange) trace out somewhat independent peaks and dips through the first few hundred iterations, then increasingly move step for step with each other later in the run, both staying inside roughly the same 0.15-to-0.6 band throughout. Drag the slider to discard the early iterations and keep only the well-mixed tail, the pattern a converged parameter is supposed to show.
+Figure&nbsp;12.4: The x-axis is MCMC iteration and the y-axis is the sampled value of one leaf-value parameter. Chain 1 (blue) and chain 2 (orange) trace out somewhat independent peaks and dips through the first few hundred iterations, then increasingly move step for step with each other later in the run, both staying inside roughly the same 0.15-to-0.6 band throughout. Drag the slider to discard the early iterations and keep only the well-mixed tail, the pattern a converged parameter is supposed to show.
 </figcaption>
 </figure>
 </div>
@@ -528,7 +552,7 @@ Figure&nbsp;12.3: The x-axis is MCMC iteration and the y-axis is the sampled val
 <p>This is structurally similar to how gradient boosting fits each new tree to the residual left by the trees fit so far, with two differences that matter. First, gradient boosting fits each tree once, greedily, and moves on, while Bayesian backfitting revisits every tree at every iteration, proposing changes and sometimes rejecting them.</p>
 <p>Second, gradient boosting searches for a single best ensemble, while Bayesian backfitting samples from a posterior distribution over the whole ensemble instead.</p>
 <p>Running this for several thousand iterations, after discarding an initial burn-in period where the chain has not yet settled into the posterior’s typical region, produces a set of posterior samples: complete sum-of-trees models, each one a plausible explanation of the training data under the prior.</p>
-<p><a href="#fig-mcmc-trace" class="quarto-xref">Figure&nbsp;<span>12.3</span></a> shows what a convergence check looks like for one parameter deep inside the model: two independently started chains, wandering during burn-in, then settling into overlapping variation around the same value.</p>
+<p><a href="#fig-mcmc-trace" class="quarto-xref">Figure&nbsp;<span>12.4</span></a> shows what a convergence check looks like for one parameter deep inside the model: two independently started chains, wandering during burn-in, then settling into overlapping variation around the same value.</p>
 <p>A full BART fit checks this kind of diagnostic (typically via the R-hat statistic, which compares between-chain and within-chain variance) across many parameters before trusting the posterior samples.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -553,7 +577,7 @@ Tip
 <iframe src="../_generated/chapter-bayes-bart-fig-bart-vs-rf-interval.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bart-vs-rf-interval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.4: The x-axis lists eight held-out deployments, sorted by BART’s posterior mean; the y-axis is predicted rollback probability. Random forest point estimates (orange diamonds) and BART posterior means (blue circles) sit close together at every deployment. Credible-interval width varies more than the point estimates do: the five lowest-probability deployments carry intervals reaching from 0 up to roughly 0.4-0.5, wider in absolute terms than deployment 4’s interval, the deployment with the highest predicted risk.
+Figure&nbsp;12.5: The x-axis lists eight held-out deployments, sorted by BART’s posterior mean; the y-axis is predicted rollback probability. Random forest point estimates (orange diamonds) and BART posterior means (blue circles) sit close together at every deployment. Credible-interval width varies more than the point estimates do: the five lowest-probability deployments carry intervals reaching from 0 up to roughly 0.4-0.5, wider in absolute terms than deployment 4’s interval, the deployment with the highest predicted risk.
 </figcaption>
 </figure>
 </div>
@@ -567,8 +591,21 @@ Figure&nbsp;12.4: The x-axis lists eight held-out deployments, sorted by BART’
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    rollback <span class="op">=</span> pm.Bernoulli(<span class="st">"rollback"</span>, p<span class="op">=</span>p, observed<span class="op">=</span>y_train)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    idata <span class="op">=</span> pm.sample(<span class="dv">2000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>X_train</code> here is the same four-column feature matrix Chapter 7 used (canary error rate, payload size, hour of day, service dependency count). <code>m=100</code> sets the number of trees in the sum; the PyMC-BART documentation reports good results in the 50-to-200 range for problems like this one, with fewer trees useful mainly for faster iteration while developing the model.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>tune=1000</code> argument above is not wasted work: PyMC uses those iterations to adapt the sampler, then drops them from <code>idata</code> automatically, so the burn-in this chapter’s MCMC trace figure shows by hand happens before the posterior samples in <code>idata</code> are ever inspected.</p>
+</div>
+</div>
 <p>Once <code>idata</code> holds the posterior samples, <code>pm.sample_posterior_predictive()</code> produces a posterior predictive distribution for any new deployment, from which a credible interval follows directly by taking percentiles across the posterior draws.</p>
-<p><code>arviz</code>, paired with PyMC throughout this book’s Bayesian chapters, is the standard tool for checking convergence diagnostics on the result before trusting it. <a href="#fig-bart-vs-rf-interval" class="quarto-xref">Figure&nbsp;<span>12.4</span></a> compares that posterior against the random forest’s point estimate for eight held-out deployments.</p>
+<p><code>arviz</code>, paired with PyMC throughout this book’s Bayesian chapters, is the standard tool for checking convergence diagnostics on the result before trusting it. <a href="#fig-bart-vs-rf-interval" class="quarto-xref">Figure&nbsp;<span>12.5</span></a> compares that posterior against the random forest’s point estimate for eight held-out deployments.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -595,14 +632,14 @@ Note
 <iframe src="../_generated/chapter-bayes-bart-fig-variable-importance.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.5: The x-axis lists the four predictors and the y-axis is the share of MCMC-sampled splits that use each one. Canary error rate’s whole box sits above roughly 0.45, dominating by a wide margin and matching the random forest’s Gini-based ranking from Chapter 7. The remaining three predictors show overlapping ranges rather than one clean ranking, which the single-bar Gini chart in Chapter 7 could not show.
+Figure&nbsp;12.6: The x-axis lists the four predictors and the y-axis is the share of MCMC-sampled splits that use each one. Canary error rate’s whole box sits above roughly 0.45, dominating by a wide margin and matching the random forest’s Gini-based ranking from Chapter 7. The remaining three predictors show overlapping ranges rather than one clean ranking, which the single-bar Gini chart in Chapter 7 could not show.
 </figcaption>
 </figure>
 </div>
 <p>Chapter 7’s random forest measured variable importance by the total decrease in the Gini index attributable to each predictor, summed across every tree.</p>
 <p>BART’s analog uses the posterior directly: <code>pymc-bart</code> provides <code>pmb.plot_variable_importance</code>, which counts how often each predictor gets chosen for a split, across every tree and every posterior draw, and reports the proportion.</p>
 <p>A predictor that rarely gets split on, across thousands of posterior samples, is one the data does not support leaning on. A slower but more thorough alternative built into the same library, <code>method="backward"</code>, measures importance by how much predictive performance drops when a variable is removed and the model is refit, one variable at a time.</p>
-<p><a href="#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.5</span></a> shows canary error rate dominating in both chapters’ analyses, which is a useful cross-check. Two different importance mechanisms, a Gini-based one and a posterior-split-count one, agree on the ranking, which is stronger evidence that the ranking reflects something in the data rather than an artifact of either method.</p>
+<p><a href="#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.6</span></a> shows canary error rate dominating in both chapters’ analyses, which is a useful cross-check. Two different importance mechanisms, a Gini-based one and a posterior-split-count one, agree on the ranking, which is stronger evidence that the ranking reflects something in the data rather than an artifact of either method.</p>
 <p>The box plots here also show something the random forest’s single bar chart cannot: how much the posterior itself disagrees, draw to draw, about how important service dependency count is relative to payload size.</p>
 <p>That disagreement is smaller than the uncertainty around any individual prediction, but it does not disappear.</p>
 <div class="callout callout-style-default callout-tip callout-titled">

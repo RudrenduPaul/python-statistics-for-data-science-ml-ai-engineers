@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -492,6 +492,19 @@ Figure&nbsp;13.2: The GP posterior mean, the trials evaluated, and the expected-
 <p>It is not highest in the region furthest from any trial either, since that area is uncertain but the surrogate’s mean prediction offers no reason to expect it is good. Instead, it peaks somewhere the surrogate is both moderately optimistic and still uncertain enough to be worth checking.</p>
 <p>In practice, nobody hand-writes this loop. <code>Optuna</code>, the most actively maintained and widely adopted Bayesian hyperparameter optimization library in Python today, defaults to a tree-structured Parzen estimator (TPE) rather than a Gaussian process as its surrogate model <span class="citation" data-cites="akiba2019optuna">(<a href="chapter-01-descriptive-statistics.html#ref-akiba2019optuna" role="doc-biblioref">Akiba et al. 2019</a>)</span>.</p>
 <p>A TPE models the <em>distribution of hyperparameters</em> that produced good versus bad results, rather than modeling the loss surface directly the way a GP does. It scales better to many hyperparameters and to non-numeric (categorical) ones, at the cost of a less interpretable surrogate than a GP’s.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A rule of thumb on which surrogate to reach for: a GP-based optimizer such as <code>scikit-optimize</code> or <code>BoTorch</code> works well up to roughly a dozen or two hyperparameters, past which the covariance matrix grows expensive and the surrogate’s fit degrades. TPE’s independence assumption between hyperparameters is what lets Optuna scale past that range.</p>
+</div>
+</div>
 <p><code>scikit-optimize</code> (<code>skopt</code>) offers a more traditional GP-based Bayesian optimizer, closer to what <a href="#fig-bo-search-trajectory" class="quarto-xref">Figure&nbsp;<span>13.1</span></a> demonstrates directly.</p>
 <p>For problems where the objective function is expensive enough that every evaluation counts (a model that takes hours to train, not milliseconds), <code>BoTorch</code> is the name worth knowing for GP-based Bayesian optimization at a larger scale, built on PyTorch and commonly used for tuning deep learning training runs rather than gradient-boosted trees.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -522,6 +535,19 @@ Note
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>study <span class="op">=</span> optuna.create_study(direction<span class="op">=</span><span class="st">"minimize"</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>study.optimize(objective, n_trials<span class="op">=</span><span class="dv">30</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(study.best_params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>cross_val_score</code> with <code>scoring="neg_log_loss"</code> returns a negative number, since scikit-learn’s convention is that a higher score is always better. Dropping the sign flip in <code>return -score.mean()</code> above leaves Optuna minimizing the wrong quantity, pushing the search toward the worst hyperparameters instead of the best.</p>
+</div>
+</div>
 <p>Thirty trials with this search routinely land close to the region a much larger grid search would have found. Every trial after the first handful is chosen using what the earlier trials revealed, the same logic <a href="#fig-bo-search-trajectory" class="quarto-xref">Figure&nbsp;<span>13.1</span></a> shows visually.</p>
 </section>
 <section id="ngboost-a-boosted-model-that-outputs-a-distribution" class="level2" data-number="13.3">

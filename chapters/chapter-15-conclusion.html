@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -37,7 +37,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -357,6 +357,19 @@ ul.task-list li input[type="checkbox"] {
 <p>No model in Part 2, however flexible, and no posterior in Part 3, however well calibrated, repairs a comparison that was never fair to begin with. That is a fact about experimental design, and it sits upstream of every technique this book covers.</p>
 <p>The third is the honest limit of a method. Every chapter in Part 2 ended by naming what its method could not do.</p>
 <p>OLS assumes a linearity that a spline has to relax. Cross-validation assumes something close to independent observations that a time series violates. A random forest’s variable importance can mislead when predictors are correlated. Gradient boosting overfits fast without a validation set watching it.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A common mistake with cross-validation: shuffling time-ordered data before splitting into folds lets future observations leak into training, which inflates the reported score. Split chronologically instead, training on earlier periods and validating on later ones.</p>
+</div>
+</div>
 <p>A book that only listed what each method does well would be a sales brochure. Knowing where a tool breaks is what makes it safe to use where it does not.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -393,6 +406,19 @@ Tip
 </div>
 <p>Part 3’s five other chapters made the same trade explicit for a specific Part 2 method each.</p>
 <p>Ridge regression turned out to be the posterior mode under a Gaussian prior on the coefficients; the Lasso, under a Laplace prior. Chapter 9 built the full posterior around both, plus a credible interval that means something different from Chapter 4’s confidence interval, even though the two are often read as interchangeable.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A 95% credible interval means there is a 95% probability, given the data and the prior, that the parameter falls in that range. A 95% confidence interval makes no such claim about the parameter itself; it describes how often the procedure would capture the true value across repeated sampling, and the two get used interchangeably far too often.</p>
+</div>
+</div>
 <p>Chapter 10 built PSIS-LOO and WAIC as the posterior-based counterpart to Chapter 5’s cross-validated error estimate, model comparison without refitting on every held-out fold.</p>
 <p>Chapter 11 replaced Chapter 6’s smoothing spline with a Gaussian process, trading a single fitted curve for a full posterior over curves and uncertainty that widens honestly away from the data.</p>
 <p>Chapter 12 replaced Chapter 7’s random forest with BART, a point prediction next to a posterior interval on the same input.</p>
@@ -402,6 +428,19 @@ Tip
 <section id="what-this-book-did-not-cover" class="level2" data-number="15.3">
 <h2 data-number="15.3" class="anchored" data-anchor-id="what-this-book-did-not-cover"><span class="header-section-number">15.3</span> What this book did not cover</h2>
 <p>This book stops at the boundary of tabular data and single-outcome experiments. It does not cover multi-armed bandits, sequential experiment designs that adapt while running, causal inference tools built for observational (non-randomized) data such as instrumental variables or regression discontinuity, or the deep-learning side of predictive modeling.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Instrumental variables and regression discontinuity solve a different problem than the A/B tests in Chapters 2 and 14: they estimate a causal effect when nobody randomized who got the treatment. Neither technique appears in this book, and neither is a drop-in replacement for randomization when it is available.</p>
+</div>
+</div>
 <p>Each of those is a book of its own, and each builds on the foundation laid here: a working grip on what a distribution looks like, what a confidence interval and a p-value claim, how a model’s flexibility trades off against its variance, and how a posterior differs from a point estimate.</p>
 </section>
 <section id="where-to-go-from-here" class="level2" data-number="15.4">

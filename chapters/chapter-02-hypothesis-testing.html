@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -619,9 +619,35 @@ Tip
 <p>Pairing removes account-to-account variation from the comparison entirely, since each account serves as its own baseline. That is why a paired design generally needs fewer observations to reach the same statistical power as an unpaired one.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Running an unpaired t-test on data that is naturally paired throws away the correlation between the two measurements, which usually inflates the variance estimate and makes a true effect harder to detect. Before choosing between a paired and unpaired test, check whether each unit in the sample was measured twice.</p>
+</div>
+</div>
 <p>An <em>unpaired t-test</em> (also called an independent t-test) applies when the two groups being compared are not linked, for instance a randomized A/B test where incoming requests are assigned to a control path or a cached path:</p>
 <p><span class="math display">\[t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{S_1^2/n_1 + S_2^2/n_2}}\]</span></p>
 <p>When the two groups have unequal variances, which is common when comparing a stable control path to a newly deployed one, Welch’s t-test (a variant that does not assume equal variances) is the safer default over the standard unpaired t-test.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Statistics libraries do not agree on a default here. R’s <code>t.test()</code> runs Welch’s version unless told otherwise, while SciPy’s <code>ttest_ind()</code> assumes equal variances unless called with <code>equal_var=False</code>. Check which default a codebase is using before trusting an unpaired t-test result pulled from unfamiliar code.</p>
+</div>
+</div>
 <p>Both paired and unpaired tests assume the underlying data is close to normal or that the sample is large; the non-parametric alternatives near the end of this chapter cover what to do when that assumption fails.</p>
 </section>
 <section id="comparing-three-or-more-groups-anova" class="level2" data-number="2.9">

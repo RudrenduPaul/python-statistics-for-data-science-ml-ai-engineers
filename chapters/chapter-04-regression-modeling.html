@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -423,6 +423,19 @@ Figure&nbsp;4.1: Latency (ms) plotted against payload size (KB), with the fitted
 <p><a href="#fig-ols" class="quarto-xref">Figure&nbsp;<span>4.1</span></a> shows this fit at several noise levels: the fitted line keeps finding roughly the right slope no matter how much scatter surrounds it, but R-squared, the share of variance the line explains, drops as that scatter grows.</p>
 <p>OLS rests on five assumptions: <strong>linearity</strong> (the true relationship is a straight line, not a curve), <strong>independence</strong> (one observation’s error does not influence another’s), and <strong>homoscedasticity</strong> (the spread of residuals stays constant across the range of the predictor).</p>
 <p>It also assumes <strong>normality</strong> (residuals are normally distributed) and <strong>no multicollinearity</strong> (predictors are not near-perfect linear combinations of each other).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Multicollinearity does not bias the coefficient estimates themselves; it inflates their standard errors, so an individual predictor’s coefficient can look statistically insignificant even when the group of correlated predictors together explains a meaningful share of the variance. Ridge regression, covered later in this chapter, addresses that instability directly by shrinking correlated coefficients together instead of letting one absorb an unstable share of the effect.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -563,6 +576,17 @@ Figure&nbsp;4.5: Both AIC and BIC reward adding region, which carries a measurab
 <p>Whether that coefficient is <em>statistically significant</em> is a question Chapter 2 covered: compute a p-value for the coefficient and compare it against a threshold.</p>
 <p>Recall from Chapter 2’s discussion of the ASA statement on p-values that statistical significance says nothing about the size of an effect. The same caution applies directly here: a coefficient can be statistically significant, with a p-value far below 0.05, while representing a change too small to act on.</p>
 <p>A 0.1 ms latency improvement, for example, can clear statistical significance across ten million requests and still not justify shipping. <em>Practical significance</em> asks the second question a statistically significant coefficient does not answer on its own: given the size of this effect, does it change any decision.</p>
+<div id="fig-significance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-significance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-significance-vs-sample-size.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-significance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: The estimated effect (0.1 ms) never moves. Only its 95% confidence interval does: wide and straddling zero at small sample sizes, narrow and clear of zero once the sample is large enough. The marker turns red the moment the p-value crosses 0.05, at a sample size where 0.1 ms is still too small to act on.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-significance" class="quarto-xref">Figure&nbsp;<span>4.6</span></a> holds that same 0.1 ms effect fixed and grows only the sample size. Between 100,000 and 500,000 requests the confidence interval pulls away from zero and the p-value drops below 0.05, so the effect becomes statistically significant without becoming any larger. Nothing about the effect changed; only the precision of the estimate did.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -589,6 +613,19 @@ Tip
 <p><span class="math display">\[\text{minimize} \quad \text{SSE} + \lambda \sum_j \beta_j^2\]</span></p>
 <p><em>Elastic Net</em> combines both penalties, controlled by a mixing parameter <span class="math inline">\(\alpha\)</span>:</p>
 <p><span class="math display">\[\text{minimize} \quad \text{SSE} + \alpha \lambda \sum_j |\beta_j| + (1-\alpha) \lambda \sum_j \beta_j^2\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Lasso and Ridge penalize coefficient magnitude directly, so a predictor measured in KB and a predictor that is a 0/1 region indicator get penalized on entirely different scales unless every predictor is standardized first. Skipping that step lets whichever predictor happens to carry the largest raw scale absorb most of the penalty, regardless of how much it explains.</p>
+</div>
+</div>
 <p>The practical difference between Lasso and Ridge shows up clearly once several correlated predictors are in the model together.</p>
 <div id="fig-regularization" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -596,11 +633,11 @@ Tip
 <iframe src="../_generated/chapter-04-fig-regularization-paths.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.6: Coefficient value for each predictor, comparing Lasso (red) against Ridge (blue) as the regularization strength grows. As regularization strengthens, Lasso zeroes out the noise predictor and one of the two correlated region indicators, while Ridge only shrinks every coefficient toward zero without eliminating any of them.
+Figure&nbsp;4.7: Coefficient value for each predictor, comparing Lasso (red) against Ridge (blue) as the regularization strength grows. As regularization strengthens, Lasso zeroes out the noise predictor and one of the two correlated region indicators, while Ridge only shrinks every coefficient toward zero without eliminating any of them.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-regularization" class="quarto-xref">Figure&nbsp;<span>4.6</span></a> fits both to a latency model with two region indicators correlated with payload size and one pure noise predictor (time of day), tracking every coefficient as the regularization strength <span class="math inline">\(\lambda\)</span> grows.</p>
+<p><a href="#fig-regularization" class="quarto-xref">Figure&nbsp;<span>4.7</span></a> fits both to a latency model with two region indicators correlated with payload size and one pure noise predictor (time of day), tracking every coefficient as the regularization strength <span class="math inline">\(\lambda\)</span> grows.</p>
 <p>This is because the two penalties shrink coefficients differently. Ridge’s squared penalty shrinks every coefficient smoothly, which handles multicollinearity well: correlated predictors end up sharing the credit for their combined effect.</p>
 <p>But it never removes a variable from the model entirely, which can make the model harder to read when many predictors are involved. Lasso’s absolute-value penalty can drive a coefficient to zero once <span class="math inline">\(\lambda\)</span> is large enough, effectively performing feature selection as part of fitting the model.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -649,11 +686,11 @@ Note
 <iframe src="../_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.7: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the posterior on the payload-size coefficient narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
+Figure&nbsp;4.8: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the posterior on the payload-size coefficient narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.7</span></a> shows this pattern directly for the payload-size coefficient: one full distribution at a time, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
+<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> shows this pattern directly for the payload-size coefficient: one full distribution at a time, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
 <p>Logistic regression does not offer the same clean arithmetic. Because the logistic function is nonlinear, the posterior over its coefficients has no closed form the way Ridge and Lasso’s Gaussian and Laplace posteriors do.</p>
 <p>Fitting a Bayesian logistic regression means approximating that posterior instead, typically with Markov chain Monte Carlo sampling or a Laplace approximation around the posterior mode.</p>
 <p>The added computational cost buys something a point estimate cannot: a <em>credible interval</em> on each coefficient, a range that directly states the probability the true effect falls inside it. A standard error, by contrast, is only as trustworthy as the model’s specification, and its validity also depends on the sample being large enough for its asymptotic guarantees to hold.</p>

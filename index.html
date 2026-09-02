@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -38,7 +38,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -310,7 +310,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
+  <ul class="collapse">
+  <li><a href="#see-it-in-action" id="toc-see-it-in-action" class="nav-link" data-scroll-target="#see-it-in-action">See it in action</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -354,8 +357,42 @@ ul.task-list li input[type="checkbox"] {
 <p>This book is a practical statistics handbook for data scientists and engineers who need to run, read, and defend an experiment, not just pass a stats exam. Every chapter pairs the underlying theory with a worked example built around one running dataset: simulated response times for a checkout API, followed through descriptive statistics, hypothesis testing, regression, tree-based models, and a Bayesian A/B test.</p>
 <p>Every figure in the book is a Plotly chart with a slider. Drag it, and the chart updates in your browser, no server and no setup required. The source for every chapter is plain Markdown; the source for every figure is a plain Python script in <code>chapters/</code>, so nothing here is a black box, and every chart is regenerable from the code sitting right next to the prose that uses it.</p>
 <p>This book is free and open source.</p>
+<section id="see-it-in-action" class="level2">
+<h2 class="anchored" data-anchor-id="see-it-in-action">See it in action</h2>
+<p>Three of the charts that appear later in the book, live and interactive right now. Drag any slider below before reading a word of Chapter 1.</p>
+<div id="fig-index-literary-digest" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-index-literary-digest-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="_generated/chapter-01-fig-literary-digest.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-index-literary-digest-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The 1936 Literary Digest poll called the election for Landon at 57% to 43%, from a ten-million-person sample. Roosevelt won. Drag the slider between the poll’s prediction and the result: Chapter 1 walks through why a sample that size still missed the outcome by 24 points.
+</figcaption>
+</figure>
+</div>
+<div id="fig-index-simpsons-paradox" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-index-simpsons-paradox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="_generated/chapter-01-fig-simpsons-paradox.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-index-simpsons-paradox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Charig et al.’s 1986 kidney-stone data: Treatment A wins on both stone sizes taken separately. Drag the slider to pool the two groups together, and Treatment B wins instead. Chapter 1 uses this reversal to introduce Simpson’s paradox.
+</figcaption>
+</figure>
+</div>
+<div id="fig-index-bayesian-ridge" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-index-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-index-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Shrink the prior variance with the slider and watch the posterior over a regression coefficient narrow and slide toward zero. Chapter 4 shows this is the same shrinkage Ridge regression’s penalty term produces, derived instead from a Gaussian prior.
+</figcaption>
+</figure>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

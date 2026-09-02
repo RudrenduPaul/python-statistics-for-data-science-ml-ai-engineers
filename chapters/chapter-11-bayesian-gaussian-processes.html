@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -562,6 +562,19 @@ Warning
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>gp <span class="op">=</span> GaussianProcessRegressor(kernel<span class="op">=</span>kernel, normalize_y<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>gp.fit(rho.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), latency)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>mean, std <span class="op">=</span> gp.predict(grid, return_std<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Drop the <code>WhiteKernel</code> term from the code above and the kernel matrix <span class="math inline">\(K(X, X)\)</span> can turn near-singular whenever two training points sit closer together than the length-scale, making the matrix inversion in the posterior formulas fail or return garbage. The noise term is not just modeling honesty, it is what keeps that inversion numerically stable.</p>
+</div>
+</div>
 <p><a href="#fig-posterior-fit" class="quarto-xref">Figure&nbsp;<span>11.3</span></a> fits this scikit-learn model to the concurrent-load-versus-latency data from Chapter 6, at growing sample sizes. The <em>credible band</em> shown there is the functional counterpart of the credible interval Chapter 9 built for a single coefficient: instead of one interval, there is now one at every point along the curve.</p>
 </section>
 <section id="choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" class="level2" data-number="11.4">
@@ -626,6 +639,30 @@ Important
 <p>Every figure in this chapter used a single predictor, utilization, to keep the plots readable as two-dimensional curves. Nothing about the kernel or the posterior formula requires that. Chapter 4’s OLS model predicted latency from payload size and concurrent-request count together.</p>
 <p>A Gaussian process handles the same two-predictor setup by measuring distance between points in that two-dimensional input space instead of along a single line, typically with a separate length-scale per input dimension (an “automatic relevance determination” kernel, in the terminology <code>scikit-learn</code> and most other GP libraries use).</p>
 <p>A short length-scale on one dimension and a long length-scale on another is itself a form of variable-importance signal: the model has learned that the function changes quickly along the first input and barely reacts to the second, without anyone hand-coding that conclusion in advance.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An automatic-relevance-determination kernel only makes length-scales comparable across dimensions when every input is standardized first. Fit the same kernel to payload size in raw bytes and utilization on a 0-1 scale, and the length-scales say more about the units chosen than about which predictor matters.</p>
+</div>
+</div>
+<div id="fig-ard-length-scales" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ard-length-scales-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-gp-fig-ard-length-scales.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ard-length-scales-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.6: Two predictors, payload size and concurrent-request utilization, on inputs standardized to the same scale so the two length-scales are directly comparable. Concurrent-request utilization fits a length-scale under 1, since latency swings sharply as utilization approaches capacity. Payload size fits a length-scale over 20, since latency barely moves across its whole observed range once utilization is accounted for.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ard-length-scales" class="quarto-xref">Figure&nbsp;<span>11.6</span></a> makes the point concrete: an automatic-relevance-determination kernel fit to both predictors at once returns a length-scale twenty-five times longer for payload size than for concurrent-request utilization, without anyone telling the model in advance which predictor mattered more.</p>
 <p>The same <span class="math inline">\(O(n^3)\)</span> cost applies regardless of how many input dimensions there are, since it depends only on the number of observations, not the number of predictors. That is one reason a GP scales more gracefully with feature count than it does with dataset size.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

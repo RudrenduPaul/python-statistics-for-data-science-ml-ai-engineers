@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -501,6 +501,17 @@ Tip
 <section id="standard-normal-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="standard-normal-distribution">Standard normal distribution</h3>
 <p>The <em>standard normal distribution</em> is a normal distribution with <span class="math inline">\(\mu = 0\)</span> and <span class="math inline">\(\sigma = 1\)</span>. Converting any normal value <span class="math inline">\(x\)</span> into a <em>z-score</em>, <span class="math inline">\(z = (x - \mu) / \sigma\)</span>, expresses it in standard deviations from the mean.</p>
+<div id="fig-zscore" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-zscore-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-standard-normal-zscore.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-zscore-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: The tail probability P(Z &gt; z) beyond a given z-score. Moving the threshold from 0.5 to 3.0 standard deviations shrinks the tail from roughly 31% of the distribution to about 0.1%.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-zscore" class="quarto-xref">Figure&nbsp;<span>3.3</span></a> shows why a z-score threshold makes a good anomaly trigger: the probability of a value landing that far out drops fast, so a fixed threshold like <span class="math inline">\(z &gt; 3\)</span> flags a small share of normal variation while still catching outliers that matter. A p99 checkout latency of 340ms against a service mean of 200ms and a standard deviation of 40ms gives a z-score of 3.5, worth a page regardless of whether the metric is in milliseconds or requests per second.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -522,6 +533,17 @@ Tip
 <p>The <em>uniform distribution</em> assigns equal probability to every value within a range and none outside it:</p>
 <p><span class="math display">\[f(x) = \frac{1}{b-a} \quad \text{for } a \le x \le b\]</span></p>
 <p>A feature-flag rollout that assigns each user a uniformly random number between 0 and 1, then enables the feature for anyone below a chosen threshold, is a direct application.</p>
+<div id="fig-uniform" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-uniform-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-uniform-rollout.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-uniform-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: A uniform draw on [0, 1] split by a rollout threshold. Moving the threshold from 0.05 to 1.00 grows the treatment share from 5% of users to all of them, matching the threshold value.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-uniform" class="quarto-xref">Figure&nbsp;<span>3.4</span></a> shows the mechanism directly: because every draw is equally likely anywhere in [0, 1], the share of users below a threshold equals the threshold. A 10% canary rollout is just a threshold of 0.10, and doubling that threshold to 0.20 doubles the canary’s size, no distributional surprises involved.</p>
 <p>Every user has an equal chance of landing in the treatment group, which is the completely randomized design Chapter 2 introduced for experiment assignment.</p>
 </section>
 <section id="bernoulli-distribution" class="level3">
@@ -530,7 +552,17 @@ Tip
 <p>The Bernoulli distribution describes any single yes-or-no event like that, one trial with a fixed chance of success, whether the event is a coin flip, a single dice roll landing on six, or a single request timing out.</p>
 <p>The <em>Bernoulli distribution</em> describes a single trial with two outcomes, success or failure, with probability <span class="math inline">\(p\)</span> of success:</p>
 <p><span class="math display">\[f(x) = p^x (1-p)^{1-x} \quad \text{for } x \in \{0, 1\}\]</span></p>
-<p>Whether a single request times out, whether a single canary request lands in the treatment group, and whether a single feature-flag check evaluates true are all Bernoulli trials.</p>
+<div id="fig-bernoulli" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bernoulli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-bernoulli-trial.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bernoulli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: A single Bernoulli trial’s two possible outcomes, at success probabilities from 10% to 90%. The two bars always sum to 100%, since a Bernoulli trial has no third outcome.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-bernoulli" class="quarto-xref">Figure&nbsp;<span>3.5</span></a> is the building block behind every other distribution in this section: a binomial count is a sum of Bernoulli trials, a geometric count is the wait for the first Bernoulli success, and the sharding logic later in this chapter reduces to a Bernoulli trial per shard when only one shard’s outcome is in question. Whether a single request times out, whether a single canary request lands in the treatment group, and whether a single feature-flag check evaluates true are all Bernoulli trials.</p>
 </section>
 <section id="binomial-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="binomial-distribution">Binomial distribution</h3>
@@ -545,12 +577,25 @@ Tip
 <iframe src="../_generated/chapter-03-fig-binomial-conversions.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-binomial-conversions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.3: Number of conversions out of a fixed 50-visitor bucket, by the true underlying conversion probability. Both the center and the spread of the distribution shift as that probability rises.
+Figure&nbsp;3.6: Number of conversions out of a fixed 50-visitor bucket, by the true underlying conversion probability. Both the center and the spread of the distribution shift as that probability rises.
 </figcaption>
 </figure>
 </div>
-<p>The number of failed requests in a batch of 100, or the number of users who convert out of a fixed-size A/B test bucket, is binomial. <a href="#fig-binomial-conversions" class="quarto-xref">Figure&nbsp;<span>3.3</span></a> fixes the bucket at 50 visitors and moves the true conversion probability, showing how the distribution of possible conversion counts shifts and spreads as that probability rises.</p>
+<p>The number of failed requests in a batch of 100, or the number of users who convert out of a fixed-size A/B test bucket, is binomial. <a href="#fig-binomial-conversions" class="quarto-xref">Figure&nbsp;<span>3.6</span></a> fixes the bucket at 50 visitors and moves the true conversion probability, showing how the distribution of possible conversion counts shifts and spreads as that probability rises.</p>
 <p>Part 3 builds directly on this distribution: a Bayesian A/B test of a conversion rate treats the number of conversions as binomial and updates a prior belief about the underlying conversion probability as data arrives.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The binomial model assumes every trial shares the same success probability and that trials are independent. A batch of requests hit by a partial outage breaks both assumptions at once: failures cluster together, so the count of failures shows more variance than a binomial model predicts, the same overdispersion pattern the Poisson section below describes.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -577,11 +622,11 @@ Tip
 <iframe src="../_generated/chapter-03-fig-geometric-retries.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-geometric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.4: The distribution of attempts needed before a flaky call succeeds, and how its expected value rises sharply as reliability drops.
+Figure&nbsp;3.7: The distribution of attempts needed before a flaky call succeeds, and how its expected value rises sharply as reliability drops.
 </figcaption>
 </figure>
 </div>
-<p>A flaky downstream call that succeeds with probability <span class="math inline">\(p\)</span> on each attempt, retried until it finally works, produces a geometric number of attempts. <a href="#fig-geometric" class="quarto-xref">Figure&nbsp;<span>3.4</span></a> shows how the expected number of retries climbs as the per-attempt success probability falls.</p>
+<p>A flaky downstream call that succeeds with probability <span class="math inline">\(p\)</span> on each attempt, retried until it finally works, produces a geometric number of attempts. <a href="#fig-geometric" class="quarto-xref">Figure&nbsp;<span>3.7</span></a> shows how the expected number of retries climbs as the per-attempt success probability falls.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -608,11 +653,11 @@ Note
 <iframe src="../_generated/chapter-03-fig-poisson-shape.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.5: The Poisson distribution’s shape at low request rates versus high ones. At high enough <span class="math inline">\(\lambda\)</span>, the shape looks close to normal, another instance of the Central Limit Theorem’s reach.
+Figure&nbsp;3.8: The Poisson distribution’s shape at low request rates versus high ones. At high enough <span class="math inline">\(\lambda\)</span>, the shape looks close to normal, another instance of the Central Limit Theorem’s reach.
 </figcaption>
 </figure>
 </div>
-<p>Requests arriving at an API endpoint in a one-second window is the standard example: if requests arrive independently of one another at a steady average rate, the count in any given second is Poisson. <a href="#fig-poisson" class="quarto-xref">Figure&nbsp;<span>3.5</span></a> shows the distribution’s shape shifting as the average rate grows.</p>
+<p>Requests arriving at an API endpoint in a one-second window is the standard example: if requests arrive independently of one another at a steady average rate, the count in any given second is Poisson. <a href="#fig-poisson" class="quarto-xref">Figure&nbsp;<span>3.8</span></a> shows the distribution’s shape shifting as the average rate grows.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -633,6 +678,17 @@ Note
 <p>The exponential distribution describes how long that wait tends to be, the time between events that happen at a steady rate.</p>
 <p>The <em>exponential distribution</em> models the time until an event occurs, given a constant rate <span class="math inline">\(\lambda\)</span>:</p>
 <p><span class="math display">\[f(x) = \lambda e^{-\lambda x} \quad \text{for } x \ge 0\]</span></p>
+<div id="fig-exponential" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exponential-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-exponential-wait.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exponential-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.9: Wait-time density at rates from 0.25 to 4 events per unit time. A higher rate pulls the whole curve toward zero: the mean wait is always <span class="math inline">\(1/\lambda\)</span>, so the probability of a short wait climbs fast as the rate increases.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-exponential" class="quarto-xref">Figure&nbsp;<span>3.9</span></a> also gives a direct way to compute with the distribution: at a constant rate of one event every two units of time (<span class="math inline">\(\lambda = 0.5\)</span>), the mean wait is 2 units, and the probability the next event arrives within one unit is <span class="math inline">\(1 - e^{-0.5} \approx 39\%\)</span>, read straight off the shaded area under the curve up to that point.</p>
 <p>The time between consecutive requests in a Poisson arrival process is exponentially distributed. So is the time until a service instance fails, under the assumption that failure risk does not change with how long the instance has been running (the distribution’s defining <em>memoryless</em> property).</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -659,6 +715,19 @@ Warning
 <p><span class="math display">\[\text{Var}(X) = E(X^2) - \big(E(X)\big)^2\]</span></p>
 <p>In other words, the mean weights each possible outcome by how often it occurs, and the variance is the average squared distance between an outcome and that mean.</p>
 <p><span class="math inline">\(E(X^2) - (E(X))^2\)</span> is an algebraically equivalent shortcut for computing that average squared distance without having to subtract the mean from every outcome first.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>That shortcut is convenient by hand but risky in floating-point code: when the mean is large relative to the spread, <span class="math inline">\(E(X^2)\)</span> and <span class="math inline">\((E(X))^2\)</span> are two large, nearly equal numbers, and subtracting them can lose precision to cancellation. A running algorithm like Welford’s method avoids the problem by updating variance incrementally instead of computing the two terms separately.</p>
+</div>
+</div>
 <p>Recall from Chapter 1 that these are the population-level counterparts of the sample mean and sample variance computed from data. Every distribution introduced in this chapter has a known formula for both, which is part of what makes naming the right distribution useful in the first place.</p>
 </section>
 <section id="the-central-limit-theorem" class="level2" data-number="3.5">
@@ -672,11 +741,11 @@ Warning
 <iframe src="../_generated/chapter-03-fig-clt-simulation.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.6: Sample means of a skewed parent distribution become normal-shaped as sample size grows, the same property that makes the t-test in Chapter 2 usable even on non-normal data at moderate sample sizes.
+Figure&nbsp;3.10: Sample means of a skewed parent distribution become normal-shaped as sample size grows, the same property that makes the t-test in Chapter 2 usable even on non-normal data at moderate sample sizes.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-clt" class="quarto-xref">Figure&nbsp;<span>3.6</span></a> simulates 4,000 samples drawn from a heavily right-skewed exponential distribution, at growing sample sizes, and tracks how the distribution of sample means transforms from skewed to bell-shaped as sample size increases.</p>
+<p><a href="#fig-clt" class="quarto-xref">Figure&nbsp;<span>3.10</span></a> simulates 4,000 samples drawn from a heavily right-skewed exponential distribution, at growing sample sizes, and tracks how the distribution of sample means transforms from skewed to bell-shaped as sample size increases.</p>
 <p>This is because averaging cancels out extreme values from both directions. A sample mean drawn from a right-skewed population is only pulled upward by outliers to the extent those outliers outweigh the many ordinary observations averaged alongside them, and as the sample grows, that influence shrinks.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -706,12 +775,12 @@ Tip
 <iframe src="../_generated/chapter-03-fig-birthday-collision.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-birthday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.7: Collision probability for randomly generated identifiers, by identifier length in bits. The x-axis is on a log scale: an 8-bit ID space collides almost immediately, while a 64-bit space needs billions of IDs before collisions become likely.
+Figure&nbsp;3.11: Collision probability for randomly generated identifiers, by identifier length in bits. The x-axis is on a log scale: an 8-bit ID space collides almost immediately, while a 64-bit space needs billions of IDs before collisions become likely.
 </figcaption>
 </figure>
 </div>
 <p>This is not a party trick. It is the same mechanism behind hash and identifier collisions, formalized as the <em>birthday bound</em>: for an identifier space of size <span class="math inline">\(N\)</span>, the number of randomly generated identifiers needed before a collision becomes likely scales with <span class="math inline">\(\sqrt{N}\)</span>, not <span class="math inline">\(N\)</span>.</p>
-<p><a href="#fig-birthday" class="quarto-xref">Figure&nbsp;<span>3.7</span></a> shows how quickly collision probability climbs as more identifiers are generated, at a few different identifier lengths.</p>
+<p><a href="#fig-birthday" class="quarto-xref">Figure&nbsp;<span>3.11</span></a> shows how quickly collision probability climbs as more identifiers are generated, at a few different identifier lengths.</p>
 <p>The birthday bound is why a widely used hash function’s security depends on a space far larger than an intuition about brute-force guessing would suggest.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">

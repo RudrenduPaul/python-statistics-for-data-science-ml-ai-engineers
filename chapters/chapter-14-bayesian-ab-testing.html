@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -488,6 +488,19 @@ Figure&nbsp;14.3: Variant A and Variant B posteriors separate as each group coll
 <p>That sum can be computed with ordinary loops rather than the numerical integration a less convenient distribution pairing would require.</p>
 <p>In practice, most teams skip the closed form and estimate the same probability by simulation: draw a large number of samples from each posterior distribution, and count the fraction of draws where B’s sampled rate exceeds A’s.</p>
 <p>With 200,000 simulated draws per comparison, the two approaches agree to several decimal places. The simulation approach also generalizes immediately to metrics that do not have a convenient closed form, which is why this chapter’s figures use it throughout.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Miller’s closed-form sum grows more terms as successes accumulate, so it slows down right when a team wants it most: after a lot of traffic has arrived. Simulation cost stays flat regardless of sample size, which is the more practical reason production dashboards default to it.</p>
+</div>
+</div>
 </section>
 <section id="expected-loss-as-a-stopping-rule" class="level2" data-number="14.5">
 <h2 data-number="14.5" class="anchored" data-anchor-id="expected-loss-as-a-stopping-rule"><span class="header-section-number">14.5</span> Expected loss as a stopping rule</h2>
@@ -607,6 +620,31 @@ Note
 <p>Suppose the team’s pre-launch benchmarking suggests an average order value around $42, with enough uncertainty to express as a prior standard deviation of $5.</p>
 <p>After 500 converting visitors under Variant B post an observed mean of $44.10 with a sample standard deviation of $18, the posterior mean settles close to $44.05.</p>
 <p>The result is pulled only slightly toward the prior’s $42, because the sample of 500 carries far more precision than the prior did. This is the same prior-times-likelihood-equals-posterior logic from earlier in the chapter, applied to a different distribution family.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This Normal-Normal update treats <span class="math inline">\(\tau_{\text{data}}\)</span> as known, but in practice it usually comes from the sample’s own standard deviation. Plugging in an estimated precision as though it were fixed understates the true uncertainty, especially early in the experiment when the sample standard deviation itself is still unstable.</p>
+</div>
+</div>
+<div id="fig-normal-normal-update" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-normal-normal-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-05-fig-normal-normal-update.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-normal-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.6: The average-order-value posterior narrows and slides from the $42 prior toward the observed $44.10 sample mean as converting visitors accumulate. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-normal-normal-update" class="quarto-xref">Figure&nbsp;<span>14.6</span></a> shows the same narrowing-and-settling behavior <a href="#fig-posterior-update" class="quarto-xref">Figure&nbsp;<span>14.2</span></a> showed for a Beta posterior, this time for the Normal-Normal pairing: at <span class="math inline">\(n = 0\)</span> the curve is just the prior, centered on $42.</p>
+<p>By <span class="math inline">\(n = 500\)</span> the posterior has both narrowed and shifted almost entirely onto the observed $44.10, since 500 observations at a precision of <span class="math inline">\(1/18^2\)</span> each outweigh the prior’s single pseudo-observation-equivalent of precision by a wide margin.</p>
 <p>That said, plenty of continuous metrics do not stay this well behaved. Order value tends to be right-skewed in the same way the latency data from Chapter 1 was, carries outliers from bulk orders, and often needs a model structure the simple Normal-Normal pairing cannot express.</p>
 <p>This includes cases such as separate effects per customer segment or a likelihood that is not normal at all. This is where conjugacy runs out and numerical methods take over.</p>
 <p><code>pymc</code> and <code>arviz</code>, both listed among this book’s dependencies, exist to draw posterior samples via Markov chain Monte Carlo once a model no longer has a closed-form answer.</p>
