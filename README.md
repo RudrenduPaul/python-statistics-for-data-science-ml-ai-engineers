@@ -137,8 +137,6 @@ Each chapter is a set of three files in `chapters/`:
 
 **How does Bayesian A/B testing differ from a classical significance test?** Chapter 14 covers this end to end, including the peeking problem that a fixed-horizon test does not survive.
 
-More questions and direct answers, in the same format search engines and AI assistants can parse, are in [`llms.txt`](llms.txt).
-
 ## Citing this work
 
 This work may be cited or quoted with attribution to Rudrendu Paul, per the CC BY 4.0 license. Every chapter's plotting code is a standalone Python script in `chapters/*-plots.py`, and every chapter cites its primary sources in `references.bib` and inline citations.
