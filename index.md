@@ -65,3 +65,52 @@ Shrink the prior variance with the slider and watch the posterior over a regress
 coefficient narrow and slide toward zero. Chapter 4 shows this is the same shrinkage Ridge
 regression's penalty term produces, derived instead from a Gaussian prior.
 :::
+
+## Frequently asked questions
+
+**Is this book free?** Yes. The full text is free to read online, with no paywall, signup, or account.
+
+**Can I reuse the text or figures?** Yes, under CC BY 4.0 (text) and MIT (code), with attribution to Rudrendu Paul.
+
+**Does reading this book require a Jupyter kernel or a running Python server?** No. Every figure is pre-rendered to a self-contained interactive HTML page, so the book works from a static file server and needs nothing more than a browser.
+
+**Does this book cover statistical significance, p-values, and alpha?** Yes. Chapter 2 covers the p-value, the significance threshold (alpha), and warns against the p-value-as-probability-of-truth misreading. Chapter 4 separately covers statistical vs. practical significance.
+
+**Does this book cover Type I and Type II errors and statistical power?** Yes. Chapter 2 covers Type I error, Type II error, the trade-off between them, and statistical power as a function of sample size and effect size, each with an interactive figure.
+
+**Does this book cover precision, recall, F1, and ROC/AUC?** Yes. Chapter 7 has a dedicated section on evaluating a classifier, with an interactive confusion-matrix figure where dragging the classification threshold live-updates precision, recall, F1, and the ROC curve.
+
+**What is the difference between a p-value and the probability the null hypothesis is true?** A p-value is computed by assuming the null hypothesis is true, and it measures how surprising the observed data would be under that assumption. It does not measure the probability that the hypothesis itself is true. Chapter 2 covers this distinction directly.
+
+**What is the difference between a confidence interval and a Bayesian credible interval?** A confidence interval is a statement about a repeated procedure: 95% of intervals generated across repeated experiments would contain the true value. A credible interval is a direct probability statement given the observed data: a 95% credible interval means a 95% posterior probability the parameter lies in that range. Chapter 9 covers both side by side.
+
+**How does Ridge regression relate to a Gaussian prior?** Ridge regression's L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode. Chapter 4's preview and Chapter 9's full treatment both derive this.
+
+**How does Bayesian A/B testing differ from a classical significance test?** Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant's conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value.
+
+**Why does a random forest split on only a random subset of predictors at each split?** Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively.
+
+**Why are boosted trees kept shallow while random forest trees are grown deep?** A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects.
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Is this book free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The full text is free to read online, with no paywall, signup, or account."}},
+    {"@type": "Question", "name": "Can I reuse the text or figures?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, under CC BY 4.0 (text) and MIT (code), with attribution to Rudrendu Paul."}},
+    {"@type": "Question", "name": "Does reading this book require a Jupyter kernel or a running Python server?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every figure is pre-rendered to a self-contained interactive HTML page, so the book works from a static file server and needs nothing more than a browser."}},
+    {"@type": "Question", "name": "Does this book cover statistical significance, p-values, and alpha?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 2 covers the p-value, the significance threshold (alpha), and warns against the p-value-as-probability-of-truth misreading. Chapter 4 separately covers statistical vs. practical significance."}},
+    {"@type": "Question", "name": "Does this book cover Type I and Type II errors and statistical power?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 2 covers Type I error, Type II error, the trade-off between them, and statistical power as a function of sample size and effect size, each with an interactive figure."}},
+    {"@type": "Question", "name": "Does this book cover precision, recall, F1, and ROC/AUC?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 7 has a dedicated section on evaluating a classifier, with an interactive confusion-matrix figure where dragging the classification threshold live-updates precision, recall, F1, and the ROC curve."}},
+    {"@type": "Question", "name": "What is the difference between a p-value and the probability the null hypothesis is true?", "acceptedAnswer": {"@type": "Answer", "text": "A p-value is computed by assuming the null hypothesis is true, and it measures how surprising the observed data would be under that assumption. It does not measure the probability that the hypothesis itself is true. Chapter 2 covers this distinction directly."}},
+    {"@type": "Question", "name": "What is the difference between a confidence interval and a Bayesian credible interval?", "acceptedAnswer": {"@type": "Answer", "text": "A confidence interval is a statement about a repeated procedure: 95% of intervals generated across repeated experiments would contain the true value. A credible interval is a direct probability statement given the observed data: a 95% credible interval means a 95% posterior probability the parameter lies in that range. Chapter 9 covers both side by side."}},
+    {"@type": "Question", "name": "How does Ridge regression relate to a Gaussian prior?", "acceptedAnswer": {"@type": "Answer", "text": "Ridge regression's L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode. Chapter 4's preview and Chapter 9's full treatment both derive this."}},
+    {"@type": "Question", "name": "How does Bayesian A/B testing differ from a classical significance test?", "acceptedAnswer": {"@type": "Answer", "text": "Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant's conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value."}},
+    {"@type": "Question", "name": "Why does a random forest split on only a random subset of predictors at each split?", "acceptedAnswer": {"@type": "Answer", "text": "Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively."}},
+    {"@type": "Question", "name": "Why are boosted trees kept shallow while random forest trees are grown deep?", "acceptedAnswer": {"@type": "Answer", "text": "A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects."}}
+  ]
+}
+</script>
+```
