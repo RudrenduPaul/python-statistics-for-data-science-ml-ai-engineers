@@ -314,6 +314,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
   <ul class="collapse">
   <li><a href="#see-it-in-action" id="toc-see-it-in-action" class="nav-link" data-scroll-target="#see-it-in-action">See it in action</a></li>
+  <li><a href="#frequently-asked-questions" id="toc-frequently-asked-questions" class="nav-link" data-scroll-target="#frequently-asked-questions">Frequently asked questions</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -400,6 +401,41 @@ Figure&nbsp;3: Shrink the prior variance with the slider and watch the posterior
 </figcaption>
 </figure>
 </div>
+</section>
+<section id="frequently-asked-questions" class="level2">
+<h2 class="anchored" data-anchor-id="frequently-asked-questions">Frequently asked questions</h2>
+<p><strong>Is this book free?</strong> Yes. The full text is free to read online, with no paywall, signup, or account.</p>
+<p><strong>Can I reuse the text or figures?</strong> Yes, under CC BY 4.0 (text) and MIT (code), with attribution to Rudrendu Paul.</p>
+<p><strong>Does reading this book require a Jupyter kernel or a running Python server?</strong> No.&nbsp;Every figure is pre-rendered to a self-contained interactive HTML page, so the book works from a static file server and needs nothing more than a browser.</p>
+<p><strong>Does this book cover statistical significance, p-values, and alpha?</strong> Yes. Chapter 2 covers the p-value, the significance threshold (alpha), and warns against the p-value-as-probability-of-truth misreading. Chapter 4 separately covers statistical vs.&nbsp;practical significance.</p>
+<p><strong>Does this book cover Type I and Type II errors and statistical power?</strong> Yes. Chapter 2 covers Type I error, Type II error, the trade-off between them, and statistical power as a function of sample size and effect size, each with an interactive figure.</p>
+<p><strong>Does this book cover precision, recall, F1, and ROC/AUC?</strong> Yes. Chapter 7 has a dedicated section on evaluating a classifier, with an interactive confusion-matrix figure where dragging the classification threshold live-updates precision, recall, F1, and the ROC curve.</p>
+<p><strong>What is the difference between a p-value and the probability the null hypothesis is true?</strong> A p-value is computed by assuming the null hypothesis is true, and it measures how surprising the observed data would be under that assumption. It does not measure the probability that the hypothesis itself is true. Chapter 2 covers this distinction directly.</p>
+<p><strong>What is the difference between a confidence interval and a Bayesian credible interval?</strong> A confidence interval is a statement about a repeated procedure: 95% of intervals generated across repeated experiments would contain the true value. A credible interval is a direct probability statement given the observed data: a 95% credible interval means a 95% posterior probability the parameter lies in that range. Chapter 9 covers both side by side.</p>
+<p><strong>How does Ridge regression relate to a Gaussian prior?</strong> Ridge regression’s L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode. Chapter 4’s preview and Chapter 9’s full treatment both derive this.</p>
+<p><strong>How does Bayesian A/B testing differ from a classical significance test?</strong> Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant’s conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value.</p>
+<p><strong>Why does a random forest split on only a random subset of predictors at each split?</strong> Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively.</p>
+<p><strong>Why are boosted trees kept shallow while random forest trees are grown deep?</strong> A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects.</p>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Is this book free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The full text is free to read online, with no paywall, signup, or account."}},
+    {"@type": "Question", "name": "Can I reuse the text or figures?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, under CC BY 4.0 (text) and MIT (code), with attribution to Rudrendu Paul."}},
+    {"@type": "Question", "name": "Does reading this book require a Jupyter kernel or a running Python server?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every figure is pre-rendered to a self-contained interactive HTML page, so the book works from a static file server and needs nothing more than a browser."}},
+    {"@type": "Question", "name": "Does this book cover statistical significance, p-values, and alpha?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 2 covers the p-value, the significance threshold (alpha), and warns against the p-value-as-probability-of-truth misreading. Chapter 4 separately covers statistical vs. practical significance."}},
+    {"@type": "Question", "name": "Does this book cover Type I and Type II errors and statistical power?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 2 covers Type I error, Type II error, the trade-off between them, and statistical power as a function of sample size and effect size, each with an interactive figure."}},
+    {"@type": "Question", "name": "Does this book cover precision, recall, F1, and ROC/AUC?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 7 has a dedicated section on evaluating a classifier, with an interactive confusion-matrix figure where dragging the classification threshold live-updates precision, recall, F1, and the ROC curve."}},
+    {"@type": "Question", "name": "What is the difference between a p-value and the probability the null hypothesis is true?", "acceptedAnswer": {"@type": "Answer", "text": "A p-value is computed by assuming the null hypothesis is true, and it measures how surprising the observed data would be under that assumption. It does not measure the probability that the hypothesis itself is true. Chapter 2 covers this distinction directly."}},
+    {"@type": "Question", "name": "What is the difference between a confidence interval and a Bayesian credible interval?", "acceptedAnswer": {"@type": "Answer", "text": "A confidence interval is a statement about a repeated procedure: 95% of intervals generated across repeated experiments would contain the true value. A credible interval is a direct probability statement given the observed data: a 95% credible interval means a 95% posterior probability the parameter lies in that range. Chapter 9 covers both side by side."}},
+    {"@type": "Question", "name": "How does Ridge regression relate to a Gaussian prior?", "acceptedAnswer": {"@type": "Answer", "text": "Ridge regression's L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode. Chapter 4's preview and Chapter 9's full treatment both derive this."}},
+    {"@type": "Question", "name": "How does Bayesian A/B testing differ from a classical significance test?", "acceptedAnswer": {"@type": "Answer", "text": "Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant's conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value."}},
+    {"@type": "Question", "name": "Why does a random forest split on only a random subset of predictors at each split?", "acceptedAnswer": {"@type": "Answer", "text": "Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively."}},
+    {"@type": "Question", "name": "Why are boosted trees kept shallow while random forest trees are grown deep?", "acceptedAnswer": {"@type": "Answer", "text": "A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects."}}
+  ]
+}
+</script>
 
 
 </section>
