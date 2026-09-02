@@ -1,0 +1,11 @@
+/* Make the book's native cover image (injected by Quarto's book `cover-image:`
+   setting right after the Preface H1) render as a full-width banner instead
+   of a small floated thumbnail. */
+.quarto-cover-image {
+  float: none !important;
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  margin: 1rem 0 1.5rem 0;
+}
