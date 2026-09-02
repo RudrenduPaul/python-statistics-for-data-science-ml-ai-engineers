@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Moving Beyond Linearity: Regression Splines – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-07-decision-trees-random-forests.html" rel="next">
+<link href="../chapters/chapter-05-cross-validation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-06-regression-splines.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-straight-line-breaks-down-concurrent-load-and-latency" id="toc-why-a-straight-line-breaks-down-concurrent-load-and-latency" class="nav-link active" data-scroll-target="#why-a-straight-line-breaks-down-concurrent-load-and-latency"><span class="header-section-number">6.1</span> Why a straight line breaks down: concurrent load and latency</a></li>
+  <li><a href="#polynomial-regression-and-its-instability-at-the-edges" id="toc-polynomial-regression-and-its-instability-at-the-edges" class="nav-link" data-scroll-target="#polynomial-regression-and-its-instability-at-the-edges"><span class="header-section-number">6.2</span> Polynomial regression and its instability at the edges</a></li>
+  <li><a href="#basis-functions-the-idea-underneath-every-fix-in-this-chapter" id="toc-basis-functions-the-idea-underneath-every-fix-in-this-chapter" class="nav-link" data-scroll-target="#basis-functions-the-idea-underneath-every-fix-in-this-chapter"><span class="header-section-number">6.3</span> Basis functions: the idea underneath every fix in this chapter</a></li>
+  <li><a href="#regression-splines-piecewise-polynomials-joined-at-knots" id="toc-regression-splines-piecewise-polynomials-joined-at-knots" class="nav-link" data-scroll-target="#regression-splines-piecewise-polynomials-joined-at-knots"><span class="header-section-number">6.4</span> Regression splines: piecewise polynomials joined at knots</a></li>
+  <li><a href="#natural-cubic-splines-constraining-the-boundaries" id="toc-natural-cubic-splines-constraining-the-boundaries" class="nav-link" data-scroll-target="#natural-cubic-splines-constraining-the-boundaries"><span class="header-section-number">6.5</span> Natural cubic splines: constraining the boundaries</a></li>
+  <li><a href="#smoothing-splines-a-penalty-instead-of-a-knot-count" id="toc-smoothing-splines-a-penalty-instead-of-a-knot-count" class="nav-link" data-scroll-target="#smoothing-splines-a-penalty-instead-of-a-knot-count"><span class="header-section-number">6.6</span> Smoothing splines: a penalty instead of a knot count</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">6.7</span> A Bayesian perspective</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-06-regression-splines.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Chapter 4 fit a straight line through payload size and checkout-API latency, and the line worked: the relationship was close to linear across the range of payload sizes the service saw.</p>
+<p>Concurrent request load is a different story. At low load, adding a few more simultaneous requests barely moves latency. Past some point, the same increase in load produces a much sharper rise, because the service is running out of capacity to process requests as fast as they arrive. A straight line cannot represent both of those behaviors with one slope.</p>
+<p>This chapter works through the tools that handle a curved relationship without abandoning regression altogether:</p>
+<ol type="1">
+<li><em>Why does a linear fit fail here, specifically?</em> The shape of the failure points directly at what kind of flexibility the model needs.</li>
+<li><em>Can a higher-degree polynomial just fix it?</em> Sometimes, but polynomials misbehave in a specific and predictable way near the edges of the data.</li>
+<li><em>What is a basis function, and why does almost every fix in this chapter use one?</em> Step functions, polynomials, and splines are all the same idea in different clothing.</li>
+<li><em>What is a regression spline, and how many knots does it need?</em> Piecewise polynomials joined smoothly at chosen points, with a meaningful trade-off in how many points to choose.</li>
+<li><em>What does a smoothing spline buy that a hand-placed knot cannot?</em> A penalty term, the same idea Chapter 4 used for Lasso and Ridge, applied to curve roughness instead of coefficient size.</li>
+</ol>
+<section id="why-a-straight-line-breaks-down-concurrent-load-and-latency" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="why-a-straight-line-breaks-down-concurrent-load-and-latency"><span class="header-section-number">6.1</span> Why a straight line breaks down: concurrent load and latency</h2>
+<p>Queueing theory gives a simple, well-established model for what happens as a server approaches its capacity: mean latency grows roughly in proportion to <span class="math inline">\(1 / (1 - \rho)\)</span>, where <span class="math inline">\(\rho\)</span> is utilization, the ratio of incoming load to the service’s processing capacity.</p>
+<div id="fig-linear-misfit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-misfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-linear-misfit.png" class="img-fluid figure-img"></p>
+<figcaption>linear misfit</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-linear-misfit.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-misfit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: An OLS line captures the general upward trend but misses both ends: it underpredicts latency at low load, dipping toward zero while observed latency holds near 20 ms, then overshoots badly as load climbs toward the top of the range shown, precisely the region where an accurate prediction matters most for an alerting threshold.
+</figcaption>
+</figure>
+</div>
+<p>Think of a coffee shop with one register: with few customers, each order gets served quickly and one more customer barely lengthens the line. Once the shop gets busy enough, each new customer adds a noticeably longer wait, since the register is running out of room to keep up.</p>
+<p><a href="#fig-linear-misfit" class="quarto-xref">Figure&nbsp;<span>6.1</span></a> forces an OLS line through simulated latency data generated from this saturation curve, confirming the mismatch the queueing-theory relationship predicts.</p>
+<p>This is not a linear relationship: it stays nearly flat for most of the range and then rises steeply as load approaches capacity. At <span class="math inline">\(\rho = 0.5\)</span>, the service is running at half capacity and latency stays close to its baseline.</p>
+<p>At <span class="math inline">\(\rho = 0.9\)</span>, the denominator has shrunk to 0.1, and latency runs roughly five times its <span class="math inline">\(\rho = 0.5\)</span> level. At <span class="math inline">\(\rho = 0.99\)</span>, the denominator shrinks to 0.01, and latency runs roughly ten times higher again, about fifty times the <span class="math inline">\(\rho = 0.5\)</span> baseline.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A relationship that stays flat, then bends sharply upward past some threshold, is a signature of a system approaching a capacity limit. A straight line will always underfit one end of that curve.</p>
+</div>
+</div>
+</section>
+<section id="polynomial-regression-and-its-instability-at-the-edges" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="polynomial-regression-and-its-instability-at-the-edges"><span class="header-section-number">6.2</span> Polynomial regression and its instability at the edges</h2>
+<div id="fig-poly-degree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poly-degree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-poly-degree.png" class="img-fluid figure-img"></p>
+<figcaption>poly degree</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-poly-degree.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poly-degree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.2: The fit improves through degree 3 or 4, tracking the saturation curve closely, then starts oscillating near the high-load boundary as degree keeps rising: the Runge phenomenon in practice, worst in precisely the region an operator cares about most.
+</figcaption>
+</figure>
+</div>
+<p>Picture a piece of wire bent to touch as many dots on a page as possible: bending it enough to hit every dot near the middle can send the ends whipping away from the true shape, even while the middle looks great. Polynomials with a high degree can do the same thing to a curve.</p>
+<p>The most direct fix is to add polynomial terms: <span class="math inline">\(Y = \beta_0 + \beta_1 X + \beta_2 X^2 +
+\beta_3 X^3 + \dots + \varepsilon\)</span>. A quadratic or cubic term lets the fitted curve bend, and for many datasets a low-degree polynomial captures the curvature well.</p>
+<p>It is natural to expect that adding still more degree terms should only improve the fit further. Surprisingly, that is not what happens.</p>
+<p>As the polynomial degree rises, the fitted curve starts to oscillate wildly near the boundaries of the data, even while fitting the interior points almost perfectly. This is known as the Runge phenomenon, after Carl Runge’s 1901 demonstration that interpolating a smooth function at evenly spaced points with a high-degree polynomial can diverge near the edges of the interval.</p>
+<p>That divergence happens even though the underlying function itself is well-behaved <span class="citation" data-cites="runge1901">(<a href="chapter-01-descriptive-statistics.html#ref-runge1901" role="doc-biblioref">Runge 1901</a>)</span>.</p>
+<p><a href="#fig-poly-degree" class="quarto-xref">Figure&nbsp;<span>6.2</span></a> fits polynomials of increasing degree to the load-latency data and shows this directly: degree 3 or 4 tracks the saturation curve reasonably well, but by degree 9 or 10 the fitted curve swings above and below the true relationship near the high-load edge, the region an operator cares about most.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A lower training error at a higher polynomial degree is not evidence of a better fit. Check the curve near the edges of the data before trusting a high-degree polynomial, since that is where the Runge phenomenon shows up first.</p>
+</div>
+</div>
+</section>
+<section id="basis-functions-the-idea-underneath-every-fix-in-this-chapter" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="basis-functions-the-idea-underneath-every-fix-in-this-chapter"><span class="header-section-number">6.3</span> Basis functions: the idea underneath every fix in this chapter</h2>
+<div id="fig-basis-functions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-basis-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-basis-functions.png" class="img-fluid figure-img"></p>
+<figcaption>basis functions</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-basis-functions.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basis-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.3: The polynomial basis grows without bound and covers the whole range at once, so a change anywhere reshapes the curve everywhere. The step-function basis is hard-edged flat boxes, and the cubic spline basis is smooth, overlapping bumps, each nonzero over only part of the range, the property that lets a spline bend locally without disturbing the fit elsewhere.
+</figcaption>
+</figure>
+</div>
+<p>Think of building a curved wall out of straight LEGO bricks stacked at different angles: no single brick bends, but the right combination of simple, straight pieces can approximate almost any shape. A basis function is one of those simple building-block pieces.</p>
+<p>Every technique in this chapter, polynomials included, is a special case of the same general strategy: instead of predicting <span class="math inline">\(Y\)</span> directly from <span class="math inline">\(X\)</span>, transform <span class="math inline">\(X\)</span> through a set of <em>basis functions</em> <span class="math inline">\(b_1(X), b_2(X), \dots, b_K(X)\)</span> and fit a linear model on the transformed inputs,</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 b_1(X) + \beta_2 b_2(X) + \dots + \beta_K b_K(X) + \varepsilon.\]</span></p>
+<p>A polynomial regression is the special case where <span class="math inline">\(b_k(X) = X^k\)</span>. A <em>step function</em> is the special case where each <span class="math inline">\(b_k(X)\)</span> is an indicator variable for whether <span class="math inline">\(X\)</span> falls in a particular range, for instance whether concurrent load falls between 60% and 70% of capacity.</p>
+<p>Step functions are easy to interpret and immune to the boundary instability polynomials show, since each region is fit independently. But they produce a fitted curve with hard jumps at every cut point, not the smooth saturation curve the underlying queueing behavior has.</p>
+<p>A regression spline’s own basis functions, covered next, are a third option: instead of a global power series or a set of hard-edged boxes, each one is a smooth bump that is nonzero over only part of the range, what mathematicians call its support.</p>
+<p><a href="#fig-basis-functions" class="quarto-xref">Figure&nbsp;<span>6.3</span></a> plots the individual basis functions for each family side by side: the raw ingredients that go into a fit, separate from the fitted curve they eventually produce.</p>
+<p>The right choice of basis functions is what separates a fit that tracks the data’s shape from one that merely bends in its general direction.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The shape of a basis function is a direct clue to how a fit built from it will misbehave. A basis that spans the whole range, like a polynomial term, lets one distant point tilt the fit everywhere. A basis with local support, like a spline’s bumps, confines that influence to a neighborhood around the point.</p>
+</div>
+</div>
+<p>The shape of the spline basis functions is the reason a regression spline can bend sharply near the saturation point without the polynomial’s boundary instability: each bump only influences the fit in its own local region. A change near one knot does not ripple across the entire curve the way a change to a degree-9 polynomial’s coefficients does.</p>
+</section>
+<section id="regression-splines-piecewise-polynomials-joined-at-knots" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="regression-splines-piecewise-polynomials-joined-at-knots"><span class="header-section-number">6.4</span> Regression splines: piecewise polynomials joined at knots</h2>
+<div id="fig-knot-count" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-knot-count-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-knot-count.png" class="img-fluid figure-img"></p>
+<figcaption>knot count</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-knot-count.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-knot-count-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.4: Three or four knots track the saturation curve well; a dozen knots start chasing noise between individual points, the same overfitting pattern a high-degree polynomial shows, without the boundary oscillation.
+</figcaption>
+</figure>
+</div>
+<p>A <em>regression spline</em> fits a separate low-degree polynomial, typically cubic, within each region of <span class="math inline">\(X\)</span>, then constrains those pieces to join smoothly at boundary points called <em>knots</em>.</p>
+<p>For a cubic spline, “smoothly” means the function value, its first derivative (the curve’s slope), and its second derivative (how sharply it is bending) all match at each knot, so the fitted curve has no visible seam even though it is built from separate pieces.</p>
+<p>The number and placement of knots controls the trade-off directly. Too few knots and the spline cannot bend enough to follow the saturation curve, similar to a low-degree polynomial.</p>
+<p>Too many knots and the spline starts fitting noise in the data between nearby points, similar to a high-degree polynomial. The spline does not show the boundary oscillation problem, though, since each piece only has to behave well within its own region.</p>
+<p><a href="#fig-knot-count" class="quarto-xref">Figure&nbsp;<span>6.4</span></a> fits regression splines with a growing number of evenly spaced knots to the load-latency data.</p>
+<p>Two decisions are hiding inside “the number and placement of knots”: where to put them, and how many to use. Placement is usually the easier call: space the knots at even quantiles of the predictor, the same percentile idea from Chapter 1 generalized to any fraction of the data rather than just the 90th or 99th, instead of at even intervals of its range.</p>
+<p>That puts more knots where the data is dense and fewer where it is sparse, so no single knot ends up governing a region with only a handful of observations.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Place knots at even quantiles of the predictor, not at even intervals of its range. That puts more knots where the data is dense and avoids a knot that has to govern a region with only a handful of observations.</p>
+</div>
+</div>
+<p>The count is the harder call. It follows the same rule Chapter 5 established for any tuning parameter: try a range of knot counts, cross-validate each one, and pick the count with the lowest cross-validated error rather than the one that looks best on the training fit.</p>
+</section>
+<section id="natural-cubic-splines-constraining-the-boundaries" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="natural-cubic-splines-constraining-the-boundaries"><span class="header-section-number">6.5</span> Natural cubic splines: constraining the boundaries</h2>
+<p>A cubic regression spline is still a cubic polynomial in its two outermost regions, which means it inherits some of the same boundary instability polynomials show, particularly if the last knot sits close to the edge of the observed data.</p>
+<p>A <em>natural cubic spline</em> adds one more constraint: the function must be linear, not merely cubic, beyond the two boundary knots. This trades a small amount of flexibility at the extremes for a curve that behaves predictably when extrapolating.</p>
+<p>That matters directly here, since the highest-load observations in any given hour of traffic are the region where the next hour’s traffic might land slightly beyond what has been observed so far.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A model that swings unpredictably past the edge of its training data is a poor choice for the region an operator is most likely to page someone about. The natural boundary constraint exists specifically to prevent that failure mode.</p>
+</div>
+</div>
+</section>
+<section id="smoothing-splines-a-penalty-instead-of-a-knot-count" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="smoothing-splines-a-penalty-instead-of-a-knot-count"><span class="header-section-number">6.6</span> Smoothing splines: a penalty instead of a knot count</h2>
+<div id="fig-smoothing-lambda" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-smoothing-lambda-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-smoothing-lambda.png" class="img-fluid figure-img"></p>
+<figcaption>smoothing lambda</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-smoothing-lambda.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-smoothing-lambda-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.5: A small lambda produces a wiggly curve that chases individual points, and a large lambda flattens the fit back toward a straight line, recovering something close to the OLS fit that opened this chapter.
+</figcaption>
+</figure>
+</div>
+<p>Choosing how many knots to use, and where to place them, is itself a decision that can be made or avoided. Imagine a strict art teacher who lets a sketch curve freely but takes off points for every sharp, jagged wiggle. A smoothing spline judges a curve the same way: it rewards a close fit to the data but charges a penalty for bending too sharply too often.</p>
+<p>A <em>smoothing spline</em> sidesteps knot selection by placing a knot at essentially every unique data point and then controlling flexibility with a penalty on roughness, minimizing</p>
+<p><span class="math display">\[\sum_{i=1}^{n} (y_i - f(x_i))^2 + \lambda \int f''(t)^2 \, dt\]</span></p>
+<p>where the first term is the usual sum of squared errors and the second term penalizes how much the fitted function curves, since a large second derivative means the function is bending sharply.</p>
+<p>This is the same idea Chapter 4 used for Lasso and Ridge regression: a tuning parameter <span class="math inline">\(\lambda\)</span> trades fit against complexity, except here the penalty targets the curvature of an entire function rather than the size of a fixed set of coefficients.</p>
+<p><a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> shows the smoothing spline at several values of <span class="math inline">\(\lambda\)</span>, tracing the path from near-interpolation of every point at small <span class="math inline">\(\lambda\)</span> to a nearly straight line at large <span class="math inline">\(\lambda\)</span>.</p>
+<p>Recall from Chapter 5’s discussion of cross-validation that a tuning parameter like <span class="math inline">\(\lambda\)</span> should not be picked by eye. In practice, <span class="math inline">\(\lambda\)</span> is chosen the same way the regularization strength for Lasso or Ridge was chosen: by cross-validating over a range of candidate values and picking the one that minimizes estimated test error, not training error.</p>
+</section>
+<section id="a-bayesian-perspective" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">6.7</span> A Bayesian perspective</h2>
+<p>Every spline in this chapter produces a single fitted curve: one best estimate of the relationship between load and latency, with no built-in statement of how much that curve might have looked different under a slightly different sample of requests.</p>
+<p>Gaussian process regression takes the smoothing-spline idea and gives it a full probability distribution instead of a point estimate.</p>
+<p>Instead of settling on one curve through the data, imagine sketching hundreds of plausible curves by hand, keeping only the ones that pass close to the known points, and looking at how much the surviving curves still disagree with each other elsewhere. A Gaussian process turns that intuition into math.</p>
+<p>A Gaussian process defines a prior distribution not over parameters, as in Chapter 4’s Bayesian linear regression, but directly over functions: before seeing any data, the model treats every smooth function consistent with a chosen <em>kernel</em> as plausible.</p>
+<p>The kernel encodes assumptions like how quickly the function is allowed to change <span class="citation" data-cites="rasmussenwilliams2006">(<a href="chapter-01-descriptive-statistics.html#ref-rasmussenwilliams2006" role="doc-biblioref">Rasmussen and Williams 2006</a>)</span>.</p>
+<p>The most common choice, the squared-exponential kernel, has a single <em>length-scale</em> parameter that plays much the same role as a smoothing spline’s <span class="math inline">\(\lambda\)</span>: a short length-scale allows the function to bend quickly across small changes in load, a long length-scale forces it to change slowly.</p>
+<p>Conditioning that prior on the observed load-latency pairs produces a posterior distribution over functions, with a posterior mean curve that looks similar to a smoothing spline fit.</p>
+<div id="fig-gp-posterior" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gp-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-splines-fig-gp-posterior.png" class="img-fluid figure-img"></p>
+<figcaption>gp posterior</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-splines-fig-gp-posterior.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.6: The credible band widens noticeably at the high-load edge, where observations are sparser, an honest signal that the model is least certain in the region that matters most, something a single fitted spline curve cannot say about itself.
+</figcaption>
+</figure>
+</div>
+<p>That posterior also provides something the smoothing spline does not offer on its own: a credible band around the curve at every load level, wide where data is sparse or noisy and narrow where the model has seen consistent evidence.</p>
+<p><a href="#fig-gp-posterior" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows a Gaussian process fit to the load-latency data at several length-scales, with the 95% credible band shaded around the posterior mean. Watch what happens at the high-load edge: the band widens, right where a single fitted spline curve would stay quiet about its own uncertainty.</p>
+<p>The credible band is not free. A Gaussian process’s computational cost grows roughly with the cube of the number of observations, since fitting one requires inverting an <span class="math inline">\(n \times n\)</span> matrix.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Gaussian process’s fitting cost grows with the cube of the number of observations. A few hundred to a few thousand points is a practical ceiling without a sparse approximation.</p>
+</div>
+</div>
+<p>That cost makes a direct GP fit impractical past a few thousand points without an approximation method. For a load-latency curve built from a full day of production traffic sampled down to a few hundred representative points, a GP is a reasonable choice.</p>
+<p>For a curve fit directly on millions of raw request logs, a smoothing spline or a sparse GP approximation is usually the more practical tool.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-rasmussenwilliams2006" class="csl-entry" role="listitem">
+Rasmussen, Carl Edward, and Christopher K. I. Williams. 2006. <em>Gaussian Processes for Machine Learning</em>. The MIT Press. <a href="http://www.gaussianprocess.org/gpml/">http://www.gaussianprocess.org/gpml/</a>.
+</div>
+<div id="ref-runge1901" class="csl-entry" role="listitem">
+Runge, Carl. 1901. <span>“<span>Ü</span>ber Empirische Funktionen Und Die Interpolation Zwischen <span class="nocase">ä</span>quidistanten Ordinaten.”</span> <em>Zeitschrift f<span>ü</span>r Mathematik Und Physik</em> 46: 224–43.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-05-cross-validation.html" class="pagination-link" aria-label="Cross-Validation and Model Selection">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="pagination-link" aria-label="Tree-Based Methods: Decision Trees and Random Forests">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

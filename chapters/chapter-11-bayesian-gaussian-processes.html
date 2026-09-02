@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>11&nbsp; Bayesian Nonlinear Regression: Gaussian Processes – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-12-bayesian-bart.html" rel="next">
+<link href="../chapters/chapter-10-bayesian-model-selection.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-11-bayesian-gaussian-processes.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#a-prior-over-functions" id="toc-a-prior-over-functions" class="nav-link active" data-scroll-target="#a-prior-over-functions"><span class="header-section-number">11.1</span> A prior over functions</a></li>
+  <li><a href="#the-kernel-the-one-modeling-choice-that-matters" id="toc-the-kernel-the-one-modeling-choice-that-matters" class="nav-link" data-scroll-target="#the-kernel-the-one-modeling-choice-that-matters"><span class="header-section-number">11.2</span> The kernel: the one modeling choice that matters</a></li>
+  <li><a href="#from-prior-to-posterior-conditioning-on-data" id="toc-from-prior-to-posterior-conditioning-on-data" class="nav-link" data-scroll-target="#from-prior-to-posterior-conditioning-on-data"><span class="header-section-number">11.3</span> From prior to posterior: conditioning on data</a></li>
+  <li><a href="#choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" id="toc-choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" class="nav-link" data-scroll-target="#choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself"><span class="header-section-number">11.4</span> Choosing the length-scale: marginal likelihood, or a prior on the kernel itself</a></li>
+  <li><a href="#what-the-credible-band-buys-honest-extrapolation" id="toc-what-the-credible-band-buys-honest-extrapolation" class="nav-link" data-scroll-target="#what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.5</span> What the credible band buys: honest extrapolation</a></li>
+  <li><a href="#more-than-one-input-at-a-time" id="toc-more-than-one-input-at-a-time" class="nav-link" data-scroll-target="#more-than-one-input-at-a-time"><span class="header-section-number">11.6</span> More than one input at a time</a></li>
+  <li><a href="#when-the-closed-form-runs-out" id="toc-when-the-closed-form-runs-out" class="nav-link" data-scroll-target="#when-the-closed-form-runs-out"><span class="header-section-number">11.7</span> When the closed form runs out</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-11-bayesian-gaussian-processes.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A fitted smoothing spline, from Chapter 6, hands back one curve: the single best estimate of how latency depends on load, given the requests observed so far. It says nothing about how much that curve might have looked different if a different sample of requests had been logged instead.</p>
+<p>A <em>Gaussian process</em>, or <em>GP</em>, answers the same curve-fitting question with a full distribution over curves rather than one winner. That distributional answer means every prediction the GP makes carries its own built-in statement of how much to trust it.</p>
+<p>This chapter works through what that distribution is, how it updates once data arrives, and what it costs to get.</p>
+<ol type="1">
+<li><em>What does it mean for a distribution to be over functions, not numbers?</em> The idea sounds abstract until it is sampled from directly.</li>
+<li><em>What is a kernel, and what does it control?</em> The kernel is the one modeling choice a Gaussian process asks for, and it decides almost everything about the fitted curve’s behavior.</li>
+<li><em>How does conditioning on data turn a prior over functions into a posterior?</em> For a Gaussian process, unlike most Bayesian models in this book, the answer has a closed form: no MCMC sampling required.</li>
+<li><em>What does the fitted model buy over a smoothing spline?</em> A credible band at every point, not just at the ones near the training data, and an honest account of where the model runs out of evidence.</li>
+</ol>
+<section id="a-prior-over-functions" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="a-prior-over-functions"><span class="header-section-number">11.1</span> A prior over functions</h2>
+<p>The chart below draws five functions from a Gaussian process prior with a squared-exponential (RBF) kernel, at four different length-scale settings.</p>
+<div id="fig-prior-samples" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-samples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-gp-fig-prior-samples.png" class="img-fluid figure-img"></p>
+<figcaption>prior samples</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-gp-fig-prior-samples.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-samples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Short length-scales produce curves that wiggle rapidly across the full range shown; long length-scales produce curves that barely move across that same range. The slider steps through that whole spectrum, from short to long.
+</figcaption>
+</figure>
+</div>
+<p>Imagine asking a hundred friends to sketch a smooth curve through five dots, without telling them how. Each sketches it differently between the dots but agrees closely at the dots themselves. A Gaussian process describes that whole bundle of possible sketches at once, not just one.</p>
+<p>Suppose a length-scale and a kernel shape are picked before a single data point is observed; the next section defines both in full. That choice alone defines a <em>prior</em>, but it looks different from the priors used earlier in this book.</p>
+<p>Recall from Chapter 9 that Bayesian linear regression puts a prior over a handful of coefficients, such as <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>.</p>
+<p>A Gaussian process prior sits directly over the space of functions consistent with the chosen kernel instead: infinitely many candidate curves, not a handful of numbers. Drawing a sample from this prior means drawing one entire function at once, not one number.</p>
+<p><a href="#fig-prior-samples" class="quarto-xref">Figure&nbsp;<span>11.1</span></a> shows this directly: at a short length-scale, the sampled functions wiggle rapidly; at a long length-scale, they barely move across the same range. No data has been observed yet in any of these curves.</p>
+<p>This is the space of functions the model considers plausible before it sees anything. The length-scale is the single knob that controls how large that space is.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sample a few curves from a candidate prior before fitting anything to observed data. If none of them look like plausible latency curves, the kernel or length-scale needs to change before a single observation is involved.</p>
+</div>
+</div>
+</section>
+<section id="the-kernel-the-one-modeling-choice-that-matters" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="the-kernel-the-one-modeling-choice-that-matters"><span class="header-section-number">11.2</span> The kernel: the one modeling choice that matters</h2>
+<p>The chart below draws samples from an RBF kernel next to two Matern kernels at the same length-scale, so the smoothness assumption each one encodes is visible directly rather than described in the abstract.</p>
+<div id="fig-kernel-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kernel-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-gp-fig-kernel-comparison.png" class="img-fluid figure-img"></p>
+<figcaption>kernel comparison</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-gp-fig-kernel-comparison.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kernel-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: The x-axis is scaled utilization and the y-axis is the sampled function value, same as the previous figure. The slider swaps the kernel behind the four sampled curves while holding the length-scale fixed: at the RBF setting shown here, every curve bends smoothly with no sharp corners; switching to Matern nu=1.5 makes the curves visibly jagged; Matern nu=2.5 lands between the two, smoother than nu=1.5 but not as smooth as the RBF curve.
+</figcaption>
+</figure>
+</div>
+<p>Think of two students sitting near each other in class: they tend to get similar grades, since they share notes and study together. Students across the room barely influence each other’s scores. A kernel measures that kind of closeness between points: how much knowing one value should shift a guess about a nearby one.</p>
+<p>The <em>kernel</em>, or covariance function, defines how correlated the function’s value at one point is with its value at another. The most common choice, the <em>RBF kernel</em> (also called the squared- exponential kernel), makes two points highly correlated when they are close together and lets that correlation decay smoothly as the distance between them grows:</p>
+<p><span class="math display">\[k(x, x') = \sigma_f^2 \exp\!\left(-\frac{(x - x')^2}{2\ell^2}\right).\]</span></p>
+<p>The <em>length-scale</em> <span class="math inline">\(\ell\)</span> sets how quickly that correlation decays: a short <span class="math inline">\(\ell\)</span> means even nearby points are treated as loosely related, producing the wiggly samples in the previous figure. A long <span class="math inline">\(\ell\)</span> means points far apart still move together, producing near-flat samples.</p>
+<p>The <em>signal variance</em> <span class="math inline">\(\sigma_f^2\)</span> sets the overall vertical scale of the function’s swings. In other words, <span class="math inline">\(\ell\)</span> controls how fast the function is allowed to change, and <span class="math inline">\(\sigma_f^2\)</span> controls how far it is allowed to swing while changing.</p>
+<p>The RBF kernel comes with an assumption worth naming directly: every function it can produce is infinitely differentiable, meaning perfectly smooth at every scale, with no kinks anywhere. That is a strong assumption.</p>
+<p>The <em>Matern kernel</em> relaxes it with a smoothness parameter <span class="math inline">\(\nu\)</span>: at <span class="math inline">\(\nu = 1/2\)</span> it produces functions as rough as Brownian motion (a random walk that changes direction at every instant and has no well-defined slope anywhere), at <span class="math inline">\(\nu = 3/2\)</span> or <span class="math inline">\(\nu = 5/2\)</span> it produces functions with a controlled, finite amount of smoothness, and as <span class="math inline">\(\nu \to \infty\)</span> it converges to the RBF kernel.</p>
+<p><a href="#fig-kernel-comparison" class="quarto-xref">Figure&nbsp;<span>11.2</span></a> steps through all three: the perfectly smooth RBF curve, the visibly rougher Matern nu=1.5 curve, and the Matern nu=2.5 curve between them.</p>
+<p>Recall the saturation curve from Chapter 6: latency rises smoothly, without kinks, as utilization approaches capacity. An RBF kernel’s smoothness assumption fits that shape well.</p>
+<p>A metric with sudden regime changes, such as a step function triggered by an autoscaling rule, would be a better match for a rougher Matern kernel or an explicit change-point model. The kernel is a direct claim about the shape of the process being modeled, worth choosing deliberately rather than leaving at a library’s default <span class="citation" data-cites="rasmussenwilliams2006">(<a href="chapter-01-descriptive-statistics.html#ref-rasmussenwilliams2006" role="doc-biblioref">Rasmussen and Williams 2006</a>)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The kernel is not a tuning knob to leave at its library default. It is a stated claim about whether the process being modeled is smooth everywhere or allowed to bend sharply.</p>
+</div>
+</div>
+</section>
+<section id="from-prior-to-posterior-conditioning-on-data" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="from-prior-to-posterior-conditioning-on-data"><span class="header-section-number">11.3</span> From prior to posterior: conditioning on data</h2>
+<p>The chart below fits this same model to the concurrent-load-versus-latency data from Chapter 6, at growing sample sizes.</p>
+<div id="fig-posterior-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-posterior-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-gp-fig-posterior-fit.png" class="img-fluid figure-img"></p>
+<figcaption>posterior fit</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-gp-fig-posterior-fit.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.3: The x-axis is utilization (rho) and the y-axis is latency in milliseconds; the dotted line is the true curve the observations were generated from. At the slider’s starting point of five observations, the posterior mean tracks that true curve closely through the smooth, low-utilization part of the range, but the credible band widens sharply above roughly 80% utilization, where the curve bends fastest and the five points give it the least to go on. Dragging the slider toward sixty observations narrows the band further across the whole range, though it never closes all the way at that same high-utilization edge.
+</figcaption>
+</figure>
+</div>
+<p>Think of guessing a friend’s height from two friends whose heights you know, weighted by how close in age each is to your friend. Closer ages pull the guess harder. Conditioning on data works the same way: nearby observations pull a Gaussian process’s prediction toward them, and the pull fades with distance.</p>
+<p>A closed-form answer is available here: a Gaussian process with a Gaussian observation noise model is one of the few cases in Bayesian statistics where the posterior can be written down directly. Stack the observed inputs into <span class="math inline">\(X\)</span> and the observed outputs into <span class="math inline">\(y\)</span>.</p>
+<p>The joint distribution of the observed values and any new prediction point is multivariate normal by construction, since every finite collection of points from a Gaussian process is multivariate normal by definition. Standard multivariate-normal conditioning then gives the posterior mean and covariance at a new point <span class="math inline">\(x_*\)</span> in closed form:</p>
+<p><span class="math display">\[\mu(x_*) = k(x_*, X)\left[K(X, X) + \sigma_n^2 I\right]^{-1} y\]</span></p>
+<p><span class="math display">\[\sigma^2(x_*) = k(x_*, x_*) - k(x_*, X)\left[K(X, X) + \sigma_n^2 I\right]^{-1} k(X, x_*)\]</span></p>
+<p>In other words, the posterior mean at a new point is a weighted average of the observed <span class="math inline">\(y\)</span> values, where the weights come from how correlated the new point is with each observed point under the kernel. The posterior variance shrinks wherever nearby observations pin the function down, and stays close to the prior variance wherever they do not.</p>
+<p>A tiny worked example makes the formula concrete before trusting it to a plotted curve. Suppose two requests have been observed: one at utilization <span class="math inline">\(\rho = 0.30\)</span> with latency <span class="math inline">\(29\)</span> ms, another at <span class="math inline">\(\rho = 0.40\)</span> with latency <span class="math inline">\(33\)</span> ms. The kernel is RBF with <span class="math inline">\(\ell = 0.1\)</span> and <span class="math inline">\(\sigma_f^2 = 400\)</span>, plus a small observation-noise variance <span class="math inline">\(\sigma_n^2 = 4\)</span>.</p>
+<p>The kernel gives <span class="math inline">\(k(0.30, 0.40) = 400 \cdot e^{-0.5} \approx 243\)</span>: substantial correlation, but well short of the maximum possible value of <span class="math inline">\(400\)</span>, since the two points sit one length-scale apart.</p>
+<p>Plugging both observations into the posterior-mean formula and querying at <span class="math inline">\(\rho = 0.35\)</span>, right between the two, gives a posterior mean of about <span class="math inline">\(33.8\)</span> ms, not the simple average of <span class="math inline">\(29\)</span> and <span class="math inline">\(33\)</span>, which would be <span class="math inline">\(31\)</span>.</p>
+<p>This is worth sitting with: because the two training observations are correlated with each other (through the same off-diagonal kernel entry just computed), the model does not treat them as two independent votes to be averaged.</p>
+<p>It treats the second, higher observation as carrying information the first one only partially confirms, and the weighted combination in the formula can push the posterior mean slightly past the range of the observed data.</p>
+<p>Querying at <span class="math inline">\(\rho = 0.80\)</span>, far from either observation relative to <span class="math inline">\(\ell = 0.1\)</span>, gives a posterior mean of about <span class="math inline">\(0.01\)</span>, essentially reverted to the prior mean. The posterior variance there is about <span class="math inline">\(400\)</span>, matching the prior variance closely, since the model has no evidence at all in that region.</p>
+<p>This is the same shrinkage-toward-the-prior behavior <a href="#fig-extrapolation" class="quarto-xref">Figure&nbsp;<span>11.4</span></a> shows next, worked here on the full simulated dataset rather than by hand on just two points. The chart fits this same model to load data that never exceeded 75% utilization, then extends the prediction grid out to 97%.</p>
+<div id="fig-extrapolation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-extrapolation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-gp-fig-extrapolation.png" class="img-fluid figure-img"></p>
+<figcaption>extrapolation</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-gp-fig-extrapolation.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-extrapolation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.4: Past the shaded boundary, the last utilization observed in this dataset, the posterior mean flattens and drifts down instead of continuing the rising trend. The credible band widens to several times its width just inside that boundary. Both show the model admitting it has no evidence past that point, not a forecast that latency improves at higher load.
+</figcaption>
+</figure>
+</div>
+<p>No sampling algorithm is required to reach this answer; a matrix inversion produces it directly. That inversion is also the computational bottleneck: it costs <span class="math inline">\(O(n^3)\)</span> in the number of observations, which is why a plain Gaussian process becomes expensive past a few thousand points.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <span class="math inline">\(O(n^3)\)</span> matrix inversion is the practical limit on a plain Gaussian process, not the model itself. A fit that is fast at a few hundred rows can become impractical once the dataset grows into the thousands.</p>
+</div>
+</div>
+<p><code>scikit-learn</code>’s <code>GaussianProcessRegressor</code> implements this closed-form fit directly and is the standard entry point for a dataset in that range:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.gaussian_process <span class="im">import</span> GaussianProcessRegressor</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.gaussian_process.kernels <span class="im">import</span> RBF, WhiteKernel</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>kernel <span class="op">=</span> RBF(length_scale<span class="op">=</span><span class="fl">0.2</span>, length_scale_bounds<span class="op">=</span>(<span class="fl">0.02</span>, <span class="fl">2.0</span>)) <span class="op">+</span> WhiteKernel(<span class="fl">1.0</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>gp <span class="op">=</span> GaussianProcessRegressor(kernel<span class="op">=</span>kernel, normalize_y<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>gp.fit(rho.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), latency)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>mean, std <span class="op">=</span> gp.predict(grid, return_std<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><a href="#fig-posterior-fit" class="quarto-xref">Figure&nbsp;<span>11.3</span></a> fits this scikit-learn model to the concurrent-load-versus-latency data from Chapter 6, at growing sample sizes. The <em>credible band</em> shown there is the functional counterpart of the credible interval Chapter 9 built for a single coefficient: instead of one interval, there is now one at every point along the curve.</p>
+</section>
+<section id="choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself"><span class="header-section-number">11.4</span> Choosing the length-scale: marginal likelihood, or a prior on the kernel itself</h2>
+<p>The chart below holds the length-scale fixed instead of letting the optimizer choose it.</p>
+<div id="fig-length-scale-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-length-scale-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-gp-fig-length-scale-fit.png" class="img-fluid figure-img"></p>
+<figcaption>length scale fit</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-gp-fig-length-scale-fit.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-length-scale-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.5: At the length-scale of 0.02 shown here, too short, the posterior mean (orange) chases individual points. The credible band swells and pinches unevenly along the curve instead of growing smoothly with distance from the data. Drag the slider toward the optimized value from the previous figure to watch both settle down. Push it well past that point instead, and the mean flattens into a near-straight line that misses the saturation bend near high utilization.
+</figcaption>
+</figure>
+</div>
+<p>The length-scale is not something to guess by eye. The standard approach, <em>marginal likelihood maximization</em>, sometimes called <em>empirical Bayes</em> in this context, picks the length-scale (and signal variance, and noise variance) that make the observed data most probable under the GP prior. It does this by numerically maximizing the log marginal likelihood.</p>
+<p>The term “marginal” refers to the unobserved function values being integrated out algebraically. What is left is a likelihood that depends only on the length-scale, signal variance, and noise variance, not on any specific sampled curve.</p>
+<p>This is what happens inside <code>GaussianProcessRegressor.fit()</code> by default whenever the kernel’s bounds allow the optimizer to move; the code example above used it.</p>
+<p><a href="#fig-length-scale-fit" class="quarto-xref">Figure&nbsp;<span>11.5</span></a> shows what happens when that optimization step is skipped and the length-scale is instead held fixed: too short, and the posterior mean chases individual noisy points; too long, and it smooths straight through the saturation curve’s bend near high utilization.</p>
+<p>Marginal likelihood maximization returns a single best length-scale, a point estimate of a hyperparameter, which is a mild inconsistency in an otherwise fully Bayesian model.</p>
+<p>A stricter Bayesian treatment puts a prior on the length-scale itself and samples from its posterior along with everything else, using a probabilistic programming library such as PyMC rather than <code>scikit-learn</code>’s closed-form fit. A prior on the length-scale breaks the closed form this section relied on, which is why that stricter treatment needs a sampler instead.</p>
+<p>In practice, marginal likelihood maximization is close enough for most tabular problems: it is the default in essentially every GP library for this reason. Treating the length-scale as fully uncertain matters most when the dataset is small enough that different plausible length-scales would lead to meaningfully different conclusions.</p>
+<p>The optimizer behind that maximization is not guaranteed to land on the best peak. The marginal likelihood surface can have more than one local maximum: commonly a short-length-scale peak that treats most of the variation in the data as signal, and a long-length-scale peak that explains the same variation away as observation noise.</p>
+<p>A poorly chosen starting point can leave the fit stuck at the worse of the two <span class="citation" data-cites="rasmussenwilliams2006">(<a href="chapter-01-descriptive-statistics.html#ref-rasmussenwilliams2006" role="doc-biblioref">Rasmussen and Williams 2006</a>)</span>.</p>
+<p><code>GaussianProcessRegressor</code>’s <code>n_restarts_optimizer</code> argument, left at its default of zero in the code example above, reruns the search from several randomly chosen starting points and keeps the best result. It is worth turning on whenever a fitted length-scale looks suspicious, rather than trusting a single optimization run.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Leave <code>n_restarts_optimizer</code> at zero only for a first pass. Once a fit is trusted for anything beyond exploration, rerun it with several restarts and confirm the length-scale does not move.</p>
+</div>
+</div>
+</section>
+<section id="what-the-credible-band-buys-honest-extrapolation" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.5</span> What the credible band buys: honest extrapolation</h2>
+<p><a href="#fig-extrapolation" class="quarto-xref">Figure&nbsp;<span>11.4</span></a>, shown earlier in this chapter, is the situation Chapter 6 flagged as dangerous for an alerting threshold: the region of highest interest is the region with the least data.</p>
+<p>Past the observed range, the credible band widens sharply, which is the correct behavior: the kernel’s correlation between a query point and the training data decays with distance.</p>
+<p>Far enough past the last observation, the posterior reverts toward the prior: wide and uninformative. A smoothing spline’s fitted curve, by contrast, keeps extrapolating along whatever polynomial trend the boundary basis functions imply, with no built-in signal that the curve has left the region it was trained on.</p>
+<p>Neither method can conjure information about untested load levels out of nothing. The difference is that the Gaussian process says so, in a number that can be checked against an alert threshold, and the spline does not.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A widening credible band past the observed range means the model is reporting, in a number that can be checked against an alert threshold, that it has run out of evidence, not that the model is malfunctioning.</p>
+</div>
+</div>
+</section>
+<section id="more-than-one-input-at-a-time" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="more-than-one-input-at-a-time"><span class="header-section-number">11.6</span> More than one input at a time</h2>
+<p>Every figure in this chapter used a single predictor, utilization, to keep the plots readable as two-dimensional curves. Nothing about the kernel or the posterior formula requires that. Chapter 4’s OLS model predicted latency from payload size and concurrent-request count together.</p>
+<p>A Gaussian process handles the same two-predictor setup by measuring distance between points in that two-dimensional input space instead of along a single line, typically with a separate length-scale per input dimension (an “automatic relevance determination” kernel, in the terminology <code>scikit-learn</code> and most other GP libraries use).</p>
+<p>A short length-scale on one dimension and a long length-scale on another is itself a form of variable-importance signal: the model has learned that the function changes quickly along the first input and barely reacts to the second, without anyone hand-coding that conclusion in advance.</p>
+<p>The same <span class="math inline">\(O(n^3)\)</span> cost applies regardless of how many input dimensions there are, since it depends only on the number of observations, not the number of predictors. That is one reason a GP scales more gracefully with feature count than it does with dataset size.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>After fitting a multi-dimensional GP, check the optimized length-scales against each input’s own range before reading anything else. A length-scale several times wider than the range of its input is a cheap early sign that dimension is not doing much work in the fit.</p>
+</div>
+</div>
+</section>
+<section id="when-the-closed-form-runs-out" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="when-the-closed-form-runs-out"><span class="header-section-number">11.7</span> When the closed form runs out</h2>
+<p>Everything in this chapter relied on a Gaussian process with Gaussian observation noise, which is the one case with a closed-form posterior.</p>
+<p>Two situations break that closed form and push toward the tools Chapter 9 introduces for other models: a non-Gaussian likelihood (for instance, modeling a binary success/failure outcome with a GP-based classifier instead of a continuous latency value) and a dataset too large for the <span class="math inline">\(O(n^3)\)</span> matrix inversion to finish in reasonable time.</p>
+<p>Both push toward approximate inference: variational methods that summarize the posterior with a simpler distribution, or sparse GP approximations that summarize the training data itself with a smaller set of representative “inducing points.” <code>GPyTorch</code> and <code>GPflow</code> are the two libraries most commonly reached for once a problem crosses either of those lines.</p>
+<p>Both implement sparse and variational GP methods that scale well past the point where <code>scikit-learn</code>’s closed-form implementation becomes impractical, typically somewhere in the range of several thousand to tens of thousands of training points, depending on available memory.</p>
+<p>For a dataset in the hundreds or low thousands, which covers most of the tabular, single-service metrics this book has worked with, the closed-form fit this chapter walked through is enough.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Reach for <code>GPyTorch</code> or <code>GPflow</code> only once the dataset size or the likelihood forces the issue. For the tabular sizes common in this book, the closed-form <code>scikit-learn</code> fit is easier to set up and easier to debug.</p>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-rasmussenwilliams2006" class="csl-entry" role="listitem">
+Rasmussen, Carl Edward, and Christopher K. I. Williams. 2006. <em>Gaussian Processes for Machine Learning</em>. The MIT Press. <a href="http://www.gaussianprocess.org/gpml/">http://www.gaussianprocess.org/gpml/</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-10-bayesian-model-selection.html" class="pagination-link" aria-label="Bayesian Model Selection and Comparison">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-12-bayesian-bart.html" class="pagination-link" aria-label="Bayesian Additive Regression Trees (BART)">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

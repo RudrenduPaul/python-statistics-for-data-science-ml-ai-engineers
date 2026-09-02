@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Probability and Distributions – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-04-regression-modeling.html" rel="next">
+<link href="../chapters/chapter-02-hypothesis-testing.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-01-descriptive-statistics.html">Part 1: Foundations of Applied Statistics</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-03-probability-and-distributions.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bayes-theorem-what-an-alert-tells-you" id="toc-bayes-theorem-what-an-alert-tells-you" class="nav-link active" data-scroll-target="#bayes-theorem-what-an-alert-tells-you"><span class="header-section-number">3.1</span> Bayes’ theorem: what an alert tells you</a></li>
+  <li><a href="#conditional-probability" id="toc-conditional-probability" class="nav-link" data-scroll-target="#conditional-probability"><span class="header-section-number">3.2</span> Conditional probability</a></li>
+  <li><a href="#matching-a-distribution-to-the-mechanism" id="toc-matching-a-distribution-to-the-mechanism" class="nav-link" data-scroll-target="#matching-a-distribution-to-the-mechanism"><span class="header-section-number">3.3</span> Matching a distribution to the mechanism</a>
+  <ul class="collapse">
+  <li><a href="#normal-distribution" id="toc-normal-distribution" class="nav-link" data-scroll-target="#normal-distribution">Normal distribution</a></li>
+  <li><a href="#standard-normal-distribution" id="toc-standard-normal-distribution" class="nav-link" data-scroll-target="#standard-normal-distribution">Standard normal distribution</a></li>
+  <li><a href="#uniform-distribution" id="toc-uniform-distribution" class="nav-link" data-scroll-target="#uniform-distribution">Uniform distribution</a></li>
+  <li><a href="#bernoulli-distribution" id="toc-bernoulli-distribution" class="nav-link" data-scroll-target="#bernoulli-distribution">Bernoulli distribution</a></li>
+  <li><a href="#binomial-distribution" id="toc-binomial-distribution" class="nav-link" data-scroll-target="#binomial-distribution">Binomial distribution</a></li>
+  <li><a href="#geometric-distribution" id="toc-geometric-distribution" class="nav-link" data-scroll-target="#geometric-distribution">Geometric distribution</a></li>
+  <li><a href="#poisson-distribution" id="toc-poisson-distribution" class="nav-link" data-scroll-target="#poisson-distribution">Poisson distribution</a></li>
+  <li><a href="#exponential-distribution" id="toc-exponential-distribution" class="nav-link" data-scroll-target="#exponential-distribution">Exponential distribution</a></li>
+  </ul></li>
+  <li><a href="#mean-and-variance-of-a-distribution" id="toc-mean-and-variance-of-a-distribution" class="nav-link" data-scroll-target="#mean-and-variance-of-a-distribution"><span class="header-section-number">3.4</span> Mean and variance of a distribution</a></li>
+  <li><a href="#the-central-limit-theorem" id="toc-the-central-limit-theorem" class="nav-link" data-scroll-target="#the-central-limit-theorem"><span class="header-section-number">3.5</span> The Central Limit Theorem</a></li>
+  <li><a href="#the-birthday-problem-collisions-in-a-space-that-felt-safe" id="toc-the-birthday-problem-collisions-in-a-space-that-felt-safe" class="nav-link" data-scroll-target="#the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.6</span> The birthday problem: collisions in a space that felt safe</a></li>
+  <li><a href="#selecting-without-replacement-canary-cohorts" id="toc-selecting-without-replacement-canary-cohorts" class="nav-link" data-scroll-target="#selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.7</span> Selecting without replacement: canary cohorts</a></li>
+  <li><a href="#uniform-outcomes-over-many-categories-sharding" id="toc-uniform-outcomes-over-many-categories-sharding" class="nav-link" data-scroll-target="#uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.8</span> Uniform outcomes over many categories: sharding</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-01-descriptive-statistics.html">Part 1: Foundations of Applied Statistics</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-03-probability-and-distributions.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Suppose an anomaly detector pages the on-call engineer for the checkout API at 3 a.m. Before reaching for a laptop, there is a question worth asking first: given that the alert fired, how likely is it that something is wrong?</p>
+<p><em>Probability</em> is the branch of mathematics that answers questions shaped like this one. <em>Distributions</em> describe the range of values a random quantity, like a latency measurement or a request count, tends to take.</p>
+<p>This chapter works through five questions that come up whenever uncertainty needs a number attached to it:</p>
+<ol type="1">
+<li><em>Given some new evidence, how should a prior belief update?</em> Bayes’ theorem is the formal answer, and it is easy to get wrong by instinct alone.</li>
+<li><em>Which named distribution matches the mechanism producing a number?</em> Eight distributions cover most of what shows up in production systems, each tied to a specific generating process rather than chosen by looks.</li>
+<li><em>Why does the normal distribution show up everywhere, even when the underlying process is not normal at all?</em> The Central Limit Theorem explains the pattern.</li>
+<li><em>How surprising is a coincidence?</em> The birthday problem shows that collisions happen far sooner than intuition expects, with consequences for anything that generates random identifiers.</li>
+<li><em>How do sampling without replacement and uniform random assignment behave?</em> The mechanics behind drawing a canary cohort or assigning a request to a shard.</li>
+</ol>
+<section id="bayes-theorem-what-an-alert-tells-you" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="bayes-theorem-what-an-alert-tells-you"><span class="header-section-number">3.1</span> Bayes’ theorem: what an alert tells you</h2>
+<p>Suppose a friend says they saw a shark at the beach. Before panicking, it helps to know how rare shark sightings there usually are in the first place.</p>
+<p>Bayes’ theorem combines that starting belief with the new claim to land on a better, updated guess.</p>
+<p><em>Bayes’ theorem</em> describes how to update the probability of an event given new evidence:</p>
+<p><span class="math display">\[P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}\]</span></p>
+<p>Here <span class="math inline">\(P(A \mid B)\)</span> is the probability of <span class="math inline">\(A\)</span> given that <span class="math inline">\(B\)</span> has happened, <span class="math inline">\(P(B \mid A)\)</span> is the probability of observing <span class="math inline">\(B\)</span> if <span class="math inline">\(A\)</span> were true, and <span class="math inline">\(P(A)\)</span> is the <em>prior</em>, the probability of <span class="math inline">\(A\)</span> before any evidence at all.</p>
+<p>Roughly speaking, the theorem takes a starting belief and reshapes it in light of what was just observed.</p>
+<div id="fig-bayes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bayes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-bayes-base-rate.png" class="img-fluid figure-img"></p>
+<figcaption>bayes</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-bayes-base-rate.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: P(true incident given an alert) as the base rate of true incidents falls, holding detector sensitivity and specificity fixed. At a 1% base rate the probability collapses to about 8.8%, even from a detector that looks accurate on paper.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-bayes" class="quarto-xref">Figure&nbsp;<span>3.1</span></a> works through a concrete version of the alert example. Suppose the anomaly detector has a sensitivity of 95% (it fires on 95% of true incidents) and a specificity of 90% (it correctly stays quiet 90% of the time when nothing is wrong).</p>
+<p>It is natural to assume a 95%-sensitive detector means a firing alert is 95% likely to be a true incident. That assumption misses the <em>base rate</em>, the underlying frequency of incidents, which in a stable production system might be as low as 1% of any given hour.</p>
+<p>Bayes’ theorem gives the correct answer:</p>
+<p><span class="math display">\[P(\text{incident} \mid \text{alert}) = \frac{P(\text{alert} \mid \text{incident}) \, P(\text{incident})}{P(\text{alert})}\]</span></p>
+<p>Plugging in the numbers: the 90% specificity leaves a 10% chance of a false alarm on any hour with no incident, so <span class="math inline">\(P(\text{alert}) = (0.95)(0.01) + (0.10)(0.99) = 0.1085\)</span>, the chance of an alert firing at all, whether or not there is a true incident.</p>
+<p>Dividing the true-incident share of that total, <span class="math inline">\((0.95)(0.01) = 0.0095\)</span>, by <span class="math inline">\(0.1085\)</span> gives <span class="math inline">\(0.0095 / 0.1085 \approx 0.088\)</span>. With a 1% base rate, this works out to roughly 8.8%, not 95%.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A detector’s sensitivity and specificity are different numbers from the probability that a positive alert is a true one. Confusing them is called the base-rate fallacy, and it is the same mechanism behind alert fatigue: a detector tuned for high sensitivity on a rare event will generate more false alarms than true ones unless specificity is also high enough.</p>
+</div>
+</div>
+<p>That is why on-call teams learn to distrust a noisy alert regardless of its advertised accuracy.</p>
+</section>
+<section id="conditional-probability" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="conditional-probability"><span class="header-section-number">3.2</span> Conditional probability</h2>
+<p>If it is cloudy outside, the chance of rain is higher than on a random day.</p>
+<p>Conditional probability is the math behind that shift: how likely something is once you know something else is true, rather than how likely it is in general.</p>
+<p><em>Conditional probability</em>, the probability of one event given that another has occurred, is the mechanism behind Bayes’ theorem rather than a separate idea:</p>
+<p><span class="math display">\[P(A \mid B) = \frac{P(A \text{ and } B)}{P(B)}\]</span></p>
+<p>In other words, conditioning on <span class="math inline">\(B\)</span> shrinks the space of outcomes under consideration down to only those where <span class="math inline">\(B\)</span> happened, and then asks what share of that smaller space also satisfies <span class="math inline">\(A\)</span>.</p>
+<p>For the alert example, <span class="math inline">\(P(\text{incident} \mid \text{alert})\)</span> restricts attention to the world where the alert fired, then asks what fraction of that world contains a true incident.</p>
+<p>Every named distribution in the rest of this chapter, and every hypothesis test in Chapter 2, rests on this same conditioning logic, whether or not the formula is written out explicitly.</p>
+</section>
+<section id="matching-a-distribution-to-the-mechanism" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="matching-a-distribution-to-the-mechanism"><span class="header-section-number">3.3</span> Matching a distribution to the mechanism</h2>
+<p>A distribution is not a shape to pick because it looks right; it follows from the process that generated the data. Eight distributions cover most of what a production system produces.</p>
+<section id="normal-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="normal-distribution">Normal distribution</h3>
+<p>Plot the heights of thousands of adults and the result is usually a hump shape: many people near the middle height, few extremely short or extremely tall people.</p>
+<p>The normal distribution is the mathematical version of that hump, and it shows up constantly.</p>
+<p>The <em>normal distribution</em>, or Gaussian, is a continuous, symmetric, bell-shaped distribution defined entirely by its mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>:</p>
+<p><span class="math display">\[f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\]</span></p>
+<p>Recall from Chapter 1 that checkout-API latency is right-skewed, not normal, because it is dominated by network and downstream I/O variance with a hard floor near zero.</p>
+<p>Contrast that with an in-memory hash lookup with no I/O: its latency is the sum of many small, roughly independent sources of jitter (cache line access, branch prediction, garbage collector pauses). Sums of many small independent effects tend toward normal, the mechanism the Central Limit Theorem formalizes later in this chapter.</p>
+<div id="fig-normal-rule" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-normal-rule-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-normal-empirical-rule.png" class="img-fluid figure-img"></p>
+<figcaption>normal rule</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-normal-empirical-rule.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-rule-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: The shaded band marks one standard deviation on either side of the mean, and roughly 68% of the curve’s area falls inside it. Dragging the standard-deviation slider stretches or compresses the whole curve, but the same 68-95-99.7 split of the area holds at every scale.
+</figcaption>
+</figure>
+</div>
+<p>The <em>68-95-99.7 rule</em> says roughly 68% of a normal distribution’s mass falls within one standard deviation of the mean, 95% within two, and 99.7% within three. <a href="#fig-normal-rule" class="quarto-xref">Figure&nbsp;<span>3.2</span></a> shows this rule holding at every scale of standard deviation.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A value more than three standard deviations from the mean occurs in under 0.3% of a normal distribution, which is why three-sigma bands are a common trigger for automated outlier alerts. The threshold only holds if the underlying metric is close to normal in the first place.</p>
+</div>
+</div>
+</section>
+<section id="standard-normal-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="standard-normal-distribution">Standard normal distribution</h3>
+<p>The <em>standard normal distribution</em> is a normal distribution with <span class="math inline">\(\mu = 0\)</span> and <span class="math inline">\(\sigma = 1\)</span>. Converting any normal value <span class="math inline">\(x\)</span> into a <em>z-score</em>, <span class="math inline">\(z = (x - \mu) / \sigma\)</span>, expresses it in standard deviations from the mean.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>That is what makes z-scores useful for comparing values across services with different latency scales: a z-score of 3 means the same thing (three standard deviations above typical) whether the underlying metric is measured in milliseconds or requests per second.</p>
+</div>
+</div>
+</section>
+<section id="uniform-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="uniform-distribution">Uniform distribution</h3>
+<p>Spin a fair wheel with numbers 1 through 100 marked evenly around the edge, and every number has the same chance of coming up.</p>
+<p>The uniform distribution describes that kind of situation: every value in a range is just as likely as every other value.</p>
+<p>The <em>uniform distribution</em> assigns equal probability to every value within a range and none outside it:</p>
+<p><span class="math display">\[f(x) = \frac{1}{b-a} \quad \text{for } a \le x \le b\]</span></p>
+<p>A feature-flag rollout that assigns each user a uniformly random number between 0 and 1, then enables the feature for anyone below a chosen threshold, is a direct application.</p>
+<p>Every user has an equal chance of landing in the treatment group, which is the completely randomized design Chapter 2 introduced for experiment assignment.</p>
+</section>
+<section id="bernoulli-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="bernoulli-distribution">Bernoulli distribution</h3>
+<p>Flipping a single coin has two outcomes: heads or tails.</p>
+<p>The Bernoulli distribution describes any single yes-or-no event like that, one trial with a fixed chance of success, whether the event is a coin flip, a single dice roll landing on six, or a single request timing out.</p>
+<p>The <em>Bernoulli distribution</em> describes a single trial with two outcomes, success or failure, with probability <span class="math inline">\(p\)</span> of success:</p>
+<p><span class="math display">\[f(x) = p^x (1-p)^{1-x} \quad \text{for } x \in \{0, 1\}\]</span></p>
+<p>Whether a single request times out, whether a single canary request lands in the treatment group, and whether a single feature-flag check evaluates true are all Bernoulli trials.</p>
+</section>
+<section id="binomial-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="binomial-distribution">Binomial distribution</h3>
+<p>Flip a coin 10 times and count how many land heads. The total could be anywhere from 0 to 10, and some totals are far more likely than others.</p>
+<p>The binomial distribution describes that pattern: the number of successes across a fixed number of repeated yes-or-no trials.</p>
+<p>The <em>binomial distribution</em> counts the number of successes across <span class="math inline">\(n\)</span> independent Bernoulli trials, each with the same success probability <span class="math inline">\(p\)</span>:</p>
+<p><span class="math display">\[f(x) = \binom{n}{x} p^x (1-p)^{n-x} \quad \text{for } x = 0, 1, \dots, n\]</span></p>
+<p>Here <span class="math inline">\(\binom{n}{x}\)</span>, read as <em>n choose x</em>, counts the number of distinct orders in which <span class="math inline">\(x\)</span> successes can occur among <span class="math inline">\(n\)</span> trials. Multiplying that count by <span class="math inline">\(p^x (1-p)^{n-x}\)</span>, the probability of any one specific order, gives the total probability of ending up with <span class="math inline">\(x\)</span> successes, no matter which trials they land on.</p>
+<div id="fig-binomial-conversions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binomial-conversions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-binomial-conversions.png" class="img-fluid figure-img"></p>
+<figcaption>binomial conversions</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-binomial-conversions.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-binomial-conversions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: Number of conversions out of a fixed 50-visitor bucket, by the true underlying conversion probability. Both the center and the spread of the distribution shift as that probability rises.
+</figcaption>
+</figure>
+</div>
+<p>The number of failed requests in a batch of 100, or the number of users who convert out of a fixed-size A/B test bucket, is binomial. <a href="#fig-binomial-conversions" class="quarto-xref">Figure&nbsp;<span>3.3</span></a> fixes the bucket at 50 visitors and moves the true conversion probability, showing how the distribution of possible conversion counts shifts and spreads as that probability rises.</p>
+<p>Part 3 builds directly on this distribution: a Bayesian A/B test of a conversion rate treats the number of conversions as binomial and updates a prior belief about the underlying conversion probability as data arrives.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When both <span class="math inline">\(np\)</span> and <span class="math inline">\(n(1-p)\)</span> are at least about 10, a binomial distribution is close enough to normal for a normal approximation to work well in a pinch, a direct consequence of the Central Limit Theorem covered later in this chapter.</p>
+</div>
+</div>
+</section>
+<section id="geometric-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="geometric-distribution">Geometric distribution</h3>
+<p>Flipping a coin over and over while waiting for the first heads could take one flip or could take many.</p>
+<p>The geometric distribution describes how many attempts it typically takes to reach the first success, when each attempt carries the same fixed chance of working.</p>
+<p>The <em>geometric distribution</em> models the number of trials needed to reach the first success, given a fixed per-trial success probability <span class="math inline">\(p\)</span>:</p>
+<p><span class="math display">\[f(x) = p (1-p)^{x-1} \quad \text{for } x = 1, 2, 3, \dots\]</span></p>
+<div id="fig-geometric" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-geometric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-geometric-retries.png" class="img-fluid figure-img"></p>
+<figcaption>geometric</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-geometric-retries.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-geometric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: The distribution of attempts needed before a flaky call succeeds, and how its expected value rises sharply as reliability drops.
+</figcaption>
+</figure>
+</div>
+<p>A flaky downstream call that succeeds with probability <span class="math inline">\(p\)</span> on each attempt, retried until it finally works, produces a geometric number of attempts. <a href="#fig-geometric" class="quarto-xref">Figure&nbsp;<span>3.4</span></a> shows how the expected number of retries climbs as the per-attempt success probability falls.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Useful for setting a retry budget: a call with a 30% success rate needs, on average, more than three attempts before it succeeds.</p>
+</div>
+</div>
+</section>
+<section id="poisson-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="poisson-distribution">Poisson distribution</h3>
+<p>A library counts how many people walk in during any given hour. Some hours see three visitors, others see none, others see ten.</p>
+<p>The Poisson distribution describes that pattern of counts: events happening independently at some steady average rate over a fixed stretch of time.</p>
+<p>The <em>Poisson distribution</em> models the count of events occurring in a fixed interval, given a known average rate <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[f(x) = \frac{\lambda^x e^{-\lambda}}{x!} \quad \text{for } x = 0, 1, 2, \dots\]</span></p>
+<div id="fig-poisson" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poisson-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-poisson-shape.png" class="img-fluid figure-img"></p>
+<figcaption>poisson</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-poisson-shape.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: The Poisson distribution’s shape at low request rates versus high ones. At high enough <span class="math inline">\(\lambda\)</span>, the shape looks close to normal, another instance of the Central Limit Theorem’s reach.
+</figcaption>
+</figure>
+</div>
+<p>Requests arriving at an API endpoint in a one-second window is the standard example: if requests arrive independently of one another at a steady average rate, the count in any given second is Poisson. <a href="#fig-poisson" class="quarto-xref">Figure&nbsp;<span>3.5</span></a> shows the distribution’s shape shifting as the average rate grows.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Poisson distribution’s variance always equals its mean, both equal to <span class="math inline">\(\lambda\)</span>. When a measured count’s variance runs much higher than its mean, that mismatch, called overdispersion, is a sign the events are not arriving independently and a Poisson model no longer fits.</p>
+</div>
+</div>
+</section>
+<section id="exponential-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="exponential-distribution">Exponential distribution</h3>
+<p>If visitors arrive at a shop at some steady average rate, the gap between one visitor and the next is sometimes short, sometimes long.</p>
+<p>The exponential distribution describes how long that wait tends to be, the time between events that happen at a steady rate.</p>
+<p>The <em>exponential distribution</em> models the time until an event occurs, given a constant rate <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[f(x) = \lambda e^{-\lambda x} \quad \text{for } x \ge 0\]</span></p>
+<p>The time between consecutive requests in a Poisson arrival process is exponentially distributed. So is the time until a service instance fails, under the assumption that failure risk does not change with how long the instance has been running (the distribution’s defining <em>memoryless</em> property).</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This assumption is often wrong for hardware, which tends to wear out over time, but reasonable for many software failure modes that are triggered by external conditions rather than accumulated wear.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="mean-and-variance-of-a-distribution" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="mean-and-variance-of-a-distribution"><span class="header-section-number">3.4</span> Mean and variance of a distribution</h2>
+<p>A distribution’s mean is its long-run average value if the random process ran forever.</p>
+<p>Its variance measures how spread out the outcomes tend to be around that average, the same bounciness idea from Chapter 1, applied to a known mathematical shape instead of a dataset.</p>
+<p>Two numbers summarize any distribution’s center and spread. The <em>mean</em>, or expected value, is</p>
+<p><span class="math display">\[E(X) = \sum x \, P(X=x)\]</span></p>
+<p>and the <em>variance</em> is</p>
+<p><span class="math display">\[\text{Var}(X) = E(X^2) - \big(E(X)\big)^2\]</span></p>
+<p>In other words, the mean weights each possible outcome by how often it occurs, and the variance is the average squared distance between an outcome and that mean.</p>
+<p><span class="math inline">\(E(X^2) - (E(X))^2\)</span> is an algebraically equivalent shortcut for computing that average squared distance without having to subtract the mean from every outcome first.</p>
+<p>Recall from Chapter 1 that these are the population-level counterparts of the sample mean and sample variance computed from data. Every distribution introduced in this chapter has a known formula for both, which is part of what makes naming the right distribution useful in the first place.</p>
+</section>
+<section id="the-central-limit-theorem" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="the-central-limit-theorem"><span class="header-section-number">3.5</span> The Central Limit Theorem</h2>
+<p>Roll one die and the result is unpredictable, spread evenly across six numbers.</p>
+<p>But roll ten dice, average them, and repeat that experiment many times: those averages start clustering into a familiar bell shape. The Central Limit Theorem explains why averages behave this way.</p>
+<p>The <em>Central Limit Theorem</em> (CLT) states that, given a large enough sample, the distribution of the sample mean approaches normal, regardless of the shape of the population the sample was drawn from.</p>
+<div id="fig-clt" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-clt-simulation.png" class="img-fluid figure-img"></p>
+<figcaption>clt</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-clt-simulation.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.6: Sample means of a skewed parent distribution become normal-shaped as sample size grows, the same property that makes the t-test in Chapter 2 usable even on non-normal data at moderate sample sizes.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-clt" class="quarto-xref">Figure&nbsp;<span>3.6</span></a> simulates 4,000 samples drawn from a heavily right-skewed exponential distribution, at growing sample sizes, and tracks how the distribution of sample means transforms from skewed to bell-shaped as sample size increases.</p>
+<p>This is because averaging cancels out extreme values from both directions. A sample mean drawn from a right-skewed population is only pulled upward by outliers to the extent those outliers outweigh the many ordinary observations averaged alongside them, and as the sample grows, that influence shrinks.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the mechanism behind Chapter 2’s claim that a t-test can tolerate non-normal data once the sample is large enough. The test does not need the underlying data to be normal, only the sample mean, and the CLT delivers that for free at scale.</p>
+</div>
+</div>
+<p>How large “large enough” needs to be depends on how skewed or heavy-tailed the underlying distribution is. A mildly skewed metric might converge to a usable normal shape by a few dozen observations.</p>
+<p>A latency distribution with rare, extreme spikes (a long tail with much of the variance concentrated in a small number of outlier requests) can need a sample far larger than the usual rule-of-thumb size before the sample mean behaves normally enough to trust.</p>
+</section>
+<section id="the-birthday-problem-collisions-in-a-space-that-felt-safe" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.6</span> The birthday problem: collisions in a space that felt safe</h2>
+<p>In a room of just 23 people, there is better than a fifty-fifty chance two of them share a birthday, even with 365 possible birthdays to choose from.</p>
+<p>That surprises most people, because what matters is not the number of people but the number of pairs of people to compare.</p>
+<p>The <em>birthday problem</em> asks how many people need to be in a room before the probability that two of them share a birthday passes 50%. The answer, 23, is far smaller than most people guess, because the relevant count is not the number of people but the number of <em>pairs</em> of people, and pairs grow quadratically.</p>
+<p>Those 23 people produce 253 distinct pairs, each an independent chance of a match.</p>
+<div id="fig-birthday" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-birthday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-03-fig-birthday-collision.png" class="img-fluid figure-img"></p>
+<figcaption>birthday</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-03-fig-birthday-collision.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-birthday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.7: Collision probability for randomly generated identifiers, by identifier length in bits. The x-axis is on a log scale: an 8-bit ID space collides almost immediately, while a 64-bit space needs billions of IDs before collisions become likely.
+</figcaption>
+</figure>
+</div>
+<p>This is not a party trick. It is the same mechanism behind hash and identifier collisions, formalized as the <em>birthday bound</em>: for an identifier space of size <span class="math inline">\(N\)</span>, the number of randomly generated identifiers needed before a collision becomes likely scales with <span class="math inline">\(\sqrt{N}\)</span>, not <span class="math inline">\(N\)</span>.</p>
+<p><a href="#fig-birthday" class="quarto-xref">Figure&nbsp;<span>3.7</span></a> shows how quickly collision probability climbs as more identifiers are generated, at a few different identifier lengths.</p>
+<p>The birthday bound is why a widely used hash function’s security depends on a space far larger than an intuition about brute-force guessing would suggest.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In February 2017, researchers at CWI Amsterdam and Google publicly demonstrated the first collision in SHA-1, a hash function considered cryptographically broken by theory for years but not yet broken in practice. The attack, named SHAttered, cost roughly 6,500 CPU-years and 100 GPU-years, well within reach of a well-resourced adversary. It exploited the birthday-bound structure this section describes rather than any flaw specific to SHA-1’s internal design <span class="citation" data-cites="cwigoogle2017">(<a href="chapter-01-descriptive-statistics.html#ref-cwigoogle2017" role="doc-biblioref">CWI Amsterdam and Google Research 2017</a>)</span>.</p>
+</div>
+</div>
+<p>Any system that generates random identifiers, such as trace IDs, session tokens, or cache keys, needs identifier lengths chosen with the birthday bound in mind, not the naive assumption that collisions only become likely once the identifier space is nearly exhausted.</p>
+</section>
+<section id="selecting-without-replacement-canary-cohorts" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.7</span> Selecting without replacement: canary cohorts</h2>
+<p>Drawing colored marbles one at a time from a bag, without putting each one back, changes the odds for every draw after the first.</p>
+<p>Picking a random handful of accounts for a test group works the same way: once an account is picked, the odds for the remaining picks shift.</p>
+<p>Marble-and-urn problems are, structurally, sampling-without-replacement problems: once a marble is drawn, it is gone, and every subsequent probability is conditioned on that removal. The same mechanics apply to selecting a canary cohort from a pool of accounts.</p>
+<p>Suppose a rollout needs a canary group of 5 accounts drawn at random from a pool of 200, 3 of which are known to be unusually heavy users whose behavior would skew the canary’s results.</p>
+<p>The probability that none of the 3 heavy accounts land in the 5-account canary follows the same hypergeometric logic as the probability of avoiding a specific marble while drawing several from a bag: each draw shrinks the remaining pool, and the removed accounts (or marbles) never return to the pool for the next draw.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Multiplying the shrinking odds across all 5 draws, (197/200)(196/199)(195/198)(194/197)(193/196), works out to about 92.6%. So a canary assembled by a documented random draw still carries roughly a 7% chance that at least one heavy account slips in by chance alone, a number worth knowing before treating any single canary run as decisive.</p>
+</div>
+</div>
+<p>By contrast, choosing a canary cohort by hand, rather than through a documented random process, is a quiet source of selection bias, the same failure mode Chapter 1 introduced. A canary chosen to “look representative” is not a canary chosen at random, and the two are not interchangeable.</p>
+</section>
+<section id="uniform-outcomes-over-many-categories-sharding" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.8</span> Uniform outcomes over many categories: sharding</h2>
+<p>Rolling a fair six-sided die, each number from 1 to 6 has the same one-in-six chance of coming up.</p>
+<p>Assigning requests to servers through a well-designed hash works the same way: every server should get a fair, equal share of the traffic, just like every face of the die.</p>
+<p>Die-roll problems generalize directly to a common infrastructure pattern: assigning a request to one of <span class="math inline">\(N\)</span> shards based on a hash of its key, where the hash function is designed so the assignment behaves like a fair <span class="math inline">\(N\)</span>-sided die.</p>
+<p>The probability a specific shard receives a given request is <span class="math inline">\(1/N\)</span>, and the probability a request lands in a given range of shards follows by adding individual probabilities.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All of this rests on one assumption: that the hash function distributes keys uniformly, the same fairness assumption a die-roll problem takes for granted. When that assumption breaks (a hash function that clusters certain keys onto the same shard), the practical result is a hot shard carrying disproportionate load, the sharding equivalent of a loaded die.</p>
+</div>
+</div>
+<p>Part 3 turns from describing distributions to using them for a specific practical decision: whether a treatment beats a control, expressed not as a single p-value but as a full posterior distribution over how much better it is, and how confident that conclusion should be.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-cwigoogle2017" class="csl-entry" role="listitem">
+CWI Amsterdam and Google Research. 2017. <span>“Announcing the First SHA-1 Collision.”</span> CWI news release. <a href="https://www.cwi.nl/en/news/cwi-and-google-announce-first-collision-for-industry-security-standard-sha-1/">https://www.cwi.nl/en/news/cwi-and-google-announce-first-collision-for-industry-security-standard-sha-1/</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-02-hypothesis-testing.html" class="pagination-link" aria-label="Hypothesis Testing">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-04-regression-modeling.html" class="pagination-link" aria-label="Regression Modeling">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

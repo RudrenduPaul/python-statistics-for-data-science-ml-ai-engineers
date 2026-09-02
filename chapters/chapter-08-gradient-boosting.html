@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Gradient Boosting: XGBoost and LightGBM – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-09-bayesian-regression.html" rel="next">
+<link href="../chapters/chapter-07-decision-trees-random-forests.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-08-gradient-boosting.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#boosting-versus-bagging" id="toc-boosting-versus-bagging" class="nav-link active" data-scroll-target="#boosting-versus-bagging"><span class="header-section-number">8.1</span> Boosting versus bagging</a></li>
+  <li><a href="#shrinkage-and-the-learning-rate-trade-off" id="toc-shrinkage-and-the-learning-rate-trade-off" class="nav-link" data-scroll-target="#shrinkage-and-the-learning-rate-trade-off"><span class="header-section-number">8.2</span> Shrinkage and the learning-rate trade-off</a></li>
+  <li><a href="#tree-depth-as-a-regularizer" id="toc-tree-depth-as-a-regularizer" class="nav-link" data-scroll-target="#tree-depth-as-a-regularizer"><span class="header-section-number">8.3</span> Tree depth as a regularizer</a></li>
+  <li><a href="#xgboost-a-regularized-second-order-boosting-system" id="toc-xgboost-a-regularized-second-order-boosting-system" class="nav-link" data-scroll-target="#xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.4</span> XGBoost: a regularized, second-order boosting system</a></li>
+  <li><a href="#lightgbm-histogram-splits-and-leaf-wise-growth" id="toc-lightgbm-histogram-splits-and-leaf-wise-growth" class="nav-link" data-scroll-target="#lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.5</span> LightGBM: histogram splits and leaf-wise growth</a></li>
+  <li><a href="#random-forest-gradient-boosting-or-lightgbm" id="toc-random-forest-gradient-boosting-or-lightgbm" class="nav-link" data-scroll-target="#random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.6</span> Random forest, gradient boosting, or LightGBM</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">8.7</span> A Bayesian perspective</a></li>
+  <li><a href="#where-part-2-leaves-off" id="toc-where-part-2-leaves-off" class="nav-link" data-scroll-target="#where-part-2-leaves-off"><span class="header-section-number">8.8</span> Where Part 2 leaves off</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-08-gradient-boosting.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A random forest builds hundreds of trees independently and averages them, and that averaging is what keeps its variance low. Boosting throws that independence away on purpose: each tree in a boosted ensemble is built to correct the mistakes of the trees that came before it, in sequence.</p>
+<p>The result routinely wins the tabular-data leaderboard that random forests used to dominate. The trade-off is concrete: a boosted model takes more care to tune than a random forest, and it can overfit in a way bagging structurally cannot.</p>
+<p>This chapter covers what that sequential correction does, and the two implementations, XGBoost and LightGBM, that turned gradient boosting from a slow research idea into the default choice for structured data in production.</p>
+<p>Recall the rollback-risk scenario from the previous chapter: predicting whether a deployment will need to be rolled back from payload size, canary error rate, dependency count, and time of day. The random forest chapter used it to show bagging and variable importance. This chapter uses the same scenario to show what sequential, error-correcting trees add on top.</p>
+<section id="boosting-versus-bagging" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="boosting-versus-bagging"><span class="header-section-number">8.1</span> Boosting versus bagging</h2>
+<p>A random forest reduces variance by averaging many trees that were each fit independently, on a bootstrap resample of the same data. Each tree, left alone, might overfit badly; averaging cancels out the noise each individual tree picked up.</p>
+<p>Boosting works on a different axis entirely. It starts from a weak model (often just a constant, the mean of the target), computes where that model is wrong, and fits a small new tree specifically to those errors. It then adds the new tree’s predictions to the running total, computes the new errors, fits another tree to those, and repeats.</p>
+<p>Where a random forest’s trees are grown in parallel and know nothing about each other, a boosted model’s trees are grown in strict sequence, and every tree after the first exists only because of what the ones before it got wrong.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A random forest’s trees can train on separate cores or machines at the same time because none depends on another. A boosted model cannot: tree ten needs tree nine’s finished output before it can start, so training time scales with tree count in a way bagging’s does not.</p>
+</div>
+</div>
+<p>Think of a hiker walking downhill in fog: she cannot see the bottom, but she can feel which direction slopes down the most right where she stands, and takes a step that way. The <em>negative gradient</em> is just that felt direction, pointing toward less error.</p>
+<p>Friedman formalized this as <em>gradient boosting</em>: at each step, the next tree is fit not to the raw errors but to the negative gradient of the loss function with respect to the current predictions <span class="citation" data-cites="friedman2001">(<a href="chapter-01-descriptive-statistics.html#ref-friedman2001" role="doc-biblioref">Friedman 2001</a>)</span>.</p>
+<p>For squared-error loss, the negative gradient is just the residual (the true value minus the predicted value), so “fit a tree to the residuals” is gradient boosting’s simplest case.</p>
+<p>For other loss functions, such as the log-loss used for a probability like rollback risk, the negative gradient works out to a different quantity: the true outcome (0 or 1) minus the predicted probability, the same “true value minus prediction” shape as the squared-error case above, just measured on a probability scale.</p>
+<p>The tree is fit to how far off that predicted probability was, not just whether the prediction crossed a decision threshold. The mechanism stays the same across loss functions: each tree is a small step in the direction that most reduces the loss.</p>
+<div id="fig-boosting-rounds" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-boosting-rounds-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-boosting-fig-boosting-rounds.png" class="img-fluid figure-img"></p>
+<figcaption>boosting rounds</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-boosting-fig-boosting-rounds.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-boosting-rounds-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.1: The running prediction after 1, 5, 20, and 100 boosting rounds on the same data. One round barely moves off a flat line; a hundred rounds trace the underlying curve closely.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-boosting-rounds" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> makes the sequential mechanism visible rather than described. After a single round, the model is one shallow tree, barely better than predicting the average every time.</p>
+<p>Each additional round fits a new tree to whatever the current running total still gets wrong. By round 100, the accumulated sum of a hundred small corrections traces the underlying curve the individual trees could never see on their own.</p>
+</section>
+<section id="shrinkage-and-the-learning-rate-trade-off" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="shrinkage-and-the-learning-rate-trade-off"><span class="header-section-number">8.2</span> Shrinkage and the learning-rate trade-off</h2>
+<p>Adding each new tree’s full prediction to the running total would let the model chase the training data too aggressively. In practice, every gradient boosting implementation multiplies each new tree’s contribution by a <em>learning rate</em> (also called <em>shrinkage</em>), typically a small number like 0.01 to 0.3, before adding it in.</p>
+<p>A smaller learning rate means each tree contributes less, so more trees are needed to reach the same fit, but the resulting ensemble generalizes better because no single tree is allowed to overcorrect.</p>
+<div id="fig-shrinkage-early-stopping" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-shrinkage-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-boosting-fig-shrinkage-early-stopping.png" class="img-fluid figure-img"></p>
+<figcaption>shrinkage early stopping</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-boosting-fig-shrinkage-early-stopping.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-shrinkage-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.2: Training vs.&nbsp;validation loss across boosting rounds, at three learning rates. A high rate overfits and reverses; a low rate takes longer but settles lower. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-shrinkage-early-stopping" class="quarto-xref">Figure&nbsp;<span>8.2</span></a> trains a gradient boosting model on the rollback-risk data at three learning rates and tracks both training and validation loss as more trees are added.</p>
+<p>At a high learning rate, training loss drops fast and validation loss follows it down, then turns back up: the model has started fitting noise specific to the training set. At a low learning rate, both curves descend more slowly, and the point where validation loss stops improving arrives much later, in exchange for a lower validation loss at that point.</p>
+<p>The number of trees and the learning rate are not independent choices; they trade off directly, the kind of joint tuning problem Chapter 5’s cross-validation techniques exist to solve.</p>
+<p>Rather than guess a fixed tree count, most production boosting pipelines set the learning rate, train with a large tree budget, and use a validation set to stop adding trees the moment validation loss stops improving. That stopping point, marked on the chart above, is <em>early stopping</em>, and it is the single most important tuning decision in gradient boosting.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If only one hyperparameter gets tuned carefully, make it early stopping. A learning rate that is merely reasonable, paired with early stopping, usually beats a perfectly tuned learning rate with a fixed, guessed tree count.</p>
+</div>
+</div>
+</section>
+<section id="tree-depth-as-a-regularizer" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="tree-depth-as-a-regularizer"><span class="header-section-number">8.3</span> Tree depth as a regularizer</h2>
+<p>A random forest’s individual trees are typically grown deep, close to their maximum possible depth, because bagging’s averaging step is what controls variance, not the individual tree’s simplicity. A boosted model works the opposite way.</p>
+<p>Because each tree only has to nudge the ensemble a small step in the right direction, boosted trees are kept shallow on purpose, often just two to six levels deep (sometimes called <em>stumps</em> at depth one).</p>
+<p>A shallow tree can only model a limited amount of structure, and that limitation is a form of regularization: it prevents any single tree from memorizing idiosyncrasies of its training data, leaving the learning rate and tree count to control the ensemble’s overall complexity instead.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Depth means opposite things in the two families covered so far: grow forest trees deep and let averaging clean up the noise, but keep boosted trees shallow so no single tree overcorrects. Carrying a random forest’s deep-tree habit into a boosted model is a common tuning mistake.</p>
+</div>
+</div>
+</section>
+<section id="xgboost-a-regularized-second-order-boosting-system" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.4</span> XGBoost: a regularized, second-order boosting system</h2>
+<p>XGBoost, introduced by Chen and Guestrin in 2016, is not simply a fast implementation of Friedman’s gradient boosting; it changes what each tree is optimizing for <span class="citation" data-cites="chen2016xgboost">(<a href="chapter-01-descriptive-statistics.html#ref-chen2016xgboost" role="doc-biblioref">Chen and Guestrin 2016</a>)</span>. Two changes account for most of its practical advantage.</p>
+<p>First, XGBoost adds an explicit regularization term to its objective function, penalizing both the number of leaves in a tree and the size of the prediction value at each leaf (an L2 penalty, with an L1 option available).</p>
+<p>This is the same idea as Chapter 4’s Ridge and Lasso penalties on regression coefficients, applied here to tree structure instead. A tree that fits the training data by growing an extra leaf, or by assigning a leaf a wildly large prediction, has to justify that against a concrete cost in the objective, not just fit whatever data it sees.</p>
+<p>Steering a car downhill by feel, a driver notices not just which way the road slopes but how sharply it curves ahead, and adjusts more carefully where the curve is sharp.</p>
+<p>Second, XGBoost uses a second-order Taylor approximation of the loss function at each step (Newton boosting), rather than the first-order gradient alone. In other words, it uses both the slope and the curvature of the loss to decide how to split.</p>
+<p>That produces more accurate split decisions than gradient information alone, particularly for loss functions where the curvature varies a lot across the data, such as log-loss where predictions sit close to 0 or 1.</p>
+<p>XGBoost also includes an efficient approximate split-finding algorithm for large datasets and native handling of missing values: a split rule can send missing values to whichever branch minimizes loss, learned from the data itself, rather than requiring imputation ahead of time.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because XGBoost learns where to route missing values from the training data, skip the imputation step for this model. Feed it the raw missing values and let the split search decide where they belong.</p>
+</div>
+</div>
+<p>Together, these choices are why XGBoost became the default entry in almost every tabular machine learning competition for several years after its release, and why it remains a standard production choice for structured data.</p>
+</section>
+<section id="lightgbm-histogram-splits-and-leaf-wise-growth" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.5</span> LightGBM: histogram splits and leaf-wise growth</h2>
+<p>LightGBM, from Ke et al.&nbsp;at Microsoft Research, targets the same problem, gradient boosted trees, but optimizes specifically for training speed on large datasets <span class="citation" data-cites="ke2017lightgbm">(<a href="chapter-01-descriptive-statistics.html#ref-ke2017lightgbm" role="doc-biblioref">Ke et al. 2017</a>)</span>. Two design choices explain most of the difference from XGBoost’s default behavior.</p>
+<p><em>Histogram-based split finding</em> buckets each continuous feature into a fixed number of discrete bins (256 is a common default) before searching for the best split, rather than considering every observed value as a candidate split point.</p>
+<p>This makes each split search roughly proportional to the number of bins rather than the number of data points, a substantial speedup on large datasets that comes at the cost of some split precision.</p>
+<p><em>Leaf-wise (best-first) growth</em> is the more consequential difference. A level-wise tree (XGBoost’s default, and the classic CART, short for Classification And Regression Trees, approach) grows every leaf at the current depth before moving to the next depth, so the tree stays balanced.</p>
+<p>A leaf-wise tree instead always splits whichever leaf, anywhere in the tree, would reduce loss the most, regardless of the resulting tree’s shape.</p>
+<div id="fig-leafwise-vs-levelwise" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-leafwise-vs-levelwise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-boosting-fig-leafwise-vs-levelwise.png" class="img-fluid figure-img"></p>
+<figcaption>leafwise vs levelwise</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-boosting-fig-leafwise-vs-levelwise.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-leafwise-vs-levelwise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.3: Training loss for the same leaf budget: leaf-wise growth reaches a lower loss with fewer leaves than level-wise growth needs.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-leafwise-vs-levelwise" class="quarto-xref">Figure&nbsp;<span>8.3</span></a> fits both growth strategies to the rollback-risk data and tracks training loss against the number of leaves used. For the same leaf budget, leaf-wise growth reaches a lower training loss, because it always spends its next leaf where it helps most instead of filling out a full level first.</p>
+<p>Does that mean leaf-wise growth is a strict improvement? It is not, and LightGBM is explicit about the trade-off. Reaching a lower training loss faster is also what lets a leaf-wise tree overfit small datasets if left unconstrained, since it will happily grow one branch unusually deep chasing a handful of training points.</p>
+<p>LightGBM’s documentation recommends capping <code>max_depth</code> alongside <code>num_leaves</code> for smaller datasets specifically to guard against this. On large datasets, where there is enough data to make each split decision reliable, leaf-wise growth’s efficiency tends to win outright.</p>
+<p>LightGBM also introduces <em>gradient-based one-side sampling</em> (GOSS). Observations with small gradients are well fit by the current ensemble and contribute little new information, so GOSS keeps all the observations with large gradients and only a random sample of the small-gradient ones.</p>
+<p>Each kept small-gradient observation is given extra weight in the loss calculation (upweighted) to correct for the bias that dropping most small-gradient observations would otherwise introduce. This cuts the effective training set size on later rounds without discarding the observations that still matter.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>LightGBM’s speed advantage over XGBoost comes from histogram splitting and leaf-wise growth, not from being a different algorithm underneath. Both fit trees to the negative gradient the same way.</p>
+</div>
+</div>
+</section>
+<section id="random-forest-gradient-boosting-or-lightgbm" class="level2" data-number="8.6">
+<h2 data-number="8.6" class="anchored" data-anchor-id="random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.6</span> Random forest, gradient boosting, or LightGBM</h2>
+<div id="fig-model-comparison-size" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-comparison-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-boosting-fig-model-comparison-size.png" class="img-fluid figure-img"></p>
+<figcaption>model comparison size</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-boosting-fig-model-comparison-size.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-comparison-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.4: Validation error vs.&nbsp;training-set size for a random forest and a gradient boosting model. At the smallest training size the forest has lower error; the two lines cross as the data grows, and gradient boosting pulls ahead with a widening lead at the largest size shown.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-model-comparison-size" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> trains a random forest and a shallow-tree gradient boosting model on the rollback-risk data at increasing training-set sizes and compares validation error.</p>
+<p>At the smallest sample size shown, the random forest has lower validation error. The two methods cross as the training set grows, and boosting’s advantage widens from there, since more data gives each additional tree a more reliable gradient signal to correct.</p>
+<p>In practice, the choice among a random forest, XGBoost, and LightGBM usually comes down to four questions.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>More training data favors gradient boosting over a random forest, but only past a certain point. On a small dataset, a random forest’s default settings are the safer starting choice.</p>
+</div>
+</div>
+<p>How large is the dataset? LightGBM’s speed advantage matters most above roughly a hundred thousand rows; below that, the difference is rarely worth the extra tuning effort.</p>
+<p>How much time is there to tune? A random forest with default settings is difficult to make perform badly; a boosted model tuned carelessly can underperform a random forest baseline.</p>
+<p>How much does interpretability matter? A single decision tree (Chapter 7) is easy to read directly; a random forest and a boosted ensemble both need a variable-importance or SHAP-value layer (a method for splitting credit for one prediction among its input features) on top to explain a prediction, and neither is inherently easier to explain than the other.</p>
+<p>How much risk of overfitting is there in the data? On a small, noisy dataset, a random forest’s built-in averaging is a safer default than a boosted model’s sequential, error-chasing structure.</p>
+</section>
+<section id="a-bayesian-perspective" class="level2" data-number="8.7">
+<h2 data-number="8.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">8.7</span> A Bayesian perspective</h2>
+<p>Boosting does not have as natural a Bayesian formulation as linear regression or trees do. There is no single, widely adopted “Bayesian XGBoost” the way there is a Bayesian linear model or BART (Chapter 7).</p>
+<p>Two threads are worth knowing regardless.</p>
+<p>The most practical one is <em>Bayesian hyperparameter optimization</em> for tuning a boosted model. Like a treasure hunter who, after a few digs, starts favoring spots near past finds while still checking occasional long shots, this approach learns from every trial where to dig next instead of digging at random.</p>
+<p>Grid search and random search treat every hyperparameter combination as equally worth trying.</p>
+<p>A Bayesian approach instead models the validation-loss surface itself as an unknown function with a Gaussian process prior (the same Gaussian process idea introduced for smoothing splines in Chapter 6), fits that model to the combinations tried so far, and uses it to decide which untried combination is most worth evaluating next.</p>
+<p>This balances exploration of unfamiliar regions against exploitation of regions that look promising so far.</p>
+<div id="fig-gp-hyperparameter-search" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gp-hyperparameter-search-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-boosting-fig-gp-hyperparameter-search.png" class="img-fluid figure-img"></p>
+<figcaption>gp hyperparameter search</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-boosting-fig-gp-hyperparameter-search.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-hyperparameter-search-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.5: Validation-loss surface over (learning rate, max depth); a search only sees the points it has evaluated so far, and picks the next one by weighing a good predicted score against how unexplored that region still is. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-gp-hyperparameter-search" class="quarto-xref">Figure&nbsp;<span>8.5</span></a> shows a validation-loss surface over learning rate and max depth for the rollback-risk model, with points marking the combinations a search has evaluated so far.</p>
+<p>In other words, a Bayesian hyperparameter search treats “which combination should I try next” as itself a decision under uncertainty. It is the same posterior-driven decision-making idea Part 3 develops for A/B testing, just applied to model tuning instead of experiment design.</p>
+<p>Tools like <code>scikit-optimize</code>, <code>Optuna</code>, and <code>Hyperopt</code> implement this directly and typically reach a good hyperparameter setting in far fewer trials than grid search.</p>
+<p>The second thread is thinner and more research-oriented: some work has framed boosting itself as an approximate form of Bayesian inference, where the sequence of trees traces out something like a posterior distribution via functional gradient descent.</p>
+<p>Separately, Bayesian additive models close to BART have been extended to allow the boosting-style sequential fitting this chapter describes.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>None of this has the maturity or standard tooling that Bayesian linear regression or BART have built up. Treat it as an active research direction, not a production-ready alternative to XGBoost or LightGBM today.</p>
+</div>
+</div>
+</section>
+<section id="where-part-2-leaves-off" class="level2" data-number="8.8">
+<h2 data-number="8.8" class="anchored" data-anchor-id="where-part-2-leaves-off"><span class="header-section-number">8.8</span> Where Part 2 leaves off</h2>
+<p>Part 2 has moved from a single straight line (Chapter 4) through cross-validated model selection (Chapter 5), curves that bend (Chapter 6), and now trees that vote alone, in committee, or in sequence.</p>
+<p>Every one of these methods answers a version of the same question: what value do we expect the outcome to take, given these inputs? Each one simply brings more machinery to answering it well.</p>
+<p>Part 3 asks a different question: not what value to expect, but how confident to be in a decision built on top of that value. It returns to a place this book started, Chapter 1’s kidney-stone Simpson’s paradox, to show that no amount of modeling sophistication substitutes for an experiment that was designed correctly in the first place.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-chen2016xgboost" class="csl-entry" role="listitem">
+Chen, Tianqi, and Carlos Guestrin. 2016. <span>“<span>XGBoost</span>: A Scalable Tree Boosting System.”</span> In <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 785–94. <a href="https://doi.org/10.1145/2939672.2939785">https://doi.org/10.1145/2939672.2939785</a>.
+</div>
+<div id="ref-friedman2001" class="csl-entry" role="listitem">
+Friedman, Jerome H. 2001. <span>“Greedy Function Approximation: A Gradient Boosting Machine.”</span> <em>The Annals of Statistics</em> 29 (5): 1189–1232. <a href="https://doi.org/10.1214/aos/1013203451">https://doi.org/10.1214/aos/1013203451</a>.
+</div>
+<div id="ref-ke2017lightgbm" class="csl-entry" role="listitem">
+Ke, Guolin, Qi Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma, Qiwei Ye, and Tie-Yan Liu. 2017. <span>“<span>LightGBM</span>: A Highly Efficient Gradient Boosting Decision Tree.”</span> In <em>Advances in Neural Information Processing Systems 30 (NeurIPS 2017)</em>, 3146–54. <a href="https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb676fa-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb676fa-Paper.pdf</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="pagination-link" aria-label="Tree-Based Methods: Decision Trees and Random Forests">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-09-bayesian-regression.html" class="pagination-link" aria-label="Bayesian Linear Regression and Regularization">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

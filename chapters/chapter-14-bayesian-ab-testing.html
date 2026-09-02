@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>14&nbsp; Bayesian Experimentation for A/B Testing – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-15-conclusion.html" rel="next">
+<link href="../chapters/chapter-13-bayesian-boosting.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-14-bayesian-ab-testing.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#from-bayes-theorem-to-bayesian-updating" id="toc-from-bayes-theorem-to-bayesian-updating" class="nav-link active" data-scroll-target="#from-bayes-theorem-to-bayesian-updating"><span class="header-section-number">14.1</span> From Bayes’ theorem to Bayesian updating</a></li>
+  <li><a href="#priors-how-much-to-assume-before-the-data-arrives" id="toc-priors-how-much-to-assume-before-the-data-arrives" class="nav-link" data-scroll-target="#priors-how-much-to-assume-before-the-data-arrives"><span class="header-section-number">14.2</span> Priors: how much to assume before the data arrives</a></li>
+  <li><a href="#beta-binomial-conjugacy" id="toc-beta-binomial-conjugacy" class="nav-link" data-scroll-target="#beta-binomial-conjugacy"><span class="header-section-number">14.3</span> Beta-Binomial conjugacy</a></li>
+  <li><a href="#two-variants-one-decision" id="toc-two-variants-one-decision" class="nav-link" data-scroll-target="#two-variants-one-decision"><span class="header-section-number">14.4</span> Two variants, one decision</a></li>
+  <li><a href="#expected-loss-as-a-stopping-rule" id="toc-expected-loss-as-a-stopping-rule" class="nav-link" data-scroll-target="#expected-loss-as-a-stopping-rule"><span class="header-section-number">14.5</span> Expected loss as a stopping rule</a></li>
+  <li><a href="#continuous-monitoring-and-the-peeking-problem" id="toc-continuous-monitoring-and-the-peeking-problem" class="nav-link" data-scroll-target="#continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.6</span> Continuous monitoring and the peeking problem</a></li>
+  <li><a href="#a-direct-comparison-against-the-frequentist-result" id="toc-a-direct-comparison-against-the-frequentist-result" class="nav-link" data-scroll-target="#a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.7</span> A direct comparison against the frequentist result</a></li>
+  <li><a href="#beyond-conversion-rates" id="toc-beyond-conversion-rates" class="nav-link" data-scroll-target="#beyond-conversion-rates"><span class="header-section-number">14.8</span> Beyond conversion rates</a></li>
+  <li><a href="#the-limits-of-bayesian-inference" id="toc-the-limits-of-bayesian-inference" class="nav-link" data-scroll-target="#the-limits-of-bayesian-inference"><span class="header-section-number">14.9</span> The limits of Bayesian inference</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-14-bayesian-ab-testing.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>At 1,000 visitors per variant, a two-proportion z-test on a checkout-button redesign returns a p-value of 0.126. That test asks a narrow question: whether two observed conversion rates differ by more than chance alone would plausibly explain.</p>
+<p>Under the conventional 0.05 threshold, the 0.126 result is not significant: the frequentist framework says stop, you cannot reject the null.</p>
+<p>A Bayesian model fit to the same 2,000 visitors says the redesign has a 93.7% chance of beating the original. If that 93.7% turns out to be wrong, shipping it now carries an average cost of 0.038 percentage points of conversion.</p>
+<p>Both statements are correct. They are answers to different questions, and knowing which question you are asking is most of what this part of the book is about.</p>
+<p>Part 1 introduced Bayes’ theorem and frequentist hypothesis testing as two separate tools. This part treats Bayesian inference as a full alternative to the hypothesis-testing machinery from Chapter 2.</p>
+<p>It gives a way to run an experiment, watch it while it runs, and make a shipping decision without waiting for a p-value to cross a line someone picked in advance.</p>
+<section id="from-bayes-theorem-to-bayesian-updating" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="from-bayes-theorem-to-bayesian-updating"><span class="header-section-number">14.1</span> From Bayes’ theorem to Bayesian updating</h2>
+<p>Think of updating a guess as new clues arrive in a mystery. A hunch shifts a little with each clue, and the final guess reflects everything seen so far. Bayesian updating is that same nudging process, done with numbers instead of hunches.</p>
+<p>Recall Bayes’ theorem from Chapter 3: it converts a prior belief and new evidence into an updated belief. Applied to an experiment, that conversion has a name and a fixed shape.</p>
+<p><span class="math display">\[P(\theta \mid \text{data}) \propto P(\text{data} \mid \theta) \times P(\theta)\]</span></p>
+<p>In other words, the <em>posterior</em> (what you believe about the conversion rate <span class="math inline">\(\theta\)</span> after seeing the data) is proportional to the <em>likelihood</em> (how probable the observed data is, for each possible value of <span class="math inline">\(\theta\)</span>) times the <em>prior</em> (what you believed about <span class="math inline">\(\theta\)</span> before seeing any data).</p>
+<p>This is <em>Bayesian updating</em>, and every Bayesian analysis in this chapter is one instance of this same multiplication, applied to a checkout-button experiment instead of an abstract <span class="math inline">\(\theta\)</span>.</p>
+</section>
+<section id="priors-how-much-to-assume-before-the-data-arrives" class="level2" data-number="14.2">
+<h2 data-number="14.2" class="anchored" data-anchor-id="priors-how-much-to-assume-before-the-data-arrives"><span class="header-section-number">14.2</span> Priors: how much to assume before the data arrives</h2>
+<p>A prior is just a starting guess, set before any data comes in. A cautious guess moves easily once observations start arriving; a stubborn guess takes a lot of evidence to budge.</p>
+<p>Suppose the checkout team is testing a redesigned button (Variant B) against the existing one (Variant A). Before a single visitor sees either variant, a <em>prior</em> states what the team believes about the conversion rate.</p>
+<p>Recall from Chapter 3 that a probability distribution assigns weight to every possible value a quantity could take. A prior does the same for the unknown conversion rate itself.</p>
+<p>An <em>uninformative prior</em> treats every conversion rate between 0% and 100% as equally plausible. A <span class="math inline">\(\text{Beta}(1, 1)\)</span> distribution is flat, uniform, and equivalent to having observed zero prior data.</p>
+<p>A <em>weakly informative prior</em> nudges the distribution toward plausible values without pretending to certainty. A <span class="math inline">\(\text{Beta}(11, 91)\)</span> distribution behaves like 100 pseudo-observations at a 10% rate, close to what a checkout team would reasonably expect from a button converting around 10% of visitors.</p>
+<p>An <em>informative prior</em> goes further still, behaving like thousands of pseudo-observations concentrated tightly around a known rate.</p>
+<div id="fig-prior-shapes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-05-fig-beta-prior-shapes.png" class="img-fluid figure-img"></p>
+<figcaption>prior shapes</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-05-fig-beta-prior-shapes.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.1: Each curve puts the same 10% central belief on the x-axis (conversion rate, 0% to 40%) but spreads that belief differently: the uninformative prior spans almost the full range, while the highly informative prior shown here, built from about 10,000 pseudo-observations, concentrates nearly all its density within a percentage point of 10%. The stronger the prior, the more data it takes to move it.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-prior-shapes" class="quarto-xref">Figure&nbsp;<span>14.1</span></a> shows the same 10% central belief expressed at five different prior strengths, from a flat uninformative prior through an increasingly confident one.</p>
+<p>Stronger priors are not automatically better. Suppose the checkout team used an informative prior built from a redesign three years ago that turned out to be unrepresentative of current traffic.</p>
+<p>That prior would actively resist what the new data is trying to say, and it would take a large sample to overrule it.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Default to a weakly informative prior unless there is a specific, defensible reason to bring in outside information, and say so explicitly whenever a stronger prior is used.</p>
+</div>
+</div>
+</section>
+<section id="beta-binomial-conjugacy" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="beta-binomial-conjugacy"><span class="header-section-number">14.3</span> Beta-Binomial conjugacy</h2>
+<p>Updating a guess with new evidence usually takes heavy computation. Conjugacy is a shortcut: for certain pairings of guess and evidence, the update is nothing more than simple addition.</p>
+<p>The reason a Beta prior is the standard choice for a conversion-rate problem is not convention alone. It is a property called <em>conjugacy</em>.</p>
+<p>When the likelihood of the observed data follows a binomial distribution (a fixed number of visitors, each either converting or not) and the prior follows a Beta distribution, the posterior is also a Beta distribution, updated by simple addition:</p>
+<p><span class="math display">\[\text{Beta}(\alpha, \beta) \;\xrightarrow{\;k \text{ successes in } n \text{ trials}\;}\; \text{Beta}(\alpha + k, \;\beta + n - k)\]</span></p>
+<p>In other words, starting from a <span class="math inline">\(\text{Beta}(1, 1)\)</span> prior, observing 46 conversions out of 500 visitors updates the posterior to <span class="math inline">\(\text{Beta}(1 + 46, \;1 + 454) = \text{Beta}(47, 455)\)</span>.</p>
+<p>That posterior’s mean, <span class="math inline">\(47 / 502 \approx 9.4\%\)</span>, sits close to the observed rate of 9.2%, and would sit closer still to the prior’s 50% mean if the sample were tiny.</p>
+<p>No integral, no simulation, and no specialized software are required. This is <em>Beta-Binomial conjugacy</em>, and it is the entire reason a Bayesian A/B test on conversion rates is tractable by hand.</p>
+<div id="fig-posterior-update" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-posterior-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-05-fig-posterior-update.png" class="img-fluid figure-img"></p>
+<figcaption>posterior update</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-05-fig-posterior-update.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.2: A single variant’s posterior narrows and settles as observed visitors accumulate. Early swings are large; by a few thousand visitors, new data barely moves it.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-posterior-update" class="quarto-xref">Figure&nbsp;<span>14.2</span></a> shows this update happening to Variant A’s posterior alone as its sample size grows from 0 to 5,000 simulated visitors, starting from a flat <span class="math inline">\(\text{Beta}(1, 1)\)</span> prior.</p>
+<p>Watch how far the posterior mean swings between <span class="math inline">\(n = 0\)</span> (sitting at the prior’s 50%, since nothing has been observed yet) and <span class="math inline">\(n = 25\)</span>. With almost no data, a handful of successes can still pull the estimate a long way from the eventual answer near 10%.</p>
+<p>By <span class="math inline">\(n = 2{,}000\)</span> the curve has narrowed into a tight spike. The posterior has stopped moving much because a few more visitors can no longer outweigh the thousands that came before.</p>
+</section>
+<section id="two-variants-one-decision" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="two-variants-one-decision"><span class="header-section-number">14.4</span> Two variants, one decision</h2>
+<p>Picture two runners who have each finished several practice laps at slightly different times. Win probability asks: based on those laps, how often would this runner beat the other in a head-to-head race?</p>
+<p>An experiment needs two posteriors, one per variant, computed the same way and compared directly.</p>
+<div id="fig-ab-overlay" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ab-overlay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-05-fig-posteriors-ab-overlay.png" class="img-fluid figure-img"></p>
+<figcaption>ab overlay</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-05-fig-posteriors-ab-overlay.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ab-overlay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.3: Variant A and Variant B posteriors separate as each group collects data. By a few thousand visitors per variant, the two curves barely overlap.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ab-overlay" class="quarto-xref">Figure&nbsp;<span>14.3</span></a> overlays Variant A’s and Variant B’s posteriors as each collects more simulated visitors, using the redesign scenario at a 10% true rate for A and a 12.5% true rate for B.</p>
+<p>That 25% relative lift was chosen only to make the simulation worth watching. Nothing about these specific numbers is a claim about any company’s product.</p>
+<p>At <span class="math inline">\(n = 50\)</span> per variant the two curves overlap heavily; at <span class="math inline">\(n = 5{,}000\)</span> they barely touch.</p>
+<p>Once both posteriors exist, the practical question is no longer “is there a difference” but “how likely is B to be the better variant, and what would it cost to be wrong.”</p>
+<p>Evan Miller’s closed-form solution answers the first half directly: given Beta posteriors <span class="math inline">\(\text{Beta}(\alpha_A, \beta_A)\)</span> for A and <span class="math inline">\(\text{Beta}(\alpha_B, \beta_B)\)</span> for B, the probability that B beats A reduces to a finite sum over the whole-number values <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> can take <span class="citation" data-cites="miller2014">(<a href="chapter-01-descriptive-statistics.html#ref-miller2014" role="doc-biblioref">Miller 2014</a>)</span>.</p>
+<p>That sum can be computed with ordinary loops rather than the numerical integration a less convenient distribution pairing would require.</p>
+<p>In practice, most teams skip the closed form and estimate the same probability by simulation: draw a large number of samples from each posterior distribution, and count the fraction of draws where B’s sampled rate exceeds A’s.</p>
+<p>With 200,000 simulated draws per comparison, the two approaches agree to several decimal places. The simulation approach also generalizes immediately to metrics that do not have a convenient closed form, which is why this chapter’s figures use it throughout.</p>
+</section>
+<section id="expected-loss-as-a-stopping-rule" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="expected-loss-as-a-stopping-rule"><span class="header-section-number">14.5</span> Expected loss as a stopping rule</h2>
+<p>Imagine picking between two job offers without knowing which pays better long-term. Expected loss asks not just “which looks better” but “if this pick is wrong, how much does that mistake typically cost?”</p>
+<p>Win probability alone can mislead. Two experiments can both report a 95% chance that B wins while carrying sharply different risk: one because A and B are meaningfully far apart, the other because the sample is still small and the estimate is noisy.</p>
+<p>Chris Stucchio’s <em>expected loss</em> framework, developed for the Bayesian testing engine behind the optimization platform VWO, answers a more honest question than “how likely is B to win”: if you choose B and you turn out to be wrong, how much do you lose, on average, in the metric that matters <span class="citation" data-cites="stucchio2015">(<a href="chapter-01-descriptive-statistics.html#ref-stucchio2015" role="doc-biblioref">Stucchio 2015</a>)</span>?</p>
+<p><span class="math display">\[\text{Expected loss from choosing B} = E\big[\max(p_A - p_B, \;0)\big]\]</span></p>
+<p>In other words, expected loss averages the size of the mistake across every simulated scenario where A would have been the better choice, and counts zero everywhere else.</p>
+<p>A team can set a tolerable expected-loss threshold before the experiment starts, expressed in the units that matter to the business (percentage points of conversion, for instance).</p>
+<p>It can then stop the experiment the moment expected loss falls below that threshold, rather than waiting for an arbitrary significance threshold.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A high win probability is not the same as low risk. Two experiments can each show a 95% win probability for B while carrying sharply different expected loss, so set an expected-loss threshold before an experiment starts and treat a favorable win probability alone as a reason to keep watching, not to ship.</p>
+</div>
+</div>
+<div id="fig-decision-metrics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-decision-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-05-fig-decision-metrics.png" class="img-fluid figure-img"></p>
+<figcaption>decision metrics</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-05-fig-decision-metrics.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decision-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.4: Win probability and expected loss from choosing B, as the sample size grows. Expected loss stays a steadier guide than win probability when the sample is still small.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-decision-metrics" class="quarto-xref">Figure&nbsp;<span>14.4</span></a> tracks both numbers, win probability and expected loss, across the same growing sample sizes as the checkout-button simulation.</p>
+<p>Note the jaggedness at small sample sizes. At <span class="math inline">\(n = 50\)</span>, only two of Variant A’s visitors and five of Variant B’s had converted.</p>
+<p>That is enough for the simulation to show an 86.6% win probability for B, driven by a small sample that happened to land unusually far apart (4% versus 10% observed, against true rates of 10% and 12.5%).</p>
+<p>The expected-loss number at that same point, 0.0037, stays the steadier guide: it prices in how thin the evidence still is, even while the win probability alone looks fairly persuasive.</p>
+</section>
+<section id="continuous-monitoring-and-the-peeking-problem" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.6</span> Continuous monitoring and the peeking problem</h2>
+<p>A common pitch for Bayesian testing is that a team can watch the dashboard at any point and act on what it shows. A frequentist test, by contrast, inflates its false-positive rate if a team checks the p-value early and stops the moment the p-value clears the significance threshold.</p>
+<p>That pitch needs a qualification. Georgi Georgiev’s direct rebuttal to the strong version of this claim argues that stopping the moment a result looks favorable, and treating that as clean evidence, still changes the question being answered.</p>
+<p>It shifts from “what does this data say” to “what does this data say, given that I stopped here because it looked good.”</p>
+<p>Georgiev further argues that the effect applies to frequentist and Bayesian analyses alike: five rounds of undisciplined peeking can inflate the error rate to roughly three times the nominal level <span class="citation" data-cites="georgiev2017">(<a href="chapter-01-descriptive-statistics.html#ref-georgiev2017" role="doc-biblioref">Georgiev 2017</a>)</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Checking a test repeatedly and stopping the moment it looks favorable inflates the false-positive rate, for frequentist and Bayesian analyses alike. Five undisciplined looks can roughly triple the error rate.</p>
+</div>
+</div>
+<div id="fig-peeking" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-05-fig-peeking-problem.png" class="img-fluid figure-img"></p>
+<figcaption>peeking</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-05-fig-peeking-problem.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.5: False-positive rate under a true null, as the number of times the test is checked grows. A single fixed-horizon check holds the nominal 5%; five checks push it past 14%.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-peeking" class="quarto-xref">Figure&nbsp;<span>14.5</span></a> simulates this directly: two identical variants (no true difference, so any rejection is a false positive) checked with a standard significance test at growing numbers of look points.</p>
+<p>Checking once holds the nominal 5% rate, by construction. Checking five times pushes the false-positive rate to roughly 14%, close to three times the nominal level, matching Georgiev’s figure.</p>
+<p>By 40 checks, a team that stops the moment any check looks favorable is wrong roughly three times in ten, not one time in twenty.</p>
+<p>This simulation runs a classical significance test at each check point. A Bayesian posterior does not inflate this way in the same mechanical sense, since each posterior computed is a correct statement of belief at that sample size.</p>
+<p>But that mechanical safety does not make optional stopping free of risk.</p>
+<p>What differs is narrower than the pitch suggests. A Bayesian posterior is a valid statement of belief at whatever sample size it gets computed, so the number itself stays correct no matter when a team looks.</p>
+<p>What stays risky is optional stopping used as a decision procedure: choosing to stop specifically because expected loss happened to dip below a comfortable-looking number at one particular check, then treating that as though the experiment had always been designed to run to that size.</p>
+<p>A loss estimate computed on a whim at a favorable-looking moment is a noisier estimate than the same loss computed against a sample size decided in advance.</p>
+<p>Two habits keep the dashboard-watching convenience of Bayesian testing honest: setting a minimum sample size before monitoring begins, and treating the expected-loss threshold as a stopping rule fixed before the experiment starts, not a justification invented after the fact.</p>
+</section>
+<section id="a-direct-comparison-against-the-frequentist-result" class="level2" data-number="14.7">
+<h2 data-number="14.7" class="anchored" data-anchor-id="a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.7</span> A direct comparison against the frequentist result</h2>
+<p>The opening of this chapter quoted a two-proportion z-test on a checkout-button experiment at the same 10% and 12.5% true rates used throughout this chapter, at <span class="math inline">\(n = 1{,}000\)</span> per variant: 95 conversions out of 1,000 for A (9.5%), 116 out of 1,000 for B (11.6%), <span class="math inline">\(z = 1.53\)</span>, <span class="math inline">\(p = 0.126\)</span>.</p>
+<p>Under a standard 0.05 threshold, that result does not reject the null hypothesis that A and B convert at the same rate.</p>
+<p>The Bayesian posterior at that same sample size puts the win probability for B at 93.7%, with an expected loss from choosing B of 0.038 percentage points.</p>
+<p>The disagreement is not a contradiction. Each framework is answering the question it was built to answer. The frequentist test asks whether the observed gap is larger than chance alone would plausibly produce, evaluated against a fixed rejection threshold decided in advance.</p>
+<p>The Bayesian framework asks how the team’s belief about each variant’s rate should update given the data, and what a wrong decision would cost.</p>
+<p>A team using only the p-value would keep the experiment running past 1,000 visitors per variant, waiting for significance that may or may not arrive.</p>
+<p>A team using expected loss might reasonably ship Variant B at <span class="math inline">\(n = 500\)</span>, where expected loss had dropped to 0.017 percentage points. The frequentist test at that same sample size had only just crossed its own threshold (<span class="math inline">\(p = 0.045\)</span>), a result fragile enough that it drifted back above the threshold by <span class="math inline">\(n = 1{,}000\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At <span class="math inline">\(n = 500\)</span> the frequentist test had just crossed significance (<span class="math inline">\(p = 0.045\)</span>). By <span class="math inline">\(n = 1{,}000\)</span> it had drifted back above the threshold. A p-value near the edge of significance can move in either direction as more data arrives.</p>
+</div>
+</div>
+<p>That drift is itself informative: a p-value computed at an arbitrary stopping point can move in either direction as more data arrives, which is the motivation behind treating expected loss, not statistical significance, as the stopping rule.</p>
+<p>Neither framework is simply better. The frequentist test is standardized, taught everywhere, and immediately legible to a stakeholder who has seen a p-value before. It requires a sample size fixed in advance and a single accept-or-reject answer at the end.</p>
+<p>The Bayesian approach gives a direct probability statement about which variant is better and a decision rule priced in business-relevant units, and it tolerates a team checking the results early without inflating the false-positive rate the way repeated frequentist peeking does.</p>
+<p>It requires choosing and defending a prior, a step a frequentist test never asks for. And a stakeholder unfamiliar with posterior distributions will need the win-probability-and-expected-loss framing translated into plain terms before it sticks.</p>
+</section>
+<section id="beyond-conversion-rates" class="level2" data-number="14.8">
+<h2 data-number="14.8" class="anchored" data-anchor-id="beyond-conversion-rates"><span class="header-section-number">14.8</span> Beyond conversion rates</h2>
+<p>Combining a prior guess with new data works like a weighted average: the more trustworthy source, whichever one carries less uncertainty, pulls the final answer closer to itself.</p>
+<p>The checkout-button test almost certainly has a second question behind the first: does the redesign also change how much a converting visitor spends, not just whether they convert at all?</p>
+<p>Average order value is continuous, not binary, so Beta-Binomial conjugacy does not apply directly. A different conjugate pairing fills the same role.</p>
+<p>For a metric with roughly normal noise, a Normal prior on the unknown mean, combined with an observed sample mean, produces a Normal posterior, updated by weighting each source by its precision (the inverse of its variance).</p>
+<p><span class="math display">\[\tau_{\text{post}} = \tau_{\text{prior}} + n \tau_{\text{data}}, \qquad
+\mu_{\text{post}} = \frac{\tau_{\text{prior}} \mu_{\text{prior}} + n \tau_{\text{data}} \bar{x}}{\tau_{\text{post}}}\]</span></p>
+<p>Here <span class="math inline">\(\tau_{\text{prior}}\)</span> and <span class="math inline">\(\tau_{\text{data}}\)</span> are the precisions of the prior belief and of a single observation, <span class="math inline">\(n\)</span> is the sample size, <span class="math inline">\(\mu_{\text{prior}}\)</span> is the prior mean, and <span class="math inline">\(\bar{x}\)</span> is the observed sample mean.</p>
+<p>In other words, the posterior precision <span class="math inline">\(\tau_{\text{post}}\)</span> is just the prior’s precision plus <span class="math inline">\(n\)</span> copies of the data’s precision, since <span class="math inline">\(n\)</span> independent observations are <span class="math inline">\(n\)</span> times as informative as one.</p>
+<p>The posterior mean <span class="math inline">\(\mu_{\text{post}}\)</span> is a weighted average of the prior mean and the sample mean, with each one weighted by how much precision it contributes.</p>
+<p>A prior with high precision (a narrow, confident guess) barely moves even when the sample mean disagrees with it. A prior with low precision (a wide, uncertain guess) gets pulled toward the sample mean almost immediately.</p>
+<p>Suppose the team’s pre-launch benchmarking suggests an average order value around $42, with enough uncertainty to express as a prior standard deviation of $5.</p>
+<p>After 500 converting visitors under Variant B post an observed mean of $44.10 with a sample standard deviation of $18, the posterior mean settles close to $44.05.</p>
+<p>The result is pulled only slightly toward the prior’s $42, because the sample of 500 carries far more precision than the prior did. This is the same prior-times-likelihood-equals-posterior logic from earlier in the chapter, applied to a different distribution family.</p>
+<p>That said, plenty of continuous metrics do not stay this well behaved. Order value tends to be right-skewed in the same way the latency data from Chapter 1 was, carries outliers from bulk orders, and often needs a model structure the simple Normal-Normal pairing cannot express.</p>
+<p>This includes cases such as separate effects per customer segment or a likelihood that is not normal at all. This is where conjugacy runs out and numerical methods take over.</p>
+<p><code>pymc</code> and <code>arviz</code>, both listed among this book’s dependencies, exist to draw posterior samples via Markov chain Monte Carlo once a model no longer has a closed-form answer.</p>
+<p>Every figure in this chapter needed nothing more than arithmetic, because Beta-Binomial and Normal-Normal conjugacy both had closed-form solutions. A model with correlated segment-level effects or a skewed, non-normal outcome usually will not.</p>
+</section>
+<section id="the-limits-of-bayesian-inference" class="level2" data-number="14.9">
+<h2 data-number="14.9" class="anchored" data-anchor-id="the-limits-of-bayesian-inference"><span class="header-section-number">14.9</span> The limits of Bayesian inference</h2>
+<p>Nothing in this chapter repairs the confounding problem from Chapter 1’s kidney-stone study. If the checkout-button experiment happened to assign more mobile visitors to Variant B, and mobile visitors convert differently regardless of button design, a Bayesian analysis of the combined results is exposed to the identical Simpson’s-paradox reversal a frequentist analysis would be.</p>
+<p>Conjugate priors, closed-form win probabilities, and expected loss all assume the underlying experiment was designed well: randomized assignment, a stable population, and no lurking variable steering which visitors saw which variant.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bayesian methods change how uncertainty is quantified. They do not fix a poorly designed experiment. Randomized assignment and a stable population still come first.</p>
+</div>
+</div>
+<p>Bayesian methods change how uncertainty about a well-designed experiment gets quantified and acted on. Designing the experiment correctly still comes first.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-georgiev2017" class="csl-entry" role="listitem">
+Georgiev, Georgi. 2017. <span>“Bayesian AB Testing Is Not Immune to Optional Stopping Issues.”</span> Analytics-Toolkit.com blog. <a href="https://blog.analytics-toolkit.com/2017/bayesian-ab-testing-not-immune-to-optional-stopping-issues/">https://blog.analytics-toolkit.com/2017/bayesian-ab-testing-not-immune-to-optional-stopping-issues/</a>.
+</div>
+<div id="ref-miller2014" class="csl-entry" role="listitem">
+Miller, Evan. 2014. <span>“Formulas for Bayesian a/b Testing.”</span> evanmiller.org. <a href="https://www.evanmiller.org/bayesian-ab-testing.html">https://www.evanmiller.org/bayesian-ab-testing.html</a>.
+</div>
+<div id="ref-stucchio2015" class="csl-entry" role="listitem">
+Stucchio, Chris. 2015. <span>“Bayesian a/b Testing at VWO.”</span> Visual Website Optimizer technical whitepaper. <a href="https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf">https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-13-bayesian-boosting.html" class="pagination-link" aria-label="Bayesian Approaches to Gradient Boosting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-15-conclusion.html" class="pagination-link" aria-label="Conclusion">
+        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

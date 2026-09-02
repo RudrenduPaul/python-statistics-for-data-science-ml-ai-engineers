@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Hypothesis Testing – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-03-probability-and-distributions.html" rel="next">
+<link href="../chapters/chapter-01-descriptive-statistics.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-01-descriptive-statistics.html">Part 1: Foundations of Applied Statistics</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-02-hypothesis-testing.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#stating-a-hypothesis" id="toc-stating-a-hypothesis" class="nav-link active" data-scroll-target="#stating-a-hypothesis"><span class="header-section-number">2.1</span> Stating a hypothesis</a></li>
+  <li><a href="#testing-a-single-mean-the-z-test-and-the-t-test" id="toc-testing-a-single-mean-the-z-test-and-the-t-test" class="nav-link" data-scroll-target="#testing-a-single-mean-the-z-test-and-the-t-test"><span class="header-section-number">2.2</span> Testing a single mean: the Z-test and the t-test</a></li>
+  <li><a href="#what-a-p-value-says" id="toc-what-a-p-value-says" class="nav-link" data-scroll-target="#what-a-p-value-says"><span class="header-section-number">2.3</span> What a p-value says</a></li>
+  <li><a href="#type-i-and-type-ii-errors-the-two-ways-to-be-wrong" id="toc-type-i-and-type-ii-errors-the-two-ways-to-be-wrong" class="nav-link" data-scroll-target="#type-i-and-type-ii-errors-the-two-ways-to-be-wrong"><span class="header-section-number">2.4</span> Type I and Type II errors: the two ways to be wrong</a></li>
+  <li><a href="#statistical-power-how-long-to-run-the-canary" id="toc-statistical-power-how-long-to-run-the-canary" class="nav-link" data-scroll-target="#statistical-power-how-long-to-run-the-canary"><span class="header-section-number">2.5</span> Statistical power: how long to run the canary</a></li>
+  <li><a href="#sample-size-how-many-requests-before-the-number-can-be-trusted" id="toc-sample-size-how-many-requests-before-the-number-can-be-trusted" class="nav-link" data-scroll-target="#sample-size-how-many-requests-before-the-number-can-be-trusted"><span class="header-section-number">2.6</span> Sample size: how many requests before the number can be trusted</a></li>
+  <li><a href="#confounding-variables" id="toc-confounding-variables" class="nav-link" data-scroll-target="#confounding-variables"><span class="header-section-number">2.7</span> Confounding variables</a></li>
+  <li><a href="#paired-and-unpaired-t-tests" id="toc-paired-and-unpaired-t-tests" class="nav-link" data-scroll-target="#paired-and-unpaired-t-tests"><span class="header-section-number">2.8</span> Paired and unpaired t-tests</a></li>
+  <li><a href="#comparing-three-or-more-groups-anova" id="toc-comparing-three-or-more-groups-anova" class="nav-link" data-scroll-target="#comparing-three-or-more-groups-anova"><span class="header-section-number">2.9</span> Comparing three or more groups: ANOVA</a></li>
+  <li><a href="#categorical-association-chi-squared-and-goodness-of-fit" id="toc-categorical-association-chi-squared-and-goodness-of-fit" class="nav-link" data-scroll-target="#categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.10</span> Categorical association: chi-squared and goodness of fit</a></li>
+  <li><a href="#controlling-for-a-continuous-confounder-ancova" id="toc-controlling-for-a-continuous-confounder-ancova" class="nav-link" data-scroll-target="#controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.11</span> Controlling for a continuous confounder: ANCOVA</a></li>
+  <li><a href="#designing-the-experiment-before-running-it" id="toc-designing-the-experiment-before-running-it" class="nav-link" data-scroll-target="#designing-the-experiment-before-running-it"><span class="header-section-number">2.12</span> Designing the experiment before running it</a></li>
+  <li><a href="#after-anova-pairwise-post-hoc-tests" id="toc-after-anova-pairwise-post-hoc-tests" class="nav-link" data-scroll-target="#after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.13</span> After ANOVA: pairwise post-hoc tests</a></li>
+  <li><a href="#when-the-data-will-not-cooperate-non-parametric-tests" id="toc-when-the-data-will-not-cooperate-non-parametric-tests" class="nav-link" data-scroll-target="#when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.14</span> When the data will not cooperate: non-parametric tests</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-01-descriptive-statistics.html">Part 1: Foundations of Applied Statistics</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-02-hypothesis-testing.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Recall the checkout API from Chapter 1: an on-call engineer watching a right-skewed latency distribution, worried that the mean hides a growing slow tail. Suppose that engineer’s team ships a caching layer meant to cut that latency, and the dashboard shows a lower number the next morning.</p>
+<p>Is the cache working, or did traffic happen to be lighter overnight? <em>Hypothesis testing</em> is the machinery for answering that question with a number instead of a guess.</p>
+<p>This chapter works through six questions that come up each time an engineer or data scientist has to decide whether an observed difference means something:</p>
+<ol type="1">
+<li><em>How do I state a claim so a sample of data can test it?</em> Hypothesis statements turn “the cache helped” into something a formula can evaluate.</li>
+<li><em>How do I test a claim about a single average?</em> The Z-test and t-test compare a sample mean against a target value.</li>
+<li><em>What does a p-value tell me, and where does that stop?</em> A p-value is one of the most quoted and most misread numbers in applied statistics.</li>
+<li><em>What are the two ways a test can be wrong, and what does each one cost?</em> Type I and Type II errors trade off against each other, and the trade is a business decision, not just a statistical one.</li>
+<li><em>How much data does a decision need before it can be trusted?</em> Statistical power and sample size determine how long a test needs to run.</li>
+<li><em>What happens when there are more than two groups, more than one confounder, or data that refuses to look normal?</em> ANOVA, chi-squared tests, ANCOVA, experimental design, and non-parametric alternatives cover the cases a simple t-test cannot.</li>
+</ol>
+<section id="stating-a-hypothesis" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="stating-a-hypothesis"><span class="header-section-number">2.1</span> Stating a hypothesis</h2>
+<p>Think of a courtroom trial: the defendant is assumed innocent (the null hypothesis) until the evidence makes that hard to believe.</p>
+<p>A hypothesis test works the same way. It never proves a new claim true; it only checks whether the evidence is strong enough to doubt the default.</p>
+<p>A <em>hypothesis statement</em> names two competing claims about a population and lets sample data decide between them. The <em>null hypothesis</em>, written <span class="math inline">\(H_0\)</span>, is the default: nothing changed. The <em>alternative hypothesis</em>, written <span class="math inline">\(H_1\)</span>, is the claim under investigation: something did change.</p>
+<p>For the caching layer, <span class="math inline">\(H_0\)</span> says the mean latency after the rollout equals the mean latency before it; <span class="math inline">\(H_1\)</span> says the mean latency after the rollout is lower.</p>
+<p><span class="math display">\[H_0: \mu_{\text{after}} = \mu_{\text{before}}, \qquad H_1: \mu_{\text{after}} &lt; \mu_{\text{before}}\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The test does not try to prove the cache works. It tries to determine whether, assuming the cache did nothing, the data collected after the rollout is surprising enough to make “it did nothing” hard to believe.</p>
+</div>
+</div>
+<p>This is a subtle distinction, and it shapes every result in this chapter: a hypothesis test never proves <span class="math inline">\(H_1\)</span> true. It only measures how much the evidence strains against <span class="math inline">\(H_0\)</span>.</p>
+</section>
+<section id="testing-a-single-mean-the-z-test-and-the-t-test" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="testing-a-single-mean-the-z-test-and-the-t-test"><span class="header-section-number">2.2</span> Testing a single mean: the Z-test and the t-test</h2>
+<p>Imagine checking whether a coin is rigged by flipping it 30 times. Landing heads far more than half the time is a clue something is off.</p>
+<p>The Z-test and t-test do the same thing for averages: they measure how far a sample’s average sits from what plain chance would predict.</p>
+<p>Suppose the team wants to check the new mean latency against a fixed target, 40 ms, the number the SLA promises. The <em>Z-test</em> compares a sample mean to a target when the population standard deviation is known:</p>
+<p><span class="math display">\[z = \frac{\bar{x} - \mu}{\sigma / \sqrt{n}}\]</span></p>
+<p>Here <span class="math inline">\(\bar{x}\)</span> is the sample mean, <span class="math inline">\(\mu\)</span> is the target value, <span class="math inline">\(\sigma\)</span> is the population standard deviation, and <span class="math inline">\(n\)</span> is the sample size.</p>
+<p>Roughly speaking, the Z-test asks how many standard errors the sample mean sits from the target: a <span class="math inline">\(z\)</span> far from zero means the sample mean is unlikely to have occurred by chance if the target were correct.</p>
+<p>In practice, the population standard deviation is almost never known in advance; it has to be estimated from the same sample used to estimate the mean. The <em>t-test</em> handles that case:</p>
+<p><span class="math display">\[t = \frac{\bar{x} - \mu}{S / \sqrt{n}}\]</span></p>
+<p>where <span class="math inline">\(S\)</span> is the sample standard deviation. The t-test uses the t-distribution rather than the normal distribution to calculate its p-value, because estimating <span class="math inline">\(\sigma\)</span> from the sample adds extra uncertainty that the normal distribution does not account for.</p>
+<p>The t-distribution’s shape depends on its <em>degrees of freedom</em>, <span class="math inline">\(n - 1\)</span> for this one-sample test: with few degrees of freedom the distribution has heavier tails than the normal curve.</p>
+<p>As <span class="math inline">\(n\)</span> grows large (past roughly 30 observations, a common rule of thumb), those tails thin out and the t-distribution converges to the normal distribution, so the two tests give nearly identical results.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Default to the t-test unless the population standard deviation is known independently of the sample being analyzed, a situation that is rare outside long-running quality-control settings. The t-test accounts for the extra uncertainty of estimating that standard deviation from the sample, which the Z-test simply ignores.</p>
+</div>
+</div>
+<div id="fig-t-vs-normal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-t-vs-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-02-fig-t-vs-normal.png" class="img-fluid figure-img"></p>
+<figcaption>t vs normal</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-02-fig-t-vs-normal.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-t-vs-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: The t-distribution’s tails thin toward the standard normal as degrees of freedom increase. Below roughly 10 degrees of freedom the extra tail weight is easy to see; above 30 the two curves are nearly impossible to tell apart.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-t-vs-normal" class="quarto-xref">Figure&nbsp;<span>2.1</span></a> compares the t-distribution against the standard normal distribution as sample size changes, showing how the t-distribution’s heavier tails (and its extra caution about declaring significance) shrink toward the normal distribution as <span class="math inline">\(n\)</span> grows.</p>
+<p>Recall from Chapter 1 that checkout-API latency is right-skewed, not normal. Both tests assume the underlying data is close to normal, or that the sample is large enough for the <em>Central Limit Theorem</em> to compensate.</p>
+<p>The Central Limit Theorem is the result that a sample mean drifts toward a normal distribution as sample size grows, regardless of how the underlying data is shaped, which is what lets the sample mean count as approximately normal even when the data behind it is not.</p>
+<p>A small sample of skewed latency data is the case where that assumption is worth checking rather than trusting.</p>
+</section>
+<section id="what-a-p-value-says" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="what-a-p-value-says"><span class="header-section-number">2.3</span> What a p-value says</h2>
+<p>If a coin is fair, getting 25 heads out of 30 flips would be surprising, though not impossible.</p>
+<p>A p-value measures how surprising a result would look if nothing unusual were going on: a small p-value means the result would be a strange coincidence under the assumption nothing changed.</p>
+<p>A <em>p-value</em> is the probability of observing a test statistic as extreme as, or more extreme than, the one calculated from the sample, if the null hypothesis were true.</p>
+<p>Suppose the t-test on the latency data returns a p-value of 0.03. That means: if the cache changed nothing at all, there would be a 3% chance of seeing a latency drop this large or larger just from sampling variation.</p>
+<p>A common threshold, 0.05, marks the line most teams use to call a result statistically significant, though the threshold itself is a convention, not a law of nature.</p>
+<p>Here is where the widely held intuition about p-values breaks down. It is natural to read “p = 0.03” as “there is a 3% chance the cache did nothing,” but that is not what the number means.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The p-value is calculated by assuming the null hypothesis is true; it cannot simultaneously tell you the probability that the same null hypothesis is true. The American Statistical Association’s own guidance is direct: p-values “do not measure the probability that the studied hypothesis is true, or the probability that the data were produced by random chance alone” <span class="citation" data-cites="asa2016">(<a href="chapter-01-descriptive-statistics.html#ref-asa2016" role="doc-biblioref">Wasserstein and Lazar 2016</a>)</span>.</p>
+</div>
+</div>
+<p>A p-value measures how compatible the data is with the null hypothesis, nothing more. It says nothing about how large the effect is.</p>
+<p>A small p-value from a large enough sample can come from an effect too small to matter operationally, the same way a 0.1 ms latency improvement can be statistically significant across ten million requests and still not worth shipping.</p>
+</section>
+<section id="type-i-and-type-ii-errors-the-two-ways-to-be-wrong" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="type-i-and-type-ii-errors-the-two-ways-to-be-wrong"><span class="header-section-number">2.4</span> Type I and Type II errors: the two ways to be wrong</h2>
+<p>A smoke detector can fail two ways: it can go off with no fire (a false alarm) or stay silent during a fire (a missed alarm).</p>
+<p>Hypothesis tests share the same two failure modes, and making one kind of mistake rarer tends to make the other kind more common.</p>
+<p>A hypothesis test can fail in two directions. A <em>Type I error</em>, or false positive, happens when the test rejects <span class="math inline">\(H_0\)</span> even though <span class="math inline">\(H_0\)</span> was true: the dashboard says the cache helped, and it did not.</p>
+<p>A <em>Type II error</em>, or false negative, happens when the test fails to reject <span class="math inline">\(H_0\)</span> even though <span class="math inline">\(H_1\)</span> was true: the cache did help, and the test missed it.</p>
+<p>The probability of a Type I error is called <span class="math inline">\(\alpha\)</span>, conventionally set at 0.05; the probability of a Type II error is called <span class="math inline">\(\beta\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Standard practice fixes <span class="math inline">\(\alpha\)</span> first and only then works out the resulting <span class="math inline">\(\beta\)</span>, rather than weighing the two costs against each other directly. When a missed effect is more expensive than a false alarm, that convention is worth overriding on purpose, not applying by default.</p>
+</div>
+</div>
+<div id="fig-error-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-error-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-02-fig-type1-type2.png" class="img-fluid figure-img"></p>
+<figcaption>error tradeoff</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-02-fig-type1-type2.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-error-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: Moving the significance threshold trades Type I error against Type II error. Pulling the threshold in one direction to catch more true effects always lets in more false positives at the same time.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-error-tradeoff" class="quarto-xref">Figure&nbsp;<span>2.2</span></a> shows the overlap between the “no effect” and “true effect” sampling distributions, and how moving the significance threshold shifts the balance between the two error rates.</p>
+<p>These two error rates trade against each other. Tightening <span class="math inline">\(\alpha\)</span> (requiring stronger evidence before declaring significance) lowers the false-positive rate but raises the false-negative rate, since true improvements now need to clear a higher bar.</p>
+<p>For the caching layer, a Type I error means shipping a cache that does nothing while believing it works: wasted infrastructure and false confidence. A Type II error means rolling back a cache that did cut latency, because the test could not tell the improvement apart from noise.</p>
+<p>Neither error is free, and which one costs more depends on what is being tested, not on the statistics alone.</p>
+</section>
+<section id="statistical-power-how-long-to-run-the-canary" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="statistical-power-how-long-to-run-the-canary"><span class="header-section-number">2.5</span> Statistical power: how long to run the canary</h2>
+<p>A smoke detector with a weak sensor can miss a fire that is happening right in front of it.</p>
+<p>Statistical power is how good a test is at catching a change that is there, rather than missing it because too little data was collected to notice.</p>
+<p><em>Statistical power</em> is the probability that a test correctly rejects <span class="math inline">\(H_0\)</span> when <span class="math inline">\(H_1\)</span> is true: <span class="math inline">\(1 - \beta\)</span>. A test with high power reliably detects a true effect; a test with low power can miss meaningful improvements even when they exist.</p>
+<p>Power depends on four things: sample size, the significance level <span class="math inline">\(\alpha\)</span>, the size of the effect being tested for, and the variability of the data.</p>
+<div id="fig-power-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-power-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-02-fig-power-curve.png" class="img-fluid figure-img"></p>
+<figcaption>power curve</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-02-fig-power-curve.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-power-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.3: Statistical power rises with sample size, more slowly for smaller effect sizes. A small true effect can need many times more traffic than a large one before a test reliably notices it.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-power-curve" class="quarto-xref">Figure&nbsp;<span>2.3</span></a> shows how power climbs as sample size grows, for a few different effect sizes; small effects need dramatically more traffic before the test can reliably see them.</p>
+<p>A team running a canary deployment for the caching layer is, whether they call it this or not, deciding how much statistical power they want before they trust the result.</p>
+<p>A commonly used power target is 0.8, an 80% chance of detecting the effect if it exists.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Below a power of 0.8, a canary that shows no significant difference is close to uninformative. It could mean the cache does nothing, or it could mean the test never had a fair chance to notice a modest improvement that exists.</p>
+</div>
+</div>
+</section>
+<section id="sample-size-how-many-requests-before-the-number-can-be-trusted" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="sample-size-how-many-requests-before-the-number-can-be-trusted"><span class="header-section-number">2.6</span> Sample size: how many requests before the number can be trusted</h2>
+<p>Asking 10 people who they will vote for gives a shaky guess about a whole country. Asking 10,000 gives a much steadier one.</p>
+<p>Sample size calculations answer a practical question: how many people, or requests, need to be measured before an estimate can be trusted.</p>
+<p>Suppose the team wants to estimate mean latency within a margin of error of 2 ms, at a 95% confidence level, and prior data suggests a standard deviation of 20 ms. The sample size needed for a target margin of error <span class="math inline">\(E\)</span> is</p>
+<p><span class="math display">\[n = \frac{z^2 \sigma^2}{E^2}\]</span></p>
+<p>where <span class="math inline">\(z\)</span> is the standard normal value for the desired confidence level (1.96 for 95%). Plugging in the numbers:</p>
+<p><span class="math display">\[n = \frac{1.96^2 \times 20^2}{2^2} = 384.16\]</span></p>
+<p>In other words, roughly 385 requests need to be sampled before the estimate of mean latency can be trusted to within 2 ms, 95% of the time.</p>
+<p>This is the same formula whether the thing being measured is fish weight or API latency; what changes is which numbers describe the population.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This formula assumes the standard deviation is known ahead of time, usually from a pilot sample or historical data. If that estimate is wrong, the resulting sample size will be wrong too, which is why sample size calculations are typically treated as a starting point rather than a fixed target.</p>
+</div>
+</div>
+</section>
+<section id="confounding-variables" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="confounding-variables"><span class="header-section-number">2.7</span> Confounding variables</h2>
+<p>Ice cream sales and drowning deaths both rise in summer, but ice cream does not cause drowning. Hot weather drives both.</p>
+<p>A confounding variable is a hidden factor like that: it influences two things at once and makes them look connected even when one is not driving the other.</p>
+<p>A <em>confounding variable</em> is a factor that influences both the thing being measured and the thing suspected of causing it, distorting the apparent relationship between them.</p>
+<p>Suppose the caching layer rolled out at 2 a.m., and the “after” latency sample happens to be drawn mostly from overnight traffic, while the “before” sample was drawn from the daytime peak. Time of day now affects both which sample a request fell into and how loaded the system was, which is what a confounder does by definition.</p>
+<p>The latency drop could reflect the cache, the lighter overnight load, or some mix of both, and a simple before-after comparison cannot tell them apart.</p>
+<p>Three standard ways to control for a confounder: <strong>stratify</strong> the analysis by the confounding variable (compare overnight latency to overnight latency, daytime to daytime); <strong>match</strong> observations on the confounder (pair each after-rollout hour with a before-rollout hour at the same time of day); or <strong>include the confounder as a covariate</strong> in a regression model, which Chapter 4 develops further and this chapter’s ANCOVA section applies directly.</p>
+<p>Recall from Chapter 1 that correlation alone cannot distinguish a true driver from a confounder. The same caution applies to any before-after comparison that ignores what else changed at the same time as the thing being tested.</p>
+</section>
+<section id="paired-and-unpaired-t-tests" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="paired-and-unpaired-t-tests"><span class="header-section-number">2.8</span> Paired and unpaired t-tests</h2>
+<p>Comparing the same ten runners’ race times before and after a new training plan is different from comparing ten runners on the old plan to ten different runners on the new one.</p>
+<p>The first setup is paired, the second is not, and each needs its own version of the t-test.</p>
+<p>A <em>paired t-test</em> applies when two measurements are linked, typically the same unit measured twice. Comparing the same set of customer accounts’ latency before and after the cache rollout, matched account by account, is a paired design:</p>
+<p><span class="math display">\[t = \frac{\bar{d}}{S_d / \sqrt{n}}\]</span></p>
+<p>where <span class="math inline">\(\bar{d}\)</span> is the mean of the paired differences and <span class="math inline">\(S_d\)</span> is the standard deviation of those differences.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pairing removes account-to-account variation from the comparison entirely, since each account serves as its own baseline. That is why a paired design generally needs fewer observations to reach the same statistical power as an unpaired one.</p>
+</div>
+</div>
+<p>An <em>unpaired t-test</em> (also called an independent t-test) applies when the two groups being compared are not linked, for instance a randomized A/B test where incoming requests are assigned to a control path or a cached path:</p>
+<p><span class="math display">\[t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{S_1^2/n_1 + S_2^2/n_2}}\]</span></p>
+<p>When the two groups have unequal variances, which is common when comparing a stable control path to a newly deployed one, Welch’s t-test (a variant that does not assume equal variances) is the safer default over the standard unpaired t-test.</p>
+<p>Both paired and unpaired tests assume the underlying data is close to normal or that the sample is large; the non-parametric alternatives near the end of this chapter cover what to do when that assumption fails.</p>
+</section>
+<section id="comparing-three-or-more-groups-anova" class="level2" data-number="2.9">
+<h2 data-number="2.9" class="anchored" data-anchor-id="comparing-three-or-more-groups-anova"><span class="header-section-number">2.9</span> Comparing three or more groups: ANOVA</h2>
+<p>A t-test can compare two classrooms’ test scores, but what about five classrooms? Checking every possible pair one at a time gets messy fast.</p>
+<p>ANOVA compares many groups at once and asks one question: does at least one group stand apart from the rest?</p>
+<p>A t-test compares two groups. <em>Analysis of variance</em> (ANOVA) extends the same logic to three or more, for instance comparing mean latency across three deployment regions running the same caching layer. ANOVA tests the null hypothesis that all group means are equal against the alternative that at least one differs:</p>
+<p><span class="math display">\[H_0: \mu_1 = \mu_2 = \dots = \mu_k, \qquad H_1: \text{at least one } \mu_i \text{ differs}\]</span></p>
+<p>The test statistic, <span class="math inline">\(F\)</span>, compares the variance between group means to the variance within each group:</p>
+<p><span class="math display">\[F = \frac{\text{variance between groups}}{\text{variance within groups}}\]</span></p>
+<div id="fig-anova-between-within" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anova-between-within-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-02-fig-anova-between-within.png" class="img-fluid figure-img"></p>
+<figcaption>anova between within</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-02-fig-anova-between-within.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anova-between-within-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: Three regions’ latency distributions as the gap between their means widens. F rises and p falls even though the spread within each region never changes.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-anova-between-within" class="quarto-xref">Figure&nbsp;<span>2.4</span></a> holds the within-group spread fixed and widens the gap between the three region means. It shows <span class="math inline">\(F\)</span> climb and the p-value fall as the between-group signal grows relative to the within-group noise that never changes.</p>
+<p>A large <span class="math inline">\(F\)</span> means the groups differ more from each other than individual observations differ within a group, evidence that region is driving some of the variation in latency rather than random noise alone.</p>
+<p>ANOVA answers only whether at least one region differs, not which one; the pairwise tests later in this chapter pick up from there.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Standard ANOVA assumes each group’s latency varies by roughly the same amount. When one region’s traffic is far noisier than another’s, the F-test’s false-positive rate can drift from its stated level, and a Welch-corrected ANOVA or the Kruskal-Wallis test covered later in this chapter becomes the safer choice.</p>
+</div>
+</div>
+</section>
+<section id="categorical-association-chi-squared-and-goodness-of-fit" class="level2" data-number="2.10">
+<h2 data-number="2.10" class="anchored" data-anchor-id="categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.10</span> Categorical association: chi-squared and goodness of fit</h2>
+<p>Suppose a bag is supposed to hold equal numbers of red, blue, and green candies, but a handful you grab has far more red than expected.</p>
+<p>The chi-squared test measures whether counts like that are ordinary luck or a meaningful mismatch from what the bag was supposed to contain.</p>
+<p>ANOVA compares means of continuous data. The <em>chi-squared test</em> compares frequencies of categorical data. Suppose the team wants to know whether error type (timeout, 500, connection reset) is independent of which region served the request, or whether certain regions produce disproportionately more of one error type. The test statistic is</p>
+<p><span class="math display">\[\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}\]</span></p>
+<p>where <span class="math inline">\(O_i\)</span> is the observed count in category <span class="math inline">\(i\)</span> and <span class="math inline">\(E_i\)</span> is the count expected if error type and region were independent.</p>
+<p>A large <span class="math inline">\(\chi^2\)</span> means the observed counts deviate from what independence would predict, evidence that region and error type are associated rather than independent.</p>
+<p>A <em>goodness of fit test</em> uses the same statistic to compare observed frequencies against a specific expected distribution rather than a table of two variables.</p>
+<p>Suppose historical data says timeouts, 500s, and connection resets should occur in a 50/30/20 split; a goodness of fit test checks whether this week’s observed error counts are still consistent with that split, or whether the error mix has shifted.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Both tests assume the sample is large enough that expected counts in each category are not too small (a common rule of thumb is at least 5). With rarer categories, Fisher’s test (built around permutation probabilities computed directly rather than the chi-squared approximation) is the safer choice.</p>
+</div>
+</div>
+</section>
+<section id="controlling-for-a-continuous-confounder-ancova" class="level2" data-number="2.11">
+<h2 data-number="2.11" class="anchored" data-anchor-id="controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.11</span> Controlling for a continuous confounder: ANCOVA</h2>
+<p>Comparing two diets’ effect on weight loss is unfair if one group started out heavier than the other.</p>
+<p>ANCOVA compares group averages while accounting for a starting difference like that, so the comparison is not skewed by something uneven before the diets even began.</p>
+<p><em>Analysis of covariance</em> (ANCOVA) extends ANOVA to control for a continuous confounding variable while comparing group means.</p>
+<p>Suppose the team wants to compare mean latency across two deployment strategies, blue-green versus canary, but request payload size (a continuous variable Chapter 1 showed correlates with latency) differs between the two rollout groups purely by chance.</p>
+<p>ANCOVA compares the two strategies’ effect on latency while adjusting for payload size as a covariate, isolating the deployment strategy’s effect from the confound:</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \varepsilon\]</span></p>
+<p>where <span class="math inline">\(Y\)</span> is latency, <span class="math inline">\(X_1\)</span> is the categorical deployment strategy, and <span class="math inline">\(X_2\)</span> is payload size; <span class="math inline">\(\beta_0\)</span> is the intercept, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are coefficients measuring how much each predictor moves latency, and <span class="math inline">\(\varepsilon\)</span> is the error term capturing whatever the model does not explain.</p>
+<p>ANCOVA is, structurally, a regression model with a categorical predictor and a continuous covariate together, which is why Chapter 4’s treatment of regression assumptions (normality, constant variance, independent errors) applies here as well.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>ANCOVA carries one further assumption: that payload size affects latency the same way under both deployment strategies. If the two strategies respond to payload size differently, this additive model cannot separate the deployment effect from the confound cleanly, and needs an interaction term between strategy and payload size instead.</p>
+</div>
+</div>
+</section>
+<section id="designing-the-experiment-before-running-it" class="level2" data-number="2.12">
+<h2 data-number="2.12" class="anchored" data-anchor-id="designing-the-experiment-before-running-it"><span class="header-section-number">2.12</span> Designing the experiment before running it</h2>
+<p>A science-fair project testing plant growth needs a plan for which plants get sunlight, water, and fertilizer before anyone plants a seed.</p>
+<p>Design of experiments is that planning step: deciding how to assign treatments fairly before any data gets collected, not after.</p>
+<p><em>Design of experiments</em> (DOE) is the discipline of deciding, before collecting any data, how treatments will be assigned so the resulting comparison is fair. Four designs cover most production experiments:</p>
+<ul>
+<li><strong>Completely randomized design</strong>: each request is randomly assigned to a treatment with no other structure, the simplest and most common design for a feature-flag rollout.</li>
+<li><strong>Randomized block design</strong>: requests are first grouped by a known source of variation (for instance, region or time of day) and randomized within each group, so that source of variation cannot masquerade as a treatment effect. This is the formal version of the stratification technique introduced earlier for confounding variables.</li>
+<li><strong>Factorial design</strong>: two or more factors are varied together, for instance testing cache TTL and response compression simultaneously, so their combined and individual effects on latency can both be estimated in one experiment rather than two separate ones.</li>
+<li><strong>Response surface methodology</strong>: used to tune several continuous configuration parameters at once (cache TTL, connection pool size, retry backoff) to find the combination that minimizes a metric like latency, rather than testing one parameter at a time.</li>
+</ul>
+<p>A poorly designed experiment cannot be rescued by a more sophisticated test afterward; the choice of design determines what a p-value from that experiment can and cannot claim to show.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Randomization has to happen before anyone who could influence the outcome knows which treatment an observation will get. Letting engineers pick which users see a new feature, even with good intentions, breaks the design no matter how careful the statistical test afterward.</p>
+</div>
+</div>
+</section>
+<section id="after-anova-pairwise-post-hoc-tests" class="level2" data-number="2.13">
+<h2 data-number="2.13" class="anchored" data-anchor-id="after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.13</span> After ANOVA: pairwise post-hoc tests</h2>
+<p>If five classrooms’ test scores differ overall, that does not say which classrooms differ from which.</p>
+<p>Post-hoc tests check every classroom pair against every other, while being careful not to rack up false alarms simply from checking so many pairs at once.</p>
+<p>When ANOVA rejects the null hypothesis that regions have equal mean latency, it does not say which regions differ. <em>Pairwise post-hoc tests</em> answer that question by comparing every pair of groups while controlling the overall risk of a false positive across all those comparisons, a risk that grows the more pairs are checked.</p>
+<ul>
+<li><strong>Tukey’s Honestly Significant Difference (HSD)</strong> compares all pairs of means from a one-way ANOVA while controlling the <em>family-wise error rate</em> (the probability of at least one false positive across the entire set of pairwise comparisons, not just any single one of them), the standard choice when every pair is of equal interest.</li>
+<li><strong>Scheffé’s test</strong> is more conservative and better suited to comparing arbitrary combinations of groups, not just simple pairs.</li>
+<li><strong>Bonferroni-Dunn</strong> applies the Bonferroni correction, dividing the significance threshold by the number of comparisons, a simple and conservative approach that becomes noticeably strict as the number of regions being compared grows.</li>
+</ul>
+<p>Choosing among these is a trade between power and conservatism: a stricter correction lowers the chance of a false positive across many comparisons but raises the chance of missing a difference that exists between any single pair.</p>
+</section>
+<section id="when-the-data-will-not-cooperate-non-parametric-tests" class="level2" data-number="2.14">
+<h2 data-number="2.14" class="anchored" data-anchor-id="when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.14</span> When the data will not cooperate: non-parametric tests</h2>
+<p>Some group-comparison methods need the data to roughly follow a bell curve.</p>
+<p>Non-parametric tests are the backup plan: they compare the order data falls in rather than its precise values, so they still work when the data is lopsided or full of outliers.</p>
+<p>Every test in this chapter, up to this point, assumes the underlying data is close to normal or that the sample is large enough for the Central Limit Theorem to compensate. Recall from Chapter 1 that checkout-API latency is right-skewed with a heavy tail; a small sample of that data can violate the normality assumption badly enough to make a t-test or ANOVA unreliable.</p>
+<p><em>Non-parametric tests</em> make no assumption about the shape of the underlying distribution, at the cost of somewhat less statistical power when the normality assumption holds.</p>
+<p>The <strong>Wilcoxon rank-sum test</strong> (also called the Mann-Whitney U test) is the non-parametric counterpart to the unpaired t-test, comparing the ranks of two groups’ observations rather than their means. The <strong>Kruskal-Wallis test</strong> extends the same idea to three or more groups, the non-parametric counterpart to ANOVA.</p>
+<div id="fig-nonparametric" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nonparametric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-02-fig-parametric-vs-nonparametric.png" class="img-fluid figure-img"></p>
+<figcaption>nonparametric</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-02-fig-parametric-vs-nonparametric.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nonparametric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.5: A t-test’s p-value moves more than a Wilcoxon rank-sum test’s as outliers are added to skewed data. The rank-based test barely reacts, since a single extreme value can only move a rank by one position.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-nonparametric" class="quarto-xref">Figure&nbsp;<span>2.5</span></a> compares a t-test and a Wilcoxon rank-sum test on the same simulated right-skewed latency data as a small number of outlier requests are added, showing the t-test’s p-value swinging with the outliers while the rank-based test stays comparatively stable.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Both non-parametric tests are the safer choice for comparing latency across groups when the sample is small and the underlying distribution is visibly skewed, the situation Chapter 1 established as the norm for latency data rather than the exception.</p>
+</div>
+</div>
+<p>Choosing between a parametric and a non-parametric test comes down to what the data will support: a parametric test is more powerful when its assumptions hold, and a non-parametric test is the more trustworthy choice when they do not.</p>
+<p>Chapter 3 picks up the underlying probability theory these tests rest on. Part 3 shows a different way to answer the same question the caching layer raised at the start of this chapter, using Bayesian methods instead of the p-value framework built here.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-asa2016" class="csl-entry" role="listitem">
+Wasserstein, Ronald L., and Nicole A. Lazar. 2016. <span>“The ASA’s Statement on p-Values: Context, Process, and Purpose.”</span> <em>The American Statistician</em> 70 (2): 129–33. <a href="https://doi.org/10.1080/00031305.2016.1154108">https://doi.org/10.1080/00031305.2016.1154108</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-01-descriptive-statistics.html" class="pagination-link" aria-label="Introduction to Descriptive Statistics">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-03-probability-and-distributions.html" class="pagination-link" aria-label="Probability and Distributions">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

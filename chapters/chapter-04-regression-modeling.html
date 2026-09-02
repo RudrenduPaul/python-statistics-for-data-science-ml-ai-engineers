@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Regression Modeling – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-05-cross-validation.html" rel="next">
+<link href="../chapters/chapter-03-probability-and-distributions.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#ordinary-least-squares-regression" id="toc-ordinary-least-squares-regression" class="nav-link active" data-scroll-target="#ordinary-least-squares-regression"><span class="header-section-number">4.1</span> Ordinary least squares regression</a></li>
+  <li><a href="#confidence-intervals-and-prediction-intervals" id="toc-confidence-intervals-and-prediction-intervals" class="nav-link" data-scroll-target="#confidence-intervals-and-prediction-intervals"><span class="header-section-number">4.2</span> Confidence intervals and prediction intervals</a></li>
+  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression"><span class="header-section-number">4.3</span> Logistic regression</a></li>
+  <li><a href="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" id="toc-measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="nav-link" data-scroll-target="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.4</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</a></li>
+  <li><a href="#model-interpretation-statistical-significance-versus-practical-significance" id="toc-model-interpretation-statistical-significance-versus-practical-significance" class="nav-link" data-scroll-target="#model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.5</span> Model interpretation: statistical significance versus practical significance</a></li>
+  <li><a href="#regularization-lasso-ridge-and-elastic-net" id="toc-regularization-lasso-ridge-and-elastic-net" class="nav-link" data-scroll-target="#regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.6</span> Regularization: Lasso, Ridge, and Elastic Net</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">4.7</span> A Bayesian perspective</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html">Part 2: Regression and Predictive Modeling</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-04-regression-modeling.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Recall from Chapter 1 that payload size and checkout-API latency showed a strong positive correlation, and that correlation alone could not say how much of the relationship was causal.</p>
+<p><em>Regression modeling</em> is the tool that goes one step further: instead of a single number summarizing how two variables move together, it produces a formula that predicts one variable from another, and a set of diagnostics that say how much to trust that formula.</p>
+<p>This chapter works through six questions that come up whenever a prediction needs to be backed by more than intuition:</p>
+<ol type="1">
+<li><em>How do I fit a line through the data, and what does “best” mean?</em> Ordinary least squares answers both, along with the assumptions that make the answer trustworthy.</li>
+<li><em>How uncertain is a prediction, and does that uncertainty shrink with more data?</em> Confidence intervals and prediction intervals answer two different versions of that question.</li>
+<li><em>What happens when the outcome is a category instead of a number?</em> Logistic regression extends the same machinery to binary outcomes.</li>
+<li><em>How do I know if a model is a good fit, and not just a complicated one?</em> R-squared, adjusted R-squared, AIC, and BIC each answer a version of that question.</li>
+<li><em>What does a coefficient mean, and when does a significant one not matter?</em> Statistical significance and practical significance are not the same thing.</li>
+<li><em>What happens when there are more predictors than the data can support?</em> Regularization techniques trade a small amount of bias for a model that generalizes.</li>
+</ol>
+<section id="ordinary-least-squares-regression" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="ordinary-least-squares-regression"><span class="header-section-number">4.1</span> Ordinary least squares regression</h2>
+<p>Picture drawing one straight line through a scatter of dots so it stays as close as possible to every dot at once. For each dot, measure how far the line misses it, square that distance so big misses count more, then pick the line that makes the total as small as possible.</p>
+<p><em>Ordinary least squares</em> (OLS) regression fits a line through a set of points by minimizing the sum of the squared differences between observed and predicted values. For predicting latency from payload size,</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \varepsilon\]</span></p>
+<p>where <span class="math inline">\(Y\)</span> is latency, <span class="math inline">\(X_1\)</span> is payload size, <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are the coefficients to estimate, and <span class="math inline">\(\varepsilon\)</span> is the error term capturing everything the model does not explain.</p>
+<p>OLS finds the values of <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> that minimize the sum of squared residuals, the gap between each observed latency and the value the line predicts for that request’s payload size.</p>
+<div id="fig-ols" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ols-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-ols-fit.png" class="img-fluid figure-img"></p>
+<figcaption>ols</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-ols-fit.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ols-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Latency (ms) plotted against payload size (KB), with the fitted OLS line in red. Dragging the noise slider higher scatters the dots further from the line: the fitted slope barely moves, but R-squared falls sharply, since a noisier relationship leaves more of the variance unexplained even while the slope itself stays close to correct.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ols" class="quarto-xref">Figure&nbsp;<span>4.1</span></a> shows this fit at several noise levels: the fitted line keeps finding roughly the right slope no matter how much scatter surrounds it, but R-squared, the share of variance the line explains, drops as that scatter grows.</p>
+<p>OLS rests on five assumptions: <strong>linearity</strong> (the true relationship is a straight line, not a curve), <strong>independence</strong> (one observation’s error does not influence another’s), and <strong>homoscedasticity</strong> (the spread of residuals stays constant across the range of the predictor).</p>
+<p>It also assumes <strong>normality</strong> (residuals are normally distributed) and <strong>no multicollinearity</strong> (predictors are not near-perfect linear combinations of each other).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A residual plot, predicted values against residuals, is the fastest practical check on linearity and homoscedasticity: a random scatter around zero supports both assumptions, while a funnel shape or a curve says one of them needs a closer look.</p>
+</div>
+</div>
+<p>Recall from Chapter 1 that latency is right-skewed with a variance that likely grows alongside payload size. That means homoscedasticity and normality are assumptions worth checking rather than assuming for this specific relationship.</p>
+<p>When they fail badly enough, a generalized linear model or a transformation of the outcome variable is the usual fix, a topic beyond this chapter’s scope but worth knowing about.</p>
+</section>
+<section id="confidence-intervals-and-prediction-intervals" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="confidence-intervals-and-prediction-intervals"><span class="header-section-number">4.2</span> Confidence intervals and prediction intervals</h2>
+<p>Suppose the model needs to answer two different questions: what is the typical latency for requests with a 10 KB payload, and what latency should a single new 10 KB request expect? These are not the same question, and they get different intervals.</p>
+<p>Guessing the average height in a school gets more precise the more students get measured; guessing the height of the next person through the door stays uncertain no matter how many others were measured before.</p>
+<p>A <em>confidence interval</em> estimates a range likely to contain the true mean latency at that payload size. A <em>prediction interval</em> estimates a range likely to contain one future observation, which is wider because it accounts for both the uncertainty in estimating the mean and the natural variability of any single request around that mean.</p>
+<div id="fig-ci-pi" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ci-pi-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-ci-vs-pi.png" class="img-fluid figure-img"></p>
+<figcaption>ci pi</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-ci-vs-pi.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ci-pi-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Latency (ms) against payload size (KB): the confidence band (red) narrows steadily as sample size grows, since a larger sample pins down the mean more precisely. The prediction band (blue) barely narrows at all, because no amount of data shrinks the irreducible variability of one new request.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ci-pi" class="quarto-xref">Figure&nbsp;<span>4.2</span></a> shows both intervals as sample size grows, confirming the pattern the definitions above predict. The confidence interval only has to account for how precisely the mean is known, and precision improves with sample size.</p>
+<p>The prediction interval also has to account for how far any individual request can land from that mean, a spread that does not shrink no matter how much data the model has seen.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A capacity-planning question about typical load calls for a confidence interval. A question about the worst latency any single request might see calls for a prediction interval. Reporting the narrower one for the wrong question understates the true range of outcomes.</p>
+</div>
+</div>
+</section>
+<section id="logistic-regression" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="logistic-regression"><span class="header-section-number">4.3</span> Logistic regression</h2>
+<p><em>Logistic regression</em> models a binary outcome, success or failure, timeout or no timeout, rather than a continuous one. Think of a dimmer switch instead of an on-off light switch: probability slides smoothly from near-zero to near-certain along an S-shaped curve instead of jumping straight from 0% to 100%.</p>
+<p>That shape also keeps every predicted probability between 0 and 1. Logistic regression applies the <em>logistic function</em> to map any input to a value between 0 and 1, interpreted as a probability:</p>
+<p><span class="math display">\[p(x) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x)}}\]</span></p>
+<p>In other words, when <span class="math inline">\(\beta_1\)</span> is positive, as with load predicting a timeout, <span class="math inline">\(-(\beta_0 +
+\beta_1 x)\)</span> becomes a large negative number as <span class="math inline">\(x\)</span> grows, the exponential term shrinks toward zero, and <span class="math inline">\(p(x)\)</span> approaches 1; as <span class="math inline">\(x\)</span> shrinks, the exponential term grows without bound and <span class="math inline">\(p(x)\)</span> approaches 0.</p>
+<p>A negative <span class="math inline">\(\beta_1\)</span> reverses that direction, but the exponential term can never make <span class="math inline">\(p(x)\)</span> fall below 0 or rise above 1 regardless of sign, which is the property the dimmer-switch analogy above was pointing at.</p>
+<p>Suppose the team wants to model the probability that a request times out as a function of concurrent load on the service.</p>
+<div id="fig-logistic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-logistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-logistic-timeout.png" class="img-fluid figure-img"></p>
+<figcaption>logistic</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-logistic-timeout.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-logistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: P(timeout) against concurrent load: dots along the top and bottom edges are individual observed requests (timed out or not), and the S-shaped curve is the fitted probability. A steeper curve flips the service from healthy to overwhelmed over a narrower band of load; a shallower curve spreads that same transition across a wider range.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-logistic" class="quarto-xref">Figure&nbsp;<span>4.3</span></a> shows the fitted curve at several steepness values: at low load the probability of a timeout sits near zero, and beyond the midpoint of the curve timeouts become close to certain.</p>
+<p>Logistic regression’s coefficients are estimated by maximum likelihood rather than by minimizing squared error, and they are interpreted differently than an OLS coefficient: <span class="math inline">\(\beta_1\)</span> represents the change in the log-odds of the outcome for a one-unit increase in <span class="math inline">\(x\)</span>, not a direct change in probability.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Reading <span class="math inline">\(\beta_1\)</span> as if it were a direct probability shift is the most common misreading of a logistic coefficient. Because the curve is flat near 0 and 1 and steepest near its midpoint, the same one-unit increase in load can move the timeout probability by a fraction of a percentage point near the tails or by ten or more percentage points near the midpoint.</p>
+</div>
+</div>
+<p>A single coefficient cannot report “the” change in probability without saying where on the curve the service currently sits. Recall Chapter 2’s Type I and Type II error framework: choosing where along this curve to draw the “predict timeout” threshold is the same trade-off between false positives and false negatives that any classification decision has to make.</p>
+</section>
+<section id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.4</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</h2>
+<p><em>R-squared</em> is the share of variance in the outcome that the model explains, ranging from 0 (no explanatory power) to 1 (the model explains every observed difference). Adding predictors to a model can only raise R-squared or leave it unchanged, even when those predictors are pure noise, since OLS will always find some small, spurious pattern to exploit in a finite sample.</p>
+<p>Think of a science-fair judge who docks a point for every extra gadget bolted onto a display, even ones that did not help the demonstration. <em>Adjusted R-squared</em> corrects for this by penalizing additional predictors:</p>
+<p><span class="math display">\[\bar{R}^2 = 1 - (1 - R^2) \frac{n-1}{n-p-1}\]</span></p>
+<p>where <span class="math inline">\(n\)</span> is the sample size and <span class="math inline">\(p\)</span> is the number of predictors. In other words, as <span class="math inline">\(p\)</span> grows relative to <span class="math inline">\(n\)</span>, the fraction <span class="math inline">\((n-1)/(n-p-1)\)</span> grows too, which inflates the unexplained-variance term <span class="math inline">\((1 - R^2)\)</span> enough to counteract R-squared’s automatic rise; a predictor that does not truly reduce unexplained variance now pulls adjusted R-squared down instead of leaving it unchanged.</p>
+<div id="fig-r2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-r2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-r2-vs-adjusted.png" class="img-fluid figure-img"></p>
+<figcaption>r2</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-r2-vs-adjusted.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-r2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Value (0 to 1) against the number of random noise predictors added to the model. R-squared (blue) always rises as predictors are added, even useless ones. Adjusted R-squared (red) penalizes that added complexity, flattening and then declining once the noise predictors stop paying for themselves.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-r2" class="quarto-xref">Figure&nbsp;<span>4.4</span></a> adds twenty random, unrelated noise predictors to a latency model one at a time and tracks both metrics: R-squared climbs the whole way, while adjusted R-squared flattens and then declines once the noise predictors stop paying for the complexity they add.</p>
+<p><em>AIC</em> (Akaike’s Information Criterion) and <em>BIC</em> (Bayesian Information Criterion) address the same overfitting risk from a different angle, useful for comparing entirely different candidate models rather than only tracking one model as terms are added:</p>
+<p><span class="math display">\[\text{AIC} = -2 \ln(\hat{L}) + 2k, \qquad \text{BIC} = -2 \ln(\hat{L}) + k \ln(n)\]</span></p>
+<p>where <span class="math inline">\(\hat{L}\)</span> is the model’s maximized likelihood and <span class="math inline">\(k\)</span> is the number of parameters. In other words, <span class="math inline">\(-2\ln(\hat{L})\)</span> measures how poorly the model fits: a model that assigns a higher likelihood to the observed data produces a smaller value here, so this term shrinks as fit improves.</p>
+<p>The <span class="math inline">\(2k\)</span> or <span class="math inline">\(k\ln(n)\)</span> term adds back a fixed cost for every parameter, so a model only earns a lower AIC or BIC by fitting well enough to outweigh the complexity it adds, not by fitting at all.</p>
+<p>AIC comes from Akaike (1974) <span class="citation" data-cites="akaike1974">(<a href="chapter-01-descriptive-statistics.html#ref-akaike1974" role="doc-biblioref">Akaike 1974</a>)</span>; BIC comes from a separate derivation by Schwarz (1978), starting from a Bayesian argument about model dimension rather than Akaike’s information-theoretic one <span class="citation" data-cites="schwarz1978">(<a href="chapter-01-descriptive-statistics.html#ref-schwarz1978" role="doc-biblioref">Schwarz 1978</a>)</span>.</p>
+<p>Both penalize additional parameters; BIC penalizes them more heavily as sample size grows, which tends to favor simpler models than AIC does on large datasets. Lower values of either indicate a better balance of fit against complexity.</p>
+<p>The two are best used to rank several candidate models (a payload-only model, a payload-plus-region model, a payload-plus-region-plus-time-of-day model) against each other, rather than read in isolation.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>AIC and BIC scores are only comparable across models fit to the same dataset and the same outcome variable. A lower AIC on a model trained on a different sample, or on a transformed outcome, is not a meaningful comparison, even though the two numbers can be placed side by side.</p>
+</div>
+</div>
+<div id="fig-aic-bic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aic-bic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-aic-bic.png" class="img-fluid figure-img"></p>
+<figcaption>aic bic</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-aic-bic.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aic-bic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5: Both AIC and BIC reward adding region, which carries a measurable effect, but BIC penalizes the noise predictor, time of day, more heavily than AIC does, and that gap widens as the sample size grows.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-aic-bic" class="quarto-xref">Figure&nbsp;<span>4.5</span></a> ranks those three candidate models, where region carries a measurable effect on latency and time of day is pure noise, and tracks AIC and BIC for each as the sample size grows.</p>
+<p>Drag the slider from a small sample toward a large one and watch the gap open up: at n=30, AIC and BIC mostly agree on which model looks best.</p>
+<p>By n=400, BIC has pulled further away from rewarding the model with the noise predictor added. That is the same “BIC penalizes complexity more heavily as sample size grows” claim made above, now shown concretely instead of merely asserted.</p>
+</section>
+<section id="model-interpretation-statistical-significance-versus-practical-significance" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.5</span> Model interpretation: statistical significance versus practical significance</h2>
+<p>A regression coefficient states how much the outcome changes for a one-unit change in a predictor, holding everything else in the model constant. A coefficient of 9 on payload size means each additional kilobyte of payload is associated with roughly 9 additional milliseconds of latency, on average.</p>
+<p>Whether that coefficient is <em>statistically significant</em> is a question Chapter 2 covered: compute a p-value for the coefficient and compare it against a threshold.</p>
+<p>Recall from Chapter 2’s discussion of the ASA statement on p-values that statistical significance says nothing about the size of an effect. The same caution applies directly here: a coefficient can be statistically significant, with a p-value far below 0.05, while representing a change too small to act on.</p>
+<p>A 0.1 ms latency improvement, for example, can clear statistical significance across ten million requests and still not justify shipping. <em>Practical significance</em> asks the second question a statistically significant coefficient does not answer on its own: given the size of this effect, does it change any decision.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With a large enough sample, almost any nonzero coefficient clears the significance bar. The question worth asking is not whether a p-value is small, but whether the coefficient’s size is big enough to change a decision that matters.</p>
+</div>
+</div>
+</section>
+<section id="regularization-lasso-ridge-and-elastic-net" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.6</span> Regularization: Lasso, Ridge, and Elastic Net</h2>
+<p>Suppose the latency model grows to include payload size, deployment region, time of day, and endpoint identity, several of which move together because larger payloads cluster in certain regions or certain endpoints.</p>
+<p><em>Regularization</em> adds a penalty term to the OLS objective that shrinks coefficients, trading a small amount of bias for a model that generalizes better to new data.</p>
+<p>Packing a suitcase with a rule that charges a fee per item keeps only the items worth their weight; Lasso’s fee is steep enough to drop an item to zero, Ridge’s just makes every item lighter.</p>
+<p><em>Lasso</em> regularization (short for least absolute shrinkage and selection operator) adds an L1 penalty, the sum of the absolute values of the coefficients <span class="citation" data-cites="tibshirani1996">(<a href="chapter-01-descriptive-statistics.html#ref-tibshirani1996" role="doc-biblioref">Tibshirani 1996</a>)</span>:</p>
+<p><span class="math display">\[\text{minimize} \quad \text{SSE} + \lambda \sum_j |\beta_j|\]</span></p>
+<p>Here <span class="math inline">\(\lambda\)</span> is the <em>regularization strength</em>, a value the analyst chooses rather than one OLS estimates from the data: <span class="math inline">\(\lambda = 0\)</span> adds no penalty and reduces the formula back to plain OLS, and larger values of <span class="math inline">\(\lambda\)</span> shrink coefficients more aggressively.</p>
+<p><em>Ridge</em> regularization adds an L2 penalty, the sum of the squared coefficients, instead <span class="citation" data-cites="hoerlkennard1970">(<a href="chapter-01-descriptive-statistics.html#ref-hoerlkennard1970" role="doc-biblioref">Hoerl and Kennard 1970</a>)</span>:</p>
+<p><span class="math display">\[\text{minimize} \quad \text{SSE} + \lambda \sum_j \beta_j^2\]</span></p>
+<p><em>Elastic Net</em> combines both penalties, controlled by a mixing parameter <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[\text{minimize} \quad \text{SSE} + \alpha \lambda \sum_j |\beta_j| + (1-\alpha) \lambda \sum_j \beta_j^2\]</span></p>
+<p>The practical difference between Lasso and Ridge shows up clearly once several correlated predictors are in the model together.</p>
+<div id="fig-regularization" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-regularization-paths.png" class="img-fluid figure-img"></p>
+<figcaption>regularization</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-regularization-paths.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Coefficient value for each predictor, comparing Lasso (red) against Ridge (blue) as the regularization strength grows. As regularization strengthens, Lasso zeroes out the noise predictor and one of the two correlated region indicators, while Ridge only shrinks every coefficient toward zero without eliminating any of them.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-regularization" class="quarto-xref">Figure&nbsp;<span>4.6</span></a> fits both to a latency model with two region indicators correlated with payload size and one pure noise predictor (time of day), tracking every coefficient as the regularization strength <span class="math inline">\(\lambda\)</span> grows.</p>
+<p>This is because the two penalties shrink coefficients differently. Ridge’s squared penalty shrinks every coefficient smoothly, which handles multicollinearity well: correlated predictors end up sharing the credit for their combined effect.</p>
+<p>But it never removes a variable from the model entirely, which can make the model harder to read when many predictors are involved. Lasso’s absolute-value penalty can drive a coefficient to zero once <span class="math inline">\(\lambda\)</span> is large enough, effectively performing feature selection as part of fitting the model.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Lasso tends to keep only one predictor from a group of correlated predictors and zero out the rest, largely by which one the optimization happens to favor first. Ridge splits the credit evenly across the group instead. Elastic Net exists to balance those two behaviors when a model has both correlated and irrelevant predictors at once.</p>
+</div>
+</div>
+<p>Regularization comes at a cost: shrinking coefficients toward zero introduces bias, trading some fit on the training data for a model that is less likely to have memorized noise specific to that sample.</p>
+<p>The section below approaches that same trade-off from a different angle, by treating a coefficient not as a single fixed number to estimate but as a quantity with its own probability distribution, updated as evidence accumulates.</p>
+</section>
+<section id="a-bayesian-perspective" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">4.7</span> A Bayesian perspective</h2>
+<p>Every model in this chapter has produced a single best-fitting number for each coefficient: an OLS slope, a logistic-regression weight, a Lasso or Ridge estimate shrunk toward zero.</p>
+<p><em>Bayesian linear regression</em> asks a different question: instead of one number, what is the full range of coefficient values consistent with the data, and how much more likely are some values than others?</p>
+<p>Guessing a stranger’s age before meeting them gives a wide starting range; hearing they have kids in college narrows that range sharply. The wide starting guess is a prior, the narrowed one after new evidence is a posterior.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A prior is a choice, not a free parameter. An overly narrow or badly centered prior can bias a result as much as too little data can, so a Bayesian analysis is only as trustworthy as the reasoning behind the prior it starts from.</p>
+</div>
+</div>
+<p>It starts from the same model as OLS, <span class="math inline">\(Y = \beta_0 + \beta_1 X_1 + \varepsilon\)</span>, but treats <span class="math inline">\(\beta_1\)</span> as a random quantity with a <em>prior</em> distribution describing what is plausible before seeing the data, then updates that prior into a <em>posterior</em> distribution once the observed latencies are in hand.</p>
+<p>Under a flat, uninformative prior, the posterior mean lands on the OLS estimate. Bayesian regression takes the assumptions OLS makes about the coefficients and states them explicitly, as a prior, instead of leaving them buried in the method.</p>
+<p>Recall Ridge and Lasso from the section above. Both turn out to be Bayesian estimates in disguise. Placing an independent Gaussian prior on each coefficient and taking the posterior mode, the single most probable value, recovers the Ridge estimate.</p>
+<p>Placing an independent Laplace (double-exponential) prior instead and taking the posterior mode recovers the Lasso estimate <span class="citation" data-cites="tibshirani1996 parkcasella2008">(<a href="chapter-01-descriptive-statistics.html#ref-tibshirani1996" role="doc-biblioref">Tibshirani 1996</a>; <a href="chapter-01-descriptive-statistics.html#ref-parkcasella2008" role="doc-biblioref">Park and Casella 2008</a>)</span>.</p>
+<p>A Gaussian posterior is symmetric, so its mode and mean are the same value, which is why the flat-prior-recovers-OLS claim above is stated in terms of the mean while the Ridge equivalence just given is stated in terms of the mode: for a Gaussian posterior the two coincide.</p>
+<p>A Laplace-prior posterior is not symmetric in general, so its mode and mean can differ, and it is specifically the mode, not the mean, that matches the Lasso estimate. From this angle, the regularization strength <span class="math inline">\(\lambda\)</span> in both formulas is the precision of the prior: how tightly that prior clusters around zero before any data arrives.</p>
+<div id="fig-bayesian-ridge" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-04-fig-bayesian-ridge.png" class="img-fluid figure-img"></p>
+<figcaption>bayesian ridge</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the posterior on the payload-size coefficient narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.7</span></a> shows this pattern directly for the payload-size coefficient: one full distribution at a time, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
+<p>Logistic regression does not offer the same clean arithmetic. Because the logistic function is nonlinear, the posterior over its coefficients has no closed form the way Ridge and Lasso’s Gaussian and Laplace posteriors do.</p>
+<p>Fitting a Bayesian logistic regression means approximating that posterior instead, typically with Markov chain Monte Carlo sampling or a Laplace approximation around the posterior mode.</p>
+<p>The added computational cost buys something a point estimate cannot: a <em>credible interval</em> on each coefficient, a range that directly states the probability the true effect falls inside it. A standard error, by contrast, is only as trustworthy as the model’s specification, and its validity also depends on the sample being large enough for its asymptotic guarantees to hold.</p>
+<p>That trade of more computation for a fuller picture of uncertainty is worth returning to. Part 3 takes it up in full, this time for the practical case of deciding between two live variants of a product rather than fitting a single regression model.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-akaike1974" class="csl-entry" role="listitem">
+Akaike, Hirotugu. 1974. <span>“A New Look at the Statistical Model Identification.”</span> <em>IEEE Transactions on Automatic Control</em> 19 (6): 716–23. <a href="https://doi.org/10.1109/TAC.1974.1100705">https://doi.org/10.1109/TAC.1974.1100705</a>.
+</div>
+<div id="ref-hoerlkennard1970" class="csl-entry" role="listitem">
+Hoerl, Arthur E., and Robert W. Kennard. 1970. <span>“Ridge Regression: Biased Estimation for Nonorthogonal Problems.”</span> <em>Technometrics</em> 12 (1): 55–67. <a href="https://doi.org/10.1080/00401706.1970.10488634">https://doi.org/10.1080/00401706.1970.10488634</a>.
+</div>
+<div id="ref-parkcasella2008" class="csl-entry" role="listitem">
+Park, Trevor, and George Casella. 2008. <span>“The Bayesian Lasso.”</span> <em>Journal of the American Statistical Association</em> 103 (482): 681–86. <a href="https://doi.org/10.1198/016214508000000337">https://doi.org/10.1198/016214508000000337</a>.
+</div>
+<div id="ref-schwarz1978" class="csl-entry" role="listitem">
+Schwarz, Gideon. 1978. <span>“Estimating the Dimension of a Model.”</span> <em>The Annals of Statistics</em> 6 (2): 461–64. <a href="https://doi.org/10.1214/aos/1176344136">https://doi.org/10.1214/aos/1176344136</a>.
+</div>
+<div id="ref-tibshirani1996" class="csl-entry" role="listitem">
+Tibshirani, Robert. 1996. <span>“Regression Shrinkage and Selection via the Lasso.”</span> <em>Journal of the Royal Statistical Society: Series B (Methodological)</em> 58 (1): 267–88. <a href="https://doi.org/10.1111/j.2517-6161.1996.tb02080.x">https://doi.org/10.1111/j.2517-6161.1996.tb02080.x</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-03-probability-and-distributions.html" class="pagination-link" aria-label="Probability and Distributions">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-05-cross-validation.html" class="pagination-link" aria-label="Cross-Validation and Model Selection">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

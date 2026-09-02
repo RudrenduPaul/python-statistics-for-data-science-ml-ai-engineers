@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>13&nbsp; Bayesian Approaches to Gradient Boosting – Applied Statistics for Data Science, Machine Learning, and AI Engineers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/chapter-14-bayesian-ab-testing.html" rel="next">
+<link href="../chapters/chapter-12-bayesian-bart.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-13-bayesian-boosting.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 1: Foundations of Applied Statistics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-01-descriptive-statistics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Descriptive Statistics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-02-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-03-probability-and-distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability and Distributions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 2: Regression and Predictive Modeling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-04-regression-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regression Modeling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-05-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cross-Validation and Model Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-06-regression-splines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Moving Beyond Linearity: Regression Splines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-07-decision-trees-random-forests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tree-Based Methods: Decision Trees and Random Forests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-08-gradient-boosting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Gradient Boosting: XGBoost and LightGBM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part 3: Bayesian Methods</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-09-bayesian-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Bayesian Linear Regression and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-10-bayesian-model-selection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Bayesian Model Selection and Comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-11-bayesian-gaussian-processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bayesian Nonlinear Regression: Gaussian Processes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-12-bayesian-bart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-13-bayesian-boosting.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/chapter-15-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-boosting-does-not-have-a-clean-posterior" id="toc-why-boosting-does-not-have-a-clean-posterior" class="nav-link active" data-scroll-target="#why-boosting-does-not-have-a-clean-posterior"><span class="header-section-number">13.1</span> Why boosting does not have a clean posterior</a></li>
+  <li><a href="#bayesian-hyperparameter-optimization" id="toc-bayesian-hyperparameter-optimization" class="nav-link" data-scroll-target="#bayesian-hyperparameter-optimization"><span class="header-section-number">13.2</span> Bayesian hyperparameter optimization</a></li>
+  <li><a href="#ngboost-a-boosted-model-that-outputs-a-distribution" id="toc-ngboost-a-boosted-model-that-outputs-a-distribution" class="nav-link" data-scroll-target="#ngboost-a-boosted-model-that-outputs-a-distribution"><span class="header-section-number">13.3</span> NGBoost: a boosted model that outputs a distribution</a></li>
+  <li><a href="#where-the-field-stands-honestly" id="toc-where-the-field-stands-honestly" class="nav-link" data-scroll-target="#where-the-field-stands-honestly"><span class="header-section-number">13.4</span> Where the field stands, honestly</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/chapter-09-bayesian-regression.html">Part 3: Bayesian Methods</a></li><li class="breadcrumb-item"><a href="../chapters/chapter-13-bayesian-boosting.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Bayesian Approaches to Gradient Boosting</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Chapter 9 turned a regression coefficient into a posterior distribution with a single choice of prior. Chapter 12 turned a random forest into BART by putting a regularizing prior on tree structure and leaf values, then sampling the ensemble with MCMC.</p>
+<p>Gradient boosting resists the same move. It is worth being specific about why, before looking at what a Bayesian practitioner does instead.</p>
+<section id="why-boosting-does-not-have-a-clean-posterior" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="why-boosting-does-not-have-a-clean-posterior"><span class="header-section-number">13.1</span> Why boosting does not have a clean posterior</h2>
+<p>A Bayesian model update, in every case this book has covered, works by combining a prior belief with a likelihood to get a posterior belief, then sampling from or computing that posterior directly.</p>
+<p>Conjugate linear regression does this in closed form: one formula, plugged in once, with no iteration and no sampling required. Bayesian logistic regression and BART do it with MCMC (Markov chain Monte Carlo), drawing samples that, in the long run, represent the posterior even when no formula for it exists.</p>
+<p>Both routes have the same shape: a well-defined target distribution exists, and the machinery’s job is to characterize it.</p>
+<p>Gradient boosting, as Chapter 8 built it, does not define a target distribution at all. Recall the mechanism: start from a constant prediction, compute the negative gradient of the loss with respect to the current predictions, fit a small tree to that gradient, add it to the running total with a learning rate applied, and repeat <span class="citation" data-cites="friedman2001">(<a href="chapter-01-descriptive-statistics.html#ref-friedman2001" role="doc-biblioref">Friedman 2001</a>)</span>.</p>
+<p>Every step is a deterministic optimization move, a greedy step toward lower training loss, not a draw from any distribution. There is no prior on “what the ensemble should look like” doing any work in that loop, and no posterior falls out of it when the loop finishes.</p>
+<p>XGBoost’s regularization term penalizes leaf weights and leaf count <span class="citation" data-cites="chen2016xgboost">(<a href="chapter-01-descriptive-statistics.html#ref-chen2016xgboost" role="doc-biblioref">Chen and Guestrin 2016</a>)</span>, which looks Bayesian in spirit. A penalty term is, after all, mathematically equivalent to a prior’s effect on a point estimate, the same equivalence Chapter 9 showed for Ridge and the Bayesian Lasso.</p>
+<p>But the equivalence stops there: nothing in XGBoost’s fitting procedure ever samples, so the output is a single fitted ensemble, a point estimate rather than a distribution over ensembles.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The core distinction: boosting optimizes greedily toward one fitted ensemble. It never defines a target distribution to sample from, which is why it has no natural posterior the way linear regression or trees do.</p>
+</div>
+</div>
+<p>This is not a minor implementation gap that a future release will close. It is a structural property of what boosting optimizes: a single, sequentially-constructed function, chosen greedily at each step to reduce loss the fastest. Nothing in the loop can represent more than one plausible ensemble at a time.</p>
+<p>Two practical threads exist despite this, and they solve different problems. Bayesian hyperparameter optimization treats the <em>tuning</em> of a boosted model as a Bayesian decision problem, leaving the model itself untouched.</p>
+<p>NGBoost, covered later in this chapter, changes what the model predicts (a full distribution instead of a point value) without changing how the ensemble is built. Neither one gives gradient boosting the kind of posterior BART has over its ensemble.</p>
+</section>
+<section id="bayesian-hyperparameter-optimization" class="level2" data-number="13.2">
+<h2 data-number="13.2" class="anchored" data-anchor-id="bayesian-hyperparameter-optimization"><span class="header-section-number">13.2</span> Bayesian hyperparameter optimization</h2>
+<p>Think of tuning a recipe’s oven temperature and bake time. Instead of testing combinations at random, a good cook uses what worked or flopped in earlier batches to guess where to try next. That is Bayesian hyperparameter search in one sentence.</p>
+<p>Suppose the rollback-risk model from Chapter 8 needs its learning rate and max tree depth tuned. A grid search would try every combination on a fixed grid. A random search would sample combinations uniformly.</p>
+<p>Both treat every untried combination as equally worth trying next. That wastes evaluations on combinations a reasonable person would expect to be bad, given what earlier trials revealed.</p>
+<p>A Bayesian approach treats the relationship between hyperparameters and validation loss as an unknown function to be modeled, the same framing Chapter 11 introduced for a different problem (interpolating a noisy curve).</p>
+<p>Here, the function being modeled is <span class="math inline">\(f(\text{learning rate}, \text{max depth}) = \text{validation loss}\)</span>, known only at the handful of points evaluated so far.</p>
+<p>In other words, plug in a learning rate and a max depth and this function would return how well a model trained with those settings performs on held-out data, if only it could be written down directly.</p>
+<p>It cannot: the only way to learn its value at a given point is to train a model there and measure the result, which is what makes every trial expensive.</p>
+<p>A Gaussian process fits a posterior belief over that function from the trials run so far. Recall from Chapter 11 that this means assigning a posterior belief not to a single number but to every curve consistent with the points observed so far, weighted by how well each curve fits.</p>
+<p>As covered further down, a different kind of surrogate model can play the same role. An <em>acquisition function</em> then scores every untried combination by how promising it is to try next, balancing two things: how low the surrogate’s mean prediction is there (exploitation) and how uncertain the surrogate still is there (exploration).</p>
+<p><em>Expected improvement</em> (EI), the most common acquisition function, computes the expected amount by which a new trial would beat the best result seen so far, under the surrogate’s current posterior.</p>
+<div id="fig-bo-search-trajectory" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bo-search-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-boosting-fig-search-trajectory.png" class="img-fluid figure-img"></p>
+<figcaption>bo search trajectory</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-boosting-fig-search-trajectory.html" width="100%" height="580" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bo-search-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13.1: A Bayesian search’s trials on a simulated validation-loss surface, learning rate vs.&nbsp;max depth. Early trials spread out to explore; later trials cluster around the region that turns out to be promising. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-bo-search-trajectory" class="quarto-xref">Figure&nbsp;<span>13.1</span></a> shows this loop run on a simulated validation-loss surface over learning rate and max depth for the rollback-risk model, seeded with four random trials and then extended one trial at a time by maximizing expected improvement. Move the slider forward and watch where each new point lands.</p>
+<p>Early trials spread out, since with almost nothing observed yet the surrogate’s uncertainty dominates the expected-improvement score everywhere. As more trials accumulate, later points cluster around the region that turns out to be promising.</p>
+<p>Occasionally the search still probes a far corner of the space where uncertainty remains high, even though the mean prediction there looks unremarkable. That occasional probe is expected improvement doing its job.</p>
+<p>A point with mediocre predicted loss but wide uncertainty can still beat a point with slightly better predicted loss and near-zero uncertainty, because the first point might turn out to be excellent. The second point, by contrast, is unlikely to turn out much better than the best trial found so far.</p>
+<div id="fig-expected-improvement" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-expected-improvement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-boosting-fig-expected-improvement.png" class="img-fluid figure-img"></p>
+<figcaption>expected improvement</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-boosting-fig-expected-improvement.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-expected-improvement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13.2: The GP posterior mean, the trials evaluated, and the expected-improvement curve that picks the next trial. EI peaks not at the best point seen so far but where promise and uncertainty overlap. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-expected-improvement" class="quarto-xref">Figure&nbsp;<span>13.2</span></a> isolates one hyperparameter (learning rate, with max depth held fixed) and shows the GP surrogate’s posterior mean, the true underlying loss curve (which the search never sees directly), the trials evaluated so far, and the expected-improvement curve that decides where the next trial lands.</p>
+<p>Note where expected improvement peaks relative to the trials evaluated so far. It is not highest at the best point found so far, since that point’s uncertainty has shrunk from being explored.</p>
+<p>It is not highest in the region furthest from any trial either, since that area is uncertain but the surrogate’s mean prediction offers no reason to expect it is good. Instead, it peaks somewhere the surrogate is both moderately optimistic and still uncertain enough to be worth checking.</p>
+<p>In practice, nobody hand-writes this loop. <code>Optuna</code>, the most actively maintained and widely adopted Bayesian hyperparameter optimization library in Python today, defaults to a tree-structured Parzen estimator (TPE) rather than a Gaussian process as its surrogate model <span class="citation" data-cites="akiba2019optuna">(<a href="chapter-01-descriptive-statistics.html#ref-akiba2019optuna" role="doc-biblioref">Akiba et al. 2019</a>)</span>.</p>
+<p>A TPE models the <em>distribution of hyperparameters</em> that produced good versus bad results, rather than modeling the loss surface directly the way a GP does. It scales better to many hyperparameters and to non-numeric (categorical) ones, at the cost of a less interpretable surrogate than a GP’s.</p>
+<p><code>scikit-optimize</code> (<code>skopt</code>) offers a more traditional GP-based Bayesian optimizer, closer to what <a href="#fig-bo-search-trajectory" class="quarto-xref">Figure&nbsp;<span>13.1</span></a> demonstrates directly.</p>
+<p>For problems where the objective function is expensive enough that every evaluation counts (a model that takes hours to train, not milliseconds), <code>BoTorch</code> is the name worth knowing for GP-based Bayesian optimization at a larger scale, built on PyTorch and commonly used for tuning deep learning training runs rather than gradient-boosted trees.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Tooling changes fast in this space. <code>scikit-optimize</code>’s maintainers archived the repository in 2024, and <code>GPyOpt</code> has seen little active maintenance in recent years. Check a library’s commit history before depending on it for new work.</p>
+</div>
+</div>
+<p>A worked call against the rollback-risk model, in Optuna’s own idiom:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> optuna</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> GradientBoostingClassifier</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> objective(trial):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    lr <span class="op">=</span> trial.suggest_float(<span class="st">"learning_rate"</span>, <span class="fl">0.01</span>, <span class="fl">0.35</span>, log<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    depth <span class="op">=</span> trial.suggest_int(<span class="st">"max_depth"</span>, <span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> GradientBoostingClassifier(learning_rate<span class="op">=</span>lr, max_depth<span class="op">=</span>depth, n_estimators<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> cross_val_score(model, X_train, y_train, cv<span class="op">=</span><span class="dv">5</span>, scoring<span class="op">=</span><span class="st">"neg_log_loss"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>score.mean()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>study <span class="op">=</span> optuna.create_study(direction<span class="op">=</span><span class="st">"minimize"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>study.optimize(objective, n_trials<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(study.best_params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thirty trials with this search routinely land close to the region a much larger grid search would have found. Every trial after the first handful is chosen using what the earlier trials revealed, the same logic <a href="#fig-bo-search-trajectory" class="quarto-xref">Figure&nbsp;<span>13.1</span></a> shows visually.</p>
+</section>
+<section id="ngboost-a-boosted-model-that-outputs-a-distribution" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="ngboost-a-boosted-model-that-outputs-a-distribution"><span class="header-section-number">13.3</span> NGBoost: a boosted model that outputs a distribution</h2>
+<p>Picture two weather forecasters. One says “72 degrees tomorrow” and stops there. The other says “72 degrees, but anywhere from 65 to 79 wouldn’t surprise me.” NGBoost is built to be the second kind of forecaster.</p>
+<p>A separate, more direct answer to “how do I get uncertainty out of a boosted model” is to change what the model predicts, not how it is tuned. <code>NGBoost</code> (Natural Gradient Boosting) fits a boosted ensemble the usual way, one tree at a time correcting the ensemble’s current mistakes.</p>
+<p>But instead of predicting a single number, it predicts the parameters of a full probability distribution <span class="citation" data-cites="duan2020ngboost">(<a href="chapter-01-descriptive-statistics.html#ref-duan2020ngboost" role="doc-biblioref">Duan et al. 2020</a>)</span>. For a continuous target, that typically means a Normal distribution’s mean and variance.</p>
+<p>For a rollback-probability target, it means a Bernoulli parameter (the probability that a given deployment triggers a rollback) trained against a proper scoring rule, a loss function whose minimum is reached only when the predicted probability matches the true probability, so the model has no incentive to hedge toward 50% or overstate its confidence.</p>
+<p>That training target keeps the probability calibrated, though a single Bernoulli parameter carries no separate variance term the way the continuous case does.</p>
+<p>The “natural” in the name refers to natural gradient descent, a technique for taking optimization steps that account for the geometry of the distribution’s parameter space rather than treating every parameter as an independent, equally-scaled coordinate.</p>
+<p>That geometry-aware approach turns out to matter a great deal for training stability when the thing being predicted is a distribution’s parameters rather than a single value.</p>
+<div id="fig-ngboost-width" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ngboost-width-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../_generated/chapter-bayes-boosting-fig-ngboost-width.png" class="img-fluid figure-img"></p>
+<figcaption>ngboost width</figcaption>
+</figure>
+</div>
+<iframe src="../_generated/chapter-bayes-boosting-fig-ngboost-width.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ngboost-width-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13.3: NGBoost’s predicted mean (solid blue) tracks the point-estimate model’s forecast (dashed red) closely at every payload size on the x-axis, but only NGBoost adds a shaded interval around it. That interval stays narrow inside the dense training-data region (roughly 5 to 25 KB) and widens sharply for payload sizes below and above it, since fewer training examples there leave the model less certain about the predicted rollback probability. Move the slider.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ngboost-width" class="quarto-xref">Figure&nbsp;<span>13.3</span></a> contrasts a point-estimate boosted model’s prediction with an NGBoost-style predictive interval, on payload size ranging outside the region where training data was dense.</p>
+<p>The point-estimate model’s dashed line has no opinion about where it is extrapolating. The number it reports at a payload size of 40 KB looks just as confident as the number it reports at 15 KB, even though the model saw plenty of 15 KB examples during training and almost none near 40 KB.</p>
+<p>NGBoost’s interval widens specifically in the region past the dense training data. That happens because its distributional prediction carries a variance term that the fitting procedure is free to inflate when the ensemble’s trees disagree more, or when nearby training examples were sparser.</p>
+<p>This is not a full posterior over the ensemble the way BART’s MCMC samples are. It is a single fitted model that happens to output a distribution rather than a point. That distinction matters for what you can and cannot do with it.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>NGBoost’s predictive interval is not the same as a full Bayesian posterior over the ensemble. It estimates spread at each point; it does not tell you how differently the fitted ensemble itself might have turned out under a different training run.</p>
+</div>
+</div>
+<p>NGBoost’s interval tells you the model’s estimate of its own predictive spread at each point. It does not tell you how much the fitted ensemble itself might have looked different under a different random training run. That second question is closer to what BART’s tree-to-tree posterior variation captures.</p>
+</section>
+<section id="where-the-field-stands-honestly" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="where-the-field-stands-honestly"><span class="header-section-number">13.4</span> Where the field stands, honestly</h2>
+<p>A thinner, research-stage thread frames boosting itself as an approximate form of Bayesian inference. The sequence of trees, under certain loss functions and with the right regularization scheme, can be shown to trace out something resembling a posterior via functional gradient descent.</p>
+<p>Functional gradient descent means gradient descent carried out directly in the space of functions (the ensemble itself is the object being optimized at each step) rather than in a fixed set of parameters. That is the same underlying view of boosting Chapter 8 built the mechanism from.</p>
+<p>Separately, some work has extended BART’s additive-tree framework to allow the sequential-fitting style this chapter describes, rather than BART’s fully parallel MCMC updates.</p>
+<p>None of this has produced a standard, widely adopted library the way PyMC has for general Bayesian models, ArviZ has for model comparison, or <code>pymc-bart</code> has for BART itself. Treat it as an active research direction rather than something ready to replace XGBoost or LightGBM in production today.</p>
+<p>If the goal is boosting’s flexibility plus a full posterior over predictions, the honest answer today is not a Bayesian version of XGBoost. It is BART, covered in full in Chapter 12.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As a rule of thumb: if a project needs a full posterior over predictions with a boosting-like ensemble, reach for BART (Chapter 12) rather than trying to graft Bayesian machinery onto XGBoost or LightGBM. Bayesian hyperparameter optimization and NGBoost solve narrower problems along the way, not this one.</p>
+</div>
+</div>
+<p>BART is not gradient boosting: its trees are fit by Gibbs-sampling-style backfitting against the ensemble’s residual, not by gradient descent on a loss function. Recall from Chapter 12 what that means in practice: cycling through the trees one at a time, refitting each one to whatever residual the rest of the ensemble leaves behind.</p>
+<p>But it delivers the same practical outcome a reader reaching for “Bayesian boosting” is usually after: an additive-tree ensemble with a full posterior, mature tooling, and a track record on structured tabular data close to what XGBoost and LightGBM handle.</p>
+<p>Bayesian hyperparameter optimization and NGBoost solve two narrower problems along the way: tuning a boosted model efficiently, and getting a calibrated predictive interval out of one, without requiring a fundamentally different training procedure.</p>
+<p>Between the three, most of what a practitioner reaching for “Bayesian boosting” needs is covered, even without a single library that does all of it at once.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-akiba2019optuna" class="csl-entry" role="listitem">
+Akiba, Takuya, Shotaro Sano, Toshihiko Yanase, Takeru Ohta, and Masanori Koyama. 2019. <span>“<span>Optuna</span>: A Next-Generation Hyperparameter Optimization Framework.”</span> In <em>Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining (KDD ’19)</em>, 2623–31. <a href="https://doi.org/10.1145/3292500.3330701">https://doi.org/10.1145/3292500.3330701</a>.
+</div>
+<div id="ref-chen2016xgboost" class="csl-entry" role="listitem">
+Chen, Tianqi, and Carlos Guestrin. 2016. <span>“<span>XGBoost</span>: A Scalable Tree Boosting System.”</span> In <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 785–94. <a href="https://doi.org/10.1145/2939672.2939785">https://doi.org/10.1145/2939672.2939785</a>.
+</div>
+<div id="ref-duan2020ngboost" class="csl-entry" role="listitem">
+Duan, Tony, Anand Avati, Daisy Yi Ding, Khanh K. Thai, Sanjay Basu, Andrew Ng, and Alejandro Schuler. 2020. <span>“<span>NGBoost</span>: Natural Gradient Boosting for Probabilistic Prediction.”</span> In <em>Proceedings of the 37th International Conference on Machine Learning (ICML 2020)</em>, 119:2690–700.
+</div>
+<div id="ref-friedman2001" class="csl-entry" role="listitem">
+Friedman, Jerome H. 2001. <span>“Greedy Function Approximation: A Gradient Boosting Machine.”</span> <em>The Annals of Statistics</em> 29 (5): 1189–1232. <a href="https://doi.org/10.1214/aos/1013203451">https://doi.org/10.1214/aos/1013203451</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/rudrendupaul\.github\.io\/python-statistics-for-data-science-ml-ai-engineers\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/chapter-12-bayesian-bart.html" class="pagination-link" aria-label="Bayesian Additive Regression Trees (BART)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bayesian Additive Regression Trees (BART)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/chapter-14-bayesian-ab-testing.html" class="pagination-link" aria-label="Bayesian Experimentation for A/B Testing">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Bayesian Experimentation for A/B Testing</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Open source, free to read and reuse.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
