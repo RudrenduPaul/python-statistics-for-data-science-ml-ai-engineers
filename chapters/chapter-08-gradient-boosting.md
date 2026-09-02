@@ -156,6 +156,28 @@ applied here to tree structure instead. A tree that fits the training data by gr
 leaf, or by assigning a leaf a wildly large prediction, has to justify that against a concrete
 cost in the objective, not just fit whatever data it sees.
 
+::: {#fig-xgboost-regularization}
+```{=html}
+<iframe src="../_generated/chapter-boosting-fig-xgboost-regularization.html" width="100%"
+        height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Training and validation error for the rollback-risk model as XGBoost's `reg_lambda` grows.
+Training error rises the whole way, since a heavier penalty keeps shrinking every leaf's
+prediction toward zero; validation error bottoms out around the marked point before creeping
+back up as the penalty starts blocking signal along with noise.
+:::
+
+@fig-xgboost-regularization makes the trade-off concrete. Training error climbs steadily as
+`reg_lambda` grows, since the penalty does what it is built to do: every leaf's prediction
+gets pulled toward zero regardless of whether the training data supports it. Validation error
+tells the more useful story, sliding down to a minimum near the marked `reg_lambda` before
+turning back up. Left near zero, the penalty barely restrains an XGBoost model at this depth
+and learning rate; pushed far past the marked point, it starts discarding signal along with
+the noise. Tuning `reg_lambda` (typically alongside `reg_alpha` for the L1 option) means
+searching for that point the same way Chapter 4 searches for ridge and lasso's regularization
+strength.
+
 Steering a car downhill by feel, a driver notices not just which way the road slopes but how
 sharply it curves ahead, and adjusts more carefully where the curve is sharp.
 
@@ -194,6 +216,12 @@ every observed value as a candidate split point.
 This makes each split search roughly proportional to the number of bins rather than the number
 of data points, a substantial speedup on large datasets that comes at the cost of some split
 precision.
+
+:::{.callout-tip}
+LightGBM's `max_bin` parameter sets this bucket count directly. Lowering it trains faster but
+can blur split boundaries on features where fine differences in value carry signal, so raising
+it above the default is worth trying when accuracy matters more than speed.
+:::
 
 *Leaf-wise (best-first) growth* is the more consequential difference. A level-wise tree
 (XGBoost's default, and the classic CART, short for Classification And Regression Trees,
@@ -236,6 +264,12 @@ Each kept small-gradient observation is given extra weight in the loss calculati
 (upweighted) to correct for the bias that dropping most small-gradient observations would
 otherwise introduce. This cuts the effective training set size on later rounds without
 discarding the observations that still matter.
+
+:::{.callout-note}
+GOSS's sampling helps most on large datasets, where dropping most well-fit observations still
+leaves enough large-gradient signal to fit a reliable split. On a small dataset, the same
+sampling can add variance to the split search instead of speeding it up.
+:::
 
 ::: {.callout-note}
 LightGBM's speed advantage over XGBoost comes from histogram splitting and leaf-wise growth,

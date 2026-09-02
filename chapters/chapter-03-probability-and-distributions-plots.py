@@ -19,7 +19,10 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export otherwise calls
+    # Plotly.animate(divid, null) after Plotly.newPlot, which advances the
+    # rendered frame past whatever "active": 0 the slider config specifies.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -130,6 +133,153 @@ def fig_normal_empirical_rule() -> go.Figure:
 
 
 # ---------------------------------------------------------------------------
+# Figure 2b: standard normal distribution, tail probability beyond a z-score
+# ---------------------------------------------------------------------------
+def fig_standard_normal_zscore() -> go.Figure:
+    z_thresholds = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    x = np.linspace(-4, 4, 400)
+    pdf_full = stats.norm.pdf(x)
+    frames = []
+    for z in z_thresholds:
+        tail_x = np.linspace(z, 4, 100)
+        tail_y = stats.norm.pdf(tail_x)
+        tail_prob = 1 - stats.norm.cdf(z)
+        frames.append(
+            go.Frame(
+                name=f"{z:.1f}",
+                data=[
+                    go.Scatter(x=x, y=pdf_full, mode="lines",
+                               line=dict(color="#4C78A8", width=2)),
+                    go.Scatter(x=tail_x, y=tail_y, mode="lines", fill="tozeroy",
+                               line=dict(color="#E45756", width=0),
+                               fillcolor="rgba(228,87,86,0.55)"),
+                ],
+                layout=go.Layout(
+                    shapes=[dict(type="line", x0=z, x1=z, y0=0, y1=1, yref="paper",
+                                 line=dict(color="#E45756", width=1.5, dash="dot"))],
+                    annotations=[dict(
+                        x=0.02, y=0.92, xref="paper", yref="paper", showarrow=False,
+                        align="left",
+                        text=f"z = {z:.1f}<br>P(Z > z) = {tail_prob:.1%}",
+                        font=dict(size=13, color="#333"),
+                    )],
+                ),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="How fast the tail probability shrinks as a z-score climbs",
+        xaxis_title="z (standard deviations from the mean)",
+        yaxis_title="density",
+        xaxis_range=[-4, 4],
+        showlegend=False,
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "z-score threshold: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 2c: uniform distribution, a feature-flag rollout threshold
+# ---------------------------------------------------------------------------
+def fig_uniform_rollout() -> go.Figure:
+    thresholds = [0.05, 0.10, 0.25, 0.50, 0.75, 1.00]
+    x = np.linspace(0, 1, 200)
+    frames = []
+    for t in thresholds:
+        treat_mask = x <= t
+        control_mask = ~treat_mask
+        frames.append(
+            go.Frame(
+                name=f"{t:.2f}",
+                data=[
+                    go.Scatter(x=x[treat_mask], y=np.ones(int(treat_mask.sum())),
+                               mode="lines", fill="tozeroy",
+                               line=dict(color="#54A24B", width=0),
+                               fillcolor="rgba(84,162,75,0.6)"),
+                    go.Scatter(x=x[control_mask], y=np.ones(int(control_mask.sum())),
+                               mode="lines", fill="tozeroy",
+                               line=dict(color="#B0B0B0", width=0),
+                               fillcolor="rgba(176,176,176,0.45)"),
+                ],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.92, xref="paper", yref="paper", showarrow=False,
+                    align="left",
+                    text=f"threshold = {t:.2f}<br>{t:.0%} of users enrolled in treatment",
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="A feature-flag rollout threshold splits a uniform draw into treatment and control",
+        xaxis_title="uniformly random draw per user, between 0 and 1",
+        yaxis_title="density",
+        xaxis_range=[0, 1],
+        yaxis_range=[0, 1.2],
+        showlegend=False,
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "rollout threshold: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 2d: Bernoulli distribution, a single trial's success probability
+# ---------------------------------------------------------------------------
+def fig_bernoulli_trial() -> go.Figure:
+    probs = [0.1, 0.3, 0.5, 0.7, 0.9]
+    frames = []
+    for p in probs:
+        frames.append(
+            go.Frame(
+                name=f"{p:.1f}",
+                data=[go.Bar(
+                    x=["failure (0)", "success (1)"], y=[1 - p, p],
+                    marker_color=["#B0B0B0", "#4C78A8"],
+                    text=[f"{1 - p:.0%}", f"{p:.0%}"], textposition="outside",
+                )],
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig.update_layout(
+        title="A single Bernoulli trial: probability of success versus failure",
+        yaxis_title="probability",
+        yaxis_range=[0, 1.15],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "probability of success (p): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Figure 3: Poisson distribution shape as the arrival rate grows
 # ---------------------------------------------------------------------------
 def fig_poisson_shape() -> go.Figure:
@@ -154,6 +304,52 @@ def fig_poisson_shape() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "mean requests per second (lambda): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 3a: exponential distribution, wait time until the next event
+# ---------------------------------------------------------------------------
+def fig_exponential_wait() -> go.Figure:
+    lambdas = [0.25, 0.5, 1.0, 2.0, 4.0]
+    x = np.linspace(0, 8, 400)
+    frames = []
+    for lam in lambdas:
+        pdf = stats.expon.pdf(x, scale=1 / lam)
+        mean_wait = 1 / lam
+        p_within_1 = stats.expon.cdf(1, scale=1 / lam)
+        frames.append(
+            go.Frame(
+                name=f"{lam:.2f}",
+                data=[go.Scatter(x=x, y=pdf, mode="lines", fill="tozeroy",
+                                  line=dict(color="#72B7B2", width=2))],
+                layout=go.Layout(annotations=[dict(
+                    x=0.98, y=0.92, xref="paper", yref="paper", showarrow=False,
+                    xanchor="right", align="right",
+                    text=(f"mean wait = {mean_wait:.2f}<br>"
+                          f"P(wait under 1 unit) = {p_within_1:.0%}"),
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Wait time until the next event, at different constant rates",
+        xaxis_title="time until the next event",
+        yaxis_title="density",
+        xaxis_range=[0, 8],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "rate (lambda, events per unit time): "},
             "steps": [
                 {"label": f.name, "method": "animate",
                  "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
@@ -337,9 +533,13 @@ def fig_birthday_collision() -> go.Figure:
 FIGURES = {
     "chapter-03-fig-bayes-base-rate": fig_bayes_base_rate,
     "chapter-03-fig-normal-empirical-rule": fig_normal_empirical_rule,
+    "chapter-03-fig-standard-normal-zscore": fig_standard_normal_zscore,
+    "chapter-03-fig-uniform-rollout": fig_uniform_rollout,
+    "chapter-03-fig-bernoulli-trial": fig_bernoulli_trial,
     "chapter-03-fig-binomial-conversions": fig_binomial_conversions,
-    "chapter-03-fig-poisson-shape": fig_poisson_shape,
     "chapter-03-fig-geometric-retries": fig_geometric_retries,
+    "chapter-03-fig-poisson-shape": fig_poisson_shape,
+    "chapter-03-fig-exponential-wait": fig_exponential_wait,
     "chapter-03-fig-clt-simulation": fig_clt_simulation,
     "chapter-03-fig-birthday-collision": fig_birthday_collision,
 }

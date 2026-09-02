@@ -24,7 +24,15 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export appends a
+    # `Plotly.animate(divid, null)` call right after the initial render to prime the
+    # slider/animation machinery. In the CDN-pinned Plotly.js build this book ships
+    # (4.0.0), that priming call can clear a trace that sits outside every frame's data
+    # and never repaint it (confirmed for a Contour background in Chapter 13's search-
+    # trajectory figure). None of this chapter's figures keep a trace outside its
+    # frames, but disabling the priming call costs nothing: the slider itself calls
+    # Plotly.animate with concrete frame args on every step.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -66,12 +74,21 @@ def fig_prior_shapes() -> go.Figure:
             "active": 0,
             "currentvalue": {"prefix": "prior: "},
             "steps": [
-                {"label": f.name, "method": "animate",
+                # Short display labels on purpose: the full frame names (e.g.
+                # "Beta(1000,9000) highly informative (~10,000 obs.)") overhang past
+                # the plot's right margin at the slider's end positions and get
+                # clipped by the plot boundary. Even the shortened "Beta(1000,9000)"
+                # form still clipped by a couple of characters at the rightmost step,
+                # so the label drops the "Beta" prefix too and the right margin grows
+                # to give the last tick's centered text room to breathe. Frame names
+                # stay unchanged below since the animate() call targets them by name.
+                {"label": short, "method": "animate",
                  "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
+                for f, short in zip(frames, ["(1,1)", "(11,91)", "(50,450)",
+                                              "(200,1800)", "(1000,9000)"])
             ],
         }],
-        margin=dict(t=60, l=60, r=30, b=50),
+        margin=dict(t=60, l=60, r=60, b=50),
     )
     return fig
 
@@ -241,6 +258,71 @@ def fig_decision_metrics() -> go.Figure:
 
 
 # ---------------------------------------------------------------------------
+# Figure 4b: Normal-Normal conjugacy for a continuous metric (average order value)
+# ---------------------------------------------------------------------------
+def fig_normal_normal_update() -> go.Figure:
+    prior_mean, prior_sd = 42.0, 5.0
+    prior_var = prior_sd**2
+    sample_mean, sample_sd = 44.10, 18.0
+    data_var = sample_sd**2
+
+    sample_sizes = [0, 10, 50, 150, 500]
+    x_grid = np.linspace(20, 60, 400)
+    x_list = x_grid.tolist()
+
+    prior_density = stats.norm.pdf(x_grid, loc=prior_mean, scale=prior_sd).tolist()
+
+    frames = []
+    for n in sample_sizes:
+        tau_prior = 1.0 / prior_var
+        tau_data = n / data_var
+        tau_post = tau_prior + tau_data
+        post_mean = (tau_prior * prior_mean + tau_data * sample_mean) / tau_post
+        post_sd = np.sqrt(1.0 / tau_post)
+        posterior_density = stats.norm.pdf(x_grid, loc=post_mean, scale=post_sd)
+        frames.append(
+            go.Frame(
+                name=str(n),
+                data=[
+                    go.Scatter(x=x_list, y=prior_density, mode="lines",
+                               line=dict(color="#B7C7DB", width=2, dash="dot"),
+                               name="prior: N(42, 5²)"),
+                    go.Scatter(x=x_list, y=posterior_density.tolist(), mode="lines",
+                               fill="tozeroy", line=dict(color="#4C78A8", width=2.5),
+                               name="posterior"),
+                ],
+                layout=go.Layout(annotations=[dict(
+                    x=0.98, y=0.95, xref="paper", yref="paper", showarrow=False,
+                    xanchor="right",
+                    text=(f"n = {n} converting visitors<br>"
+                          f"posterior mean = ${post_mean:.2f}, posterior sd = ${post_sd:.2f}"),
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="A Normal prior on average order value narrows toward the observed "
+              "$44.10 sample mean as n grows",
+        xaxis_title="average order value ($)",
+        yaxis_title="density",
+        xaxis_range=[20, 60],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "converting visitors observed: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Figure 5: the peeking problem, false-positive rate as the number of looks grows
 # ---------------------------------------------------------------------------
 def fig_peeking_problem() -> go.Figure:
@@ -306,6 +388,7 @@ FIGURES = {
     "chapter-05-fig-posteriors-ab-overlay": fig_ab_overlay,
     "chapter-05-fig-decision-metrics": fig_decision_metrics,
     "chapter-05-fig-peeking-problem": fig_peeking_problem,
+    "chapter-05-fig-normal-normal-update": fig_normal_normal_update,
 }
 
 

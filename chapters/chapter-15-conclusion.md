@@ -64,6 +64,12 @@ independent observations that a time series violates. A random forest's variable
 mislead when predictors are correlated. Gradient boosting overfits fast without a validation
 set watching it.
 
+::: {.callout-warning}
+A common mistake with cross-validation: shuffling time-ordered data before splitting into folds
+lets future observations leak into training, which inflates the reported score. Split
+chronologically instead, training on earlier periods and validating on later ones.
+:::
+
 A book that only listed what each method does well would be a sales brochure. Knowing where a
 tool breaks is what makes it safe to use where it does not.
 
@@ -102,6 +108,13 @@ the Lasso, under a Laplace prior. Chapter 9 built the full posterior around both
 credible interval that means something different from Chapter 4's confidence interval, even
 though the two are often read as interchangeable.
 
+::: {.callout-warning}
+A 95% credible interval means there is a 95% probability, given the data and the prior, that
+the parameter falls in that range. A 95% confidence interval makes no such claim about the
+parameter itself; it describes how often the procedure would capture the true value across
+repeated sampling, and the two get used interchangeably far too often.
+:::
+
 Chapter 10 built PSIS-LOO and WAIC as the posterior-based counterpart to Chapter 5's
 cross-validated error estimate, model comparison without refitting on every held-out fold.
 
@@ -127,6 +140,13 @@ This book stops at the boundary of tabular data and single-outcome experiments. 
 cover multi-armed bandits, sequential experiment designs that adapt while running, causal
 inference tools built for observational (non-randomized) data such as instrumental variables or
 regression discontinuity, or the deep-learning side of predictive modeling.
+
+::: {.callout-note}
+Instrumental variables and regression discontinuity solve a different problem than the A/B
+tests in Chapters 2 and 14: they estimate a causal effect when nobody randomized who got the
+treatment. Neither technique appears in this book, and neither is a drop-in replacement for
+randomization when it is available.
+:::
 
 Each of those is a book of its own, and each builds on the foundation laid here: a working grip
 on what a distribution looks like, what a confidence interval and a p-value claim, how a

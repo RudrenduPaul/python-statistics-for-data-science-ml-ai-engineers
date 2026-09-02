@@ -67,6 +67,14 @@ curve), **independence** (one observation's error does not influence another's),
 It also assumes **normality** (residuals are normally distributed) and **no multicollinearity**
 (predictors are not near-perfect linear combinations of each other).
 
+::: {.callout-note}
+Multicollinearity does not bias the coefficient estimates themselves; it inflates their standard
+errors, so an individual predictor's coefficient can look statistically insignificant even when
+the group of correlated predictors together explains a meaningful share of the variance. Ridge
+regression, covered later in this chapter, addresses that instability directly by shrinking
+correlated coefficients together instead of letting one absorb an unstable share of the effect.
+:::
+
 ::: {.callout-tip}
 A residual plot, predicted values against residuals, is the fastest practical check on
 linearity and homoscedasticity: a random scatter around zero supports both assumptions, while a
@@ -285,6 +293,23 @@ requests and still not justify shipping. *Practical significance* asks the secon
 statistically significant coefficient does not answer on its own: given the size of this effect,
 does it change any decision.
 
+::: {#fig-significance}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-significance-vs-sample-size.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The estimated effect (0.1 ms) never moves. Only its 95% confidence interval does: wide and
+straddling zero at small sample sizes, narrow and clear of zero once the sample is large enough.
+The marker turns red the moment the p-value crosses 0.05, at a sample size where 0.1 ms is still
+too small to act on.
+:::
+
+@fig-significance holds that same 0.1 ms effect fixed and grows only the sample size. Between
+100,000 and 500,000 requests the confidence interval pulls away from zero and the p-value drops
+below 0.05, so the effect becomes statistically significant without becoming any larger. Nothing
+about the effect changed; only the precision of the estimate did.
+
 ::: {.callout-tip}
 With a large enough sample, almost any nonzero coefficient clears the significance bar. The
 question worth asking is not whether a p-value is small, but whether the coefficient's size is
@@ -321,6 +346,13 @@ $$\text{minimize} \quad \text{SSE} + \lambda \sum_j \beta_j^2$$
 *Elastic Net* combines both penalties, controlled by a mixing parameter $\alpha$:
 
 $$\text{minimize} \quad \text{SSE} + \alpha \lambda \sum_j |\beta_j| + (1-\alpha) \lambda \sum_j \beta_j^2$$
+
+::: {.callout-warning}
+Lasso and Ridge penalize coefficient magnitude directly, so a predictor measured in KB and a
+predictor that is a 0/1 region indicator get penalized on entirely different scales unless every
+predictor is standardized first. Skipping that step lets whichever predictor happens to carry
+the largest raw scale absorb most of the penalty, regardless of how much it explains.
+:::
 
 The practical difference between Lasso and Ridge shows up clearly once several correlated
 predictors are in the model together.

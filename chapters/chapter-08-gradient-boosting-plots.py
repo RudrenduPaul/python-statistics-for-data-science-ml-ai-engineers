@@ -20,6 +20,7 @@ import plotly.graph_objects as go
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
+from xgboost import XGBRegressor
 
 RNG = np.random.default_rng(7)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_generated")
@@ -28,7 +29,13 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False matters for the two frame-animated figures in this chapter
+    # (shrinkage/early-stopping and the GP hyperparameter search): without it, Plotly
+    # auto-plays through every slider step on page load instead of waiting for the
+    # reader to drag the slider, which both wastes the interaction and can leave the
+    # chart mid-transition (overlapping frames) if the reader drags while it is still
+    # auto-advancing.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -315,12 +322,58 @@ def fig_boosting_rounds() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 6: XGBoost's L2 leaf-weight penalty, training vs. validation error
+# ---------------------------------------------------------------------------
+def fig_xgboost_regularization() -> go.Figure:
+    X, y = rollback_risk_data(n=1500)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=13)
+
+    reg_lambda_grid = np.logspace(-2, 3, 18)
+    train_loss, val_loss = [], []
+    for reg_lambda in reg_lambda_grid:
+        model = XGBRegressor(
+            n_estimators=150, learning_rate=0.1, max_depth=4,
+            reg_lambda=float(reg_lambda), random_state=13,
+        )
+        model.fit(X_train, y_train)
+        train_loss.append(np.mean((model.predict(X_train) - y_train) ** 2))
+        val_loss.append(np.mean((model.predict(X_val) - y_val) ** 2))
+
+    best_idx = int(np.argmin(val_loss))
+
+    # A star marker for the best point, not fig.add_vline: add_vline's shape geometry
+    # does not compose reliably with a log-scaled x-axis (the vertical line's position
+    # gets computed before the axis is set to log, which blew the axis range out to
+    # 10^162 in an earlier version of this figure). A scatter marker sidesteps that.
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=reg_lambda_grid, y=train_loss, mode="lines+markers",
+                              name="training error", line=dict(color="#4C78A8")))
+    fig.add_trace(go.Scatter(x=reg_lambda_grid, y=val_loss, mode="lines+markers",
+                              name="validation error", line=dict(color="#E45756")))
+    fig.add_trace(go.Scatter(
+        x=[reg_lambda_grid[best_idx]], y=[val_loss[best_idx]], mode="markers",
+        marker=dict(color="#54A24B", size=14, symbol="star"),
+        name=f"lowest validation error (reg_lambda={reg_lambda_grid[best_idx]:.2g})",
+    ))
+    fig.update_layout(
+        title="XGBoost's L2 leaf-weight penalty (reg_lambda): training error keeps rising "
+              "while validation error bottoms out, then creeps back up",
+        xaxis_title="reg_lambda (L2 penalty on leaf weights)",
+        xaxis_type="log",
+        yaxis_title="Mean squared error",
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-boosting-fig-shrinkage-early-stopping": fig_shrinkage_early_stopping,
     "chapter-boosting-fig-leafwise-vs-levelwise": fig_leafwise_vs_levelwise,
     "chapter-boosting-fig-gp-hyperparameter-search": fig_gp_hyperparameter_search,
     "chapter-boosting-fig-model-comparison-size": fig_model_comparison_by_dataset_size,
     "chapter-boosting-fig-boosting-rounds": fig_boosting_rounds,
+    "chapter-boosting-fig-xgboost-regularization": fig_xgboost_regularization,
 }
 
 

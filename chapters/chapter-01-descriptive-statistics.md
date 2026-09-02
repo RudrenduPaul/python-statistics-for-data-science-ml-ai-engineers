@@ -59,6 +59,13 @@ faster, half were slower. The *mode* is the most frequently occurring value, use
 variable clusters around a small number of repeated values (a request that always returns
 from cache in 4 ms, for instance).
 
+::: {.callout-note}
+The mode works well for fields like log severity or endpoint name in this chapter, where a
+small number of values repeat identically. Continuous latency in milliseconds rarely repeats
+value for value across requests, so the mode is often undefined or meaningless until the data
+is binned first.
+:::
+
 ::: {#fig-mean-median}
 ```{=html}
 <iframe src="../_generated/chapter-01-fig-mean-vs-median.html" width="100%" height="560"
@@ -205,6 +212,12 @@ cloud of points.
 In other words, $r$ near 1 means payload size and latency move together almost in lockstep,
 $r$ near 0 means knowing the payload size tells you nothing about the latency, and $r$ near
 $-1$ means they move in opposite directions.
+
+::: {.callout-note}
+Correlation measures the strength of a linear relationship only. Two variables can have a
+strong, predictable, curved relationship (latency doubling only past a certain payload size,
+say) and still produce an $r$ close to 0.
+:::
 
 Does it make sense that a strong correlation here would prove payload size causes the
 slowdown? It does not, and this is one of the most consequential gaps in applied statistics.

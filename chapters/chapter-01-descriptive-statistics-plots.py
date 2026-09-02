@@ -29,7 +29,10 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export otherwise calls
+    # Plotly.animate(divid, null) after Plotly.newPlot, which advances the
+    # rendered frame past whatever "active": 0 the slider config specifies.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -88,7 +91,7 @@ def fig_mean_vs_median() -> go.Figure:
             "currentvalue": {"prefix": "Slow-request share: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -152,7 +155,7 @@ def fig_std_vs_percentile() -> go.Figure:
             "currentvalue": {"prefix": "k (std. deviations above the mean): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -199,7 +202,7 @@ def fig_covariance_correlation() -> go.Figure:
             "currentvalue": {"prefix": "underlying correlation ρ: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -245,7 +248,7 @@ def fig_skewness_kurtosis() -> go.Figure:
             "currentvalue": {"prefix": "log-normal σ (shape parameter): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -264,10 +267,15 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
     #
     # x-axis positions and tick labels are set once at the layout level (below) and
     # never re-derived from trace category strings, since Plotly does not reliably
-    # redraw categorical tick text when a frame changes the number of bars. A
-    # single trace covers every frame (four bars for "by stone size", two for
-    # "combined"), which also sidesteps a separate bug where a two-trace-per-frame
-    # version loaded the wrong initial data on first render.
+    # redraw categorical tick text when a frame changes the number of bars. A single
+    # trace covers every frame, and every per-frame array (x, y, colors, text,
+    # annotations) is kept at the SAME LENGTH (4 bars, 4 annotation slots) across
+    # both frames: Plotly's animate() does not reliably apply a restyle when a
+    # frame's array length differs from the currently rendered trace's, so the
+    # "combined" frame renders as two equal-height bars per treatment (touching,
+    # so they read as one solid block) rather than collapsing to a shorter,
+    # differently sized 2-bar array. This also sidesteps a separate bug where a
+    # two-trace-per-frame version loaded the wrong initial data on first render.
     small = dict(rate_a=81 / 87 * 100, rate_b=234 / 270 * 100)
     large = dict(rate_a=192 / 263 * 100, rate_b=55 / 80 * 100)
     combined = dict(rate_a=273 / 350 * 100, rate_b=289 / 350 * 100)
@@ -277,10 +285,13 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
     grouped_colors = ["#4C78A8", "#A6C6E3", "#F58518", "#FDBF7A"]
     grouped_text = [f"{v:.0f}%" for v in grouped_y]
 
-    combined_x = [0, 1]
-    combined_y = [combined["rate_a"], combined["rate_b"]]
-    combined_colors = ["#4C78A8", "#F58518"]
-    combined_text = [f"{v:.0f}%" for v in combined_y]
+    # Same 4 x-positions as the grouped view; each treatment's pair of bars is set
+    # to the identical combined value and widened to touch, so it reads as one bar.
+    combined_y = [combined["rate_a"], combined["rate_a"],
+                  combined["rate_b"], combined["rate_b"]]
+    combined_colors = ["#4C78A8", "#4C78A8", "#F58518", "#F58518"]
+    combined_text = [f"{combined['rate_a']:.0f}%", "",
+                      f"{combined['rate_b']:.0f}%", ""]
 
     grouped_annotations = [
         dict(x=-0.2, y=small["rate_a"] + 8, text="Small", showarrow=False,
@@ -292,6 +303,9 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
         dict(x=1.2, y=large["rate_b"] + 8, text="Large", showarrow=False,
              font=dict(size=10, color="#555")),
     ]
+    # Same 4 slots, emptied rather than removed, so the annotations array length
+    # matches grouped_annotations and the frame update applies reliably.
+    combined_annotations = [dict(a, text="") for a in grouped_annotations]
 
     frames = [
         go.Frame(name="By stone size", data=[go.Bar(
@@ -299,9 +313,9 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
             text=grouped_text, textposition="outside")],
             layout=go.Layout(annotations=grouped_annotations)),
         go.Frame(name="Combined", data=[go.Bar(
-            x=combined_x, y=combined_y, marker_color=combined_colors, width=0.5,
+            x=grouped_x, y=combined_y, marker_color=combined_colors, width=0.4,
             text=combined_text, textposition="outside")],
-            layout=go.Layout(annotations=[])),
+            layout=go.Layout(annotations=combined_annotations)),
     ]
 
     fig = go.Figure(data=frames[0].data, frames=frames)
@@ -317,7 +331,7 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
             "currentvalue": {"prefix": "View: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 400}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 400, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -369,7 +383,7 @@ def fig_mean_imputation() -> go.Figure:
             "currentvalue": {"prefix": "Share of values missing: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -421,9 +435,13 @@ def fig_literary_digest_predicted_vs_actual() -> go.Figure:
             "active": 0,
             "currentvalue": {"prefix": "View: "},
             "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 400}}]}
-                for f in frames
+                # Short display labels on purpose: the full frame names ("Literary Digest
+                # prediction", "Election result") overhang past the plot margins at the
+                # slider's end positions and get clipped by the plot boundary. Frame names
+                # stay unchanged below since the animate() call targets them by name.
+                {"label": label, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 400, "redraw": True}, "transition": {"duration": 0}}]}
+                for f, label in zip(frames, ["Prediction", "Result"])
             ],
         }],
         margin=dict(t=90, l=60, r=30, b=50),

@@ -72,9 +72,10 @@ curve.
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-The fit improves through degree 3 or 4, tracking the saturation curve closely, then starts
-oscillating near the high-load boundary as degree keeps rising: the Runge phenomenon in
-practice, worst in precisely the region an operator cares about most.
+The fit improves through degree 4 to 6, tracking the saturation curve closely, then starts
+wobbling through the middle of the range and swinging near the high-load boundary as degree
+keeps rising: the Runge phenomenon in practice, worst in precisely the region an operator
+cares about most.
 :::
 
 Picture a piece of wire bent to touch as many dots on a page as possible: bending it enough to
@@ -95,10 +96,12 @@ evenly spaced points with a high-degree polynomial can diverge near the edges of
 
 That divergence happens even though the underlying function itself is well-behaved [@runge1901].
 
-@fig-poly-degree fits polynomials of increasing degree to the load-latency data and shows this
-directly: degree 3 or 4 tracks the saturation curve reasonably well, but by degree 9 or 10 the
-fitted curve swings above and below the true relationship near the high-load edge, the region an
-operator cares about most.
+@fig-poly-degree fits polynomials of increasing degree to a small sample of the load-latency
+data and shows this directly: degree 4 to 6 tracks the saturation curve reasonably well, but by
+degree 14 the fitted curve is chasing individual points, swinging above and below the true
+relationship through the middle of the range and again near the high-load edge, the region an
+operator cares about most. A small sample size makes the swings easier to see; the same
+instability is present with more data, just harder to spot at a glance.
 
 :::{.callout-warning}
 A lower training error at a higher polynomial degree is not evidence of a better fit. Check the
@@ -137,6 +140,12 @@ range, for instance whether concurrent load falls between 60% and 70% of capacit
 Step functions are easy to interpret and immune to the boundary instability polynomials show,
 since each region is fit independently. But they produce a fitted curve with hard jumps at every
 cut point, not the smooth saturation curve the underlying queueing behavior has.
+
+:::{.callout-note}
+Step functions fit best when the underlying relationship has a true jump, a pricing tier or a
+rate limit that kicks in above a threshold. Forcing hard edges onto a smooth process like
+queueing latency trades away the shape the data has.
+:::
 
 A regression spline's own basis functions, covered next, are a third option: instead of a global
 power series or a set of hard-edged boxes, each one is a smooth bump that is nonzero over only
@@ -222,6 +231,25 @@ That matters directly here, since the highest-load observations in any given hou
 are the region where the next hour's traffic might land slightly beyond what has been observed
 so far.
 
+::: {#fig-natural-boundary}
+```{=html}
+<iframe src="../_generated/chapter-splines-fig-natural-boundary.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Both curves are fit to the same knots and agree everywhere the data covers. Past the last
+knot, the unconstrained cubic spline keeps curving on its own terms; the natural cubic spline
+continues in a straight line instead, matching the value and slope it held at the boundary.
+:::
+
+@fig-natural-boundary fits both curves to load-latency data cut off at a utilization of 0.85,
+standing in for a fitting run that has not yet seen the busiest traffic, then extends both past
+that cutoff. They track each other up to the last knot, since both interpolate the same four
+points; past it, the unconstrained spline is free to keep bending however the shape of its last
+piece dictates, while the natural spline holds to the straight line implied by its boundary
+condition. Neither is a substitute for more data. The natural spline is simply the more
+conservative choice for the region beyond it.
+
 ::: {.callout-important}
 A model that swings unpredictably past the edge of its training data is a poor choice for the
 region an operator is most likely to page someone about. The natural boundary constraint exists
@@ -293,6 +321,12 @@ The most common choice, the squared-exponential kernel, has a single *length-sca
 that plays much the same role as a smoothing spline's $\lambda$: a short length-scale allows the
 function to bend quickly across small changes in load, a long length-scale forces it to change
 slowly.
+
+:::{.callout-tip}
+A Gaussian process's length-scale is a tuning parameter, not a value to set by eye. Cross-validate
+it against held-out load-latency pairs the same way Chapter 5 cross-validated $\lambda$ for the
+smoothing spline.
+:::
 
 Conditioning that prior on the observed load-latency pairs produces a posterior distribution
 over functions, with a posterior mean curve that looks similar to a smoothing spline fit.

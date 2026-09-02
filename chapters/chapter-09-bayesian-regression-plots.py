@@ -24,7 +24,10 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export otherwise calls
+    # Plotly.animate(divid, null) after Plotly.newPlot, which advances the
+    # rendered frame past whatever "active": 0 the slider config specifies.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -326,7 +329,103 @@ def fig_bayesian_logistic() -> go.Figure:
 
 
 # ---------------------------------------------------------------------------
-# Figure 6: posterior predictive check, Gaussian-noise model vs. log-normal-noise model
+# Figure 6: R-hat diagnostic, four MCMC chains that mix vs. four that do not
+# ---------------------------------------------------------------------------
+def fig_rhat_diagnostic() -> go.Figure:
+    n_iter = 800
+    warmup = 200
+
+    def ar1_chain(start, target, phi, noise_sd, seed):
+        chain_rng = np.random.default_rng(seed)
+        x = np.empty(n_iter)
+        x[0] = start
+        for t in range(1, n_iter):
+            x[t] = target + phi * (x[t - 1] - target) + chain_rng.normal(0, noise_sd)
+        return x
+
+    def compute_rhat(chains):
+        # Gelman-Rubin R-hat: ratio of the pooled (within + between) chain variance to the
+        # average within-chain variance, computed on post-warmup draws only.
+        arr = np.array(chains)
+        m, n = arr.shape
+        chain_means = arr.mean(axis=1)
+        chain_vars = arr.var(axis=1, ddof=1)
+        within = chain_vars.mean()
+        between = n * chain_means.var(ddof=1)
+        var_hat = (n - 1) / n * within + between / n
+        return float(np.sqrt(var_hat / within))
+
+    # Well-mixed: four chains started apart, same target, all converge and overlap.
+    well_chains = [
+        ar1_chain(0.10, 0.30, 0.85, 0.03, 41),
+        ar1_chain(0.50, 0.30, 0.85, 0.03, 42),
+        ar1_chain(0.15, 0.30, 0.85, 0.03, 43),
+        ar1_chain(0.45, 0.30, 0.85, 0.03, 44),
+    ]
+    well_rhat = compute_rhat([c[warmup:] for c in well_chains])
+
+    # Poorly-mixed: same first three chains, but the fourth stays stuck near a different
+    # value for the whole run, the pattern the R-hat check exists to catch.
+    poor_chains = [
+        ar1_chain(0.10, 0.30, 0.85, 0.03, 11),
+        ar1_chain(0.50, 0.30, 0.85, 0.03, 12),
+        ar1_chain(0.15, 0.30, 0.85, 0.03, 13),
+        ar1_chain(0.70, 0.70, 0.85, 0.03, 14),
+    ]
+    poor_rhat = compute_rhat([c[warmup:] for c in poor_chains])
+
+    colors = ["#4C78A8", "#F58518", "#54A24B", "#E45756"]
+    frames = [
+        go.Frame(
+            name="Well-mixed",
+            data=[
+                go.Scatter(x=np.arange(n_iter), y=well_chains[i], mode="lines",
+                           name=f"chain {i + 1}", line=dict(color=colors[i], width=1))
+                for i in range(4)
+            ],
+            layout=go.Layout(annotations=[dict(
+                x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False, xanchor="left",
+                text=f"R-hat = {well_rhat:.3f} (below 1.01: chains agree)",
+                font=dict(size=13, color="#333"),
+            )]),
+        ),
+        go.Frame(
+            name="Poorly-mixed",
+            data=[
+                go.Scatter(x=np.arange(n_iter), y=poor_chains[i], mode="lines",
+                           name=f"chain {i + 1}", line=dict(color=colors[i], width=1))
+                for i in range(4)
+            ],
+            layout=go.Layout(annotations=[dict(
+                x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False, xanchor="left",
+                text=f"R-hat = {poor_rhat:.3f} (above 1.01: one chain has not converged)",
+                font=dict(size=13, color="#333"),
+            )]),
+        ),
+    ]
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Four MCMC chains for one parameter: what the R-hat check is looking for",
+        xaxis_title="MCMC iteration",
+        yaxis_title="Sampled parameter value",
+        showlegend=False,
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Chains: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 7: posterior predictive check, Gaussian-noise model vs. log-normal-noise model
 # ---------------------------------------------------------------------------
 def fig_posterior_predictive_check() -> go.Figure:
     payload = RNG.uniform(2, 20, size=400)
@@ -367,8 +466,13 @@ def fig_posterior_predictive_check() -> go.Figure:
             "active": 0,
             "currentvalue": {"prefix": "Noise model: "},
             "steps": [
+                # redraw:False here (unlike the other sliders in this chapter): both frames
+                # keep the same two Bar traces and only their y-values and marker color
+                # change, so a full relayout is not needed, and skipping it keeps the
+                # overlay-mode redraw from lagging behind the slider's own label on a
+                # bar chart this wide (400 requests binned into 59 bars per trace).
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": True}, "transition": {"duration": 0}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": False}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -384,6 +488,7 @@ FIGURES = {
     "chapter-bayes-regression-fig-prior-shapes": fig_prior_shapes,
     "chapter-bayes-regression-fig-shrinkage-profile": fig_shrinkage_profile,
     "chapter-bayes-regression-fig-bayesian-logistic": fig_bayesian_logistic,
+    "chapter-bayes-regression-fig-rhat-diagnostic": fig_rhat_diagnostic,
     "chapter-bayes-regression-fig-posterior-predictive-check": fig_posterior_predictive_check,
 }
 

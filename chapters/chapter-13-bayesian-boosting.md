@@ -163,6 +163,13 @@ rather than modeling the loss surface directly the way a GP does. It scales bett
 hyperparameters and to non-numeric (categorical) ones, at the cost of a less interpretable
 surrogate than a GP's.
 
+::: {.callout-tip}
+A rule of thumb on which surrogate to reach for: a GP-based optimizer such as `scikit-optimize`
+or `BoTorch` works well up to roughly a dozen or two hyperparameters, past which the covariance
+matrix grows expensive and the surrogate's fit degrades. TPE's independence assumption between
+hyperparameters is what lets Optuna scale past that range.
+:::
+
 `scikit-optimize` (`skopt`) offers a more traditional GP-based Bayesian optimizer, closer to
 what @fig-bo-search-trajectory demonstrates directly.
 
@@ -195,6 +202,13 @@ study = optuna.create_study(direction="minimize")
 study.optimize(objective, n_trials=30)
 print(study.best_params)
 ```
+
+::: {.callout-warning}
+`cross_val_score` with `scoring="neg_log_loss"` returns a negative number, since scikit-learn's
+convention is that a higher score is always better. Dropping the sign flip in
+`return -score.mean()` above leaves Optuna minimizing the wrong quantity, pushing the search
+toward the worst hyperparameters instead of the best.
+:::
 
 Thirty trials with this search routinely land close to the region a much larger grid search
 would have found. Every trial after the first handful is chosen using what the earlier trials

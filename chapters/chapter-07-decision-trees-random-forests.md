@@ -51,6 +51,12 @@ That greediness is also what makes trees fast to fit, since the alternative, sea
 possible sequence of splits jointly, is computationally out of reach for anything but a tiny
 dataset.
 
+::: {.callout-important}
+Recursive binary splitting never reconsiders a split once made. A split that looks mediocre now
+but would have opened up a much better split two levels down is never tried, since the algorithm
+only ever asks which split helps most right away.
+:::
+
 ## Classification trees: Gini index, entropy, and error rate
 
 The rollback decision itself is a yes-or-no outcome, which calls for a *classification tree*.
@@ -206,6 +212,25 @@ $R_1$ and $R_2$ from the earlier regression-tree example).
 Cross-validation (the previous chapter's subject) then picks the value of $\alpha$, and
 therefore the tree size, that minimizes estimated test error.
 
+::: {#fig-pruning-path}
+```{=html}
+<iframe src="../_generated/chapter-trees-fig-pruning-path.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Five-fold cross-validated error against the cost-complexity parameter $\alpha$ for a regression
+tree. Error stays fairly flat while $\alpha$ is small, bottoms out at the marked value, then
+climbs sharply once the penalty starts trimming leaves the data still needed.
+:::
+
+@fig-pruning-path is that search made visible. Small $\alpha$ barely penalizes extra leaves, so
+the tree stays close to its fully grown, high-variance size and cross-validated error stays
+close to its worst level. Past the marked $\alpha$, the penalty starts removing splits the data
+supports, and error climbs, sharply once too few leaves are left to capture the underlying
+shape. The marked point is not a fixed rule of thumb; it comes from evaluating this particular
+tree on this particular dataset, which is why cross-validation, not a guessed leaf count, is
+what selects it.
+
 ## Why a single tree has high variance
 
 Consider a rollback-prediction tree built on one quarter's worth of deployment data, and a
@@ -328,10 +353,135 @@ held-out validation set or a cross-validation loop.
 For the rollback forest, OOB error settles around 34% after a couple dozen trees. That number
 comes for free, without touching a separate validation set.
 
+::: {.callout-warning}
+OOB error is only a fair stand-in for test error when bootstrap resampling matches how the model
+will see new data going forward. If deployment behavior drifts across quarters, an OOB estimate
+computed on an older training set can look fine while the forest is stale.
+:::
+
 A 1-in-3 error rate is not something to fully automate on its own. It is cheap enough to
 recompute every time the model retrains, which makes it a useful early warning: a sudden jump
 in OOB error after a retrain is a signal worth investigating before trusting the forest's
 rollback calls again.
+
+## Evaluating a classifier: precision, recall, and the ROC curve
+
+The out-of-bag error above collapses the rollback classifier's whole performance into one
+number, roughly 34% wrong. That single figure treats every mistake as the same size, but the
+two ways a classifier can be wrong are not equally costly. Missing a deployment that truly
+needed a rollback (a *false negative*) lets a bad release reach the rest of the fleet.
+Flagging a deployment that was fine (a *false positive*) delays a release for nothing. A
+metric that folds both into one error rate cannot tell a team which kind of mistake the model
+is making.
+
+A *confusion matrix* keeps the two kinds of mistakes separate. It cross-tabulates every
+prediction against what happened, in a 2x2 grid: how many rollback deployments the model
+correctly flagged (true positives, TP), how many it missed (false negatives, FN), how many
+healthy deployments it wrongly flagged (false positives, FP), and how many it correctly left
+alone (true negatives, TN).
+
+Suppose the rollback classifier is checked against 200 held-out canary deployments, of which
+20 needed a rollback and 180 did not, a class split close to what a healthy deployment
+pipeline should look like. The classifier catches 16 of the 20 true rollbacks (TP = 16,
+FN = 4) and wrongly flags 18 of the 180 healthy deployments (FP = 18, TN = 162).
+
+*Precision* asks: of every deployment the model flagged, how many needed a rollback?
+
+$$\text{Precision} = \frac{TP}{TP + FP} = \frac{16}{16 + 18} = 0.47$$
+
+Under half the flagged deployments turn out to need a rollback. Every flag costs an engineer's
+time to review, so low precision means a team spends most of that review time on deployments
+that were never a problem.
+
+*Recall* (also called sensitivity or the true positive rate) asks a different question: of
+every deployment that truly needed a rollback, how many did the model catch?
+
+$$\text{Recall} = \frac{TP}{TP + FN} = \frac{16}{16 + 4} = 0.80$$
+
+The model catches 80% of the deployments that needed a rollback and lets the remaining 20%
+through. Precision and recall pull in opposite directions: flagging more deployments to raise
+recall means flagging more borderline cases too, which drags precision down, and the reverse
+holds for tightening the flag to raise precision.
+
+::: {.callout-tip}
+Chasing precision and recall separately never settles which threshold is best; a stakeholder
+still has to decide which mistake, a missed rollback or a wasted review, costs more. Precision
+and recall describe the trade-off. They do not resolve it.
+:::
+
+*F1 score* summarizes the trade-off in one number, the harmonic mean of precision and recall:
+
+$$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} = 2 \times \frac{0.47 \times 0.80}{0.47 + 0.80} \approx 0.59$$
+
+The harmonic mean punishes a lopsided score more than a plain average would: a model with
+precision 0.9 and recall 0.1 averages to 0.5 but F1-scores closer to 0.18, because a model that
+almost never flags anything is not a useful rollback classifier no matter how clean its few
+flags are.
+
+::: {.callout-warning}
+Accuracy on this same held-out set is $(16 + 162) / 200 = 89\%$, which sounds close to good. A
+classifier that predicted "no rollback" for every single deployment, doing no work at all,
+would score $180 / 200 = 90\%$: higher than the model that is catching four out of five true
+rollbacks. On an imbalanced dataset like this one, where most deployments never need a
+rollback, accuracy rewards the model for agreeing with the majority class and says almost
+nothing about whether it catches the rare, costly case. Precision, recall, and F1 do not carry
+that blind spot, since each one is computed against the minority class directly.
+:::
+
+::: {#fig-confusion-threshold}
+```{=html}
+<iframe src="../_generated/chapter-trees-fig-confusion-threshold.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The confusion matrix, precision/recall/F1, and the ROC curve for the rollback classifier as the
+classification threshold moves. Lowering the threshold catches more true rollbacks and trades
+away precision; raising it does the opposite. Move the slider.
+:::
+
+@fig-confusion-threshold ties the two views together on a single held-out set. The classifier
+does not output "rollback" or "no rollback" directly; it outputs a predicted probability, and a
+*threshold* turns that probability into a decision. The rollback numbers worked by hand above
+used a threshold of 0.5, but nothing forces that choice. Drag the slider down toward 0.1 and
+the model flags almost every deployment with any elevated risk at all: the confusion matrix's
+false positive count climbs, precision falls, and recall climbs toward 1.0. Drag it up toward
+0.9 and the opposite happens: the model only flags deployments it is highly confident about,
+precision climbs, and recall falls as more true rollbacks slip through unflagged.
+
+The third panel plots the same sweep a different way. A *ROC curve* (receiver operating
+characteristic, a name left over from its origin in World War II radar signal detection) plots
+the true positive rate against the false positive rate at every possible threshold, tracing out
+one continuous curve instead of a single point.
+
+A model with no signal at all traces the diagonal line, since raising the threshold in a
+coin-flip model raises both rates by the same amount. A model worth deploying bows up and to
+the left of that diagonal, meaning it can raise its true positive rate while keeping the false
+positive rate low.
+
+*AUC* (area under that curve) compresses the whole curve into one number between 0.5 (no better
+than a coin flip) and 1.0 (perfect separation). AUC has a plain-language reading that does not
+require picking a threshold at all: it is the probability that the model ranks a randomly
+chosen rollback deployment above a randomly chosen healthy one. An AUC of 0.85, for instance,
+means that roughly nine times out of ten, a true rollback deployment gets a higher predicted
+risk score than a healthy deployment picked at random.
+
+::: {.callout-note}
+Precision, recall, and F1 all depend on picking a threshold first, then judging the model on
+that one operating point. AUC judges the model's ranking across every threshold at once, which
+is the right lens when a threshold has not been chosen yet, for instance while comparing
+candidate models before committing to a production cutoff. Once a threshold is fixed, for
+instance because engineering review capacity puts a hard cap on how many deployments can be
+flagged per day, precision, recall, and F1 at that specific threshold matter more than the
+model's AUC across thresholds it will never operate at.
+:::
+
+Putting the guidance in one place: reach for precision, recall, or F1 over plain accuracy the
+moment one class is rare relative to the other, which describes most of the production
+classification problems this book's methods get applied to. Reach for AUC when comparing
+models before a threshold is set, or when the cost of a false positive and a false negative
+are close enough that no single threshold is an obviously correct default. Reach for a
+fixed-threshold metric once the threshold is locked in by a concrete operational constraint,
+since AUC alone cannot tell a team whether the threshold it ended up choosing is a good one.
 
 ## Variable importance
 

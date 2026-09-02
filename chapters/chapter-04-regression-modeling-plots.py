@@ -19,7 +19,10 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export otherwise calls
+    # Plotly.animate(divid, null) after Plotly.newPlot, which advances the
+    # rendered frame past whatever "active": 0 the slider config specifies.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -254,7 +257,7 @@ def lasso_coordinate_descent(X: np.ndarray, y: np.ndarray, lam: float, n_iter: i
         for j in range(p):
             residual = y - X @ beta + X[:, j] * beta[j]
             z = X[:, j] @ residual
-            beta[j] = soft_threshold(z, lam * n) / col_norms[j] if col_norms[j] > 0 else 0.0
+            beta[j] = soft_threshold(z, lam) / col_norms[j] if col_norms[j] > 0 else 0.0
     return beta
 
 
@@ -278,12 +281,19 @@ def fig_regularization_paths() -> go.Figure:
     y = X_raw @ true_beta + rng.normal(0, 15, size=n)
     y = y - y.mean()
 
-    lambdas = [0.01, 0.5, 2, 8, 25, 60]
+    # lambdas run from 0.01 to 40 rather than 60: at the old top end (60) the Lasso
+    # threshold, scaled to match this standardized design matrix, zeroed out every
+    # predictor except payload size, including region A, so the chart no longer showed
+    # the "keeps one of the two correlated region indicators" behavior the caption
+    # describes. The 10x scale factor below (lam * 10) brings Lasso's zeroing point into
+    # the same lambda range where Ridge's shrinkage is also visible, so both traces move
+    # meaningfully across the same slider instead of Lasso barely changing at all.
+    lambdas = [0.01, 0.5, 2, 8, 25, 40]
     feature_names = ["payload size", "region A", "region B", "time of day", "endpoint"]
 
     frames = []
     for lam in lambdas:
-        lasso_beta = lasso_coordinate_descent(X, y, lam=lam / n)
+        lasso_beta = lasso_coordinate_descent(X, y, lam=lam * 10)
         ridge_beta = ridge_closed_form(X, y, lam=lam)
         frames.append(
             go.Frame(
@@ -367,13 +377,18 @@ def fig_bayesian_ridge() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "prior variance on beta (tau-squared): "},
+            # y and pad.t push the slider well clear of the x-axis title below it,
+            # which otherwise renders in the same vertical band and overlaps the
+            # slider's "currentvalue" caption text.
+            "y": -0.32,
+            "pad": {"t": 40},
             "steps": [
                 {"label": f.name, "method": "animate",
                  "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
                 for f in frames
             ],
         }],
-        margin=dict(t=60, l=60, r=30, b=50),
+        margin=dict(t=60, l=60, r=30, b=120),
     )
     return fig
 
@@ -440,12 +455,90 @@ def fig_aic_bic() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 8: a fixed, practically tiny effect crossing statistical significance
+# as sample size grows (statistical significance vs. practical significance)
+# ---------------------------------------------------------------------------
+def _short_n(n: int) -> str:
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:g}M"
+    if n >= 1_000:
+        return f"{n / 1_000:g}k"
+    return str(n)
+
+
+def fig_significance_vs_sample_size() -> go.Figure:
+    true_effect = 0.1  # ms: the same tiny, practically negligible effect used in the text
+    noise_sd = 30.0    # ms: same latency noise scale used throughout this chapter's figures
+
+    sample_sizes = [1_000, 10_000, 100_000, 500_000, 2_000_000, 10_000_000]
+    frames = []
+    for n in sample_sizes:
+        # The point estimate is held at the true effect on purpose, rather than redrawn
+        # per frame: the story here is that the effect size itself never moves. Only the
+        # standard error, se = noise_sd / sqrt(n), shrinks as n grows, which is what pulls
+        # the confidence interval away from zero and the p-value below 0.05.
+        se = noise_sd / np.sqrt(n)
+        z = true_effect / se
+        p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+        ci_lo, ci_hi = true_effect - 1.96 * se, true_effect + 1.96 * se
+        significant = p_value < 0.05
+
+        frames.append(
+            go.Frame(
+                name=str(n),
+                data=[
+                    go.Scatter(
+                        x=[true_effect], y=[0], mode="markers",
+                        marker=dict(size=18, color="#E45756" if significant else "#4C78A8"),
+                        error_x=dict(type="data", array=[1.96 * se], visible=True,
+                                     thickness=3, width=10,
+                                     color="#E45756" if significant else "#4C78A8"),
+                        name="estimated effect",
+                    ),
+                ],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.85, xref="paper", yref="paper", showarrow=False, align="left",
+                    text=(f"n = {n:,}<br>"
+                          f"estimated effect = {true_effect:.3f} ms<br>"
+                          f"95% CI = [{ci_lo:.3f}, {ci_hi:.3f}]<br>"
+                          f"p-value = {p_value:.4g}<br>"
+                          + ("statistically significant" if significant
+                             else "not statistically significant") + " at alpha = 0.05"),
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="A fixed 0.1 ms effect crosses statistical significance as sample size grows",
+        xaxis_title="estimated effect on latency (ms)",
+        xaxis_range=[-2, 2.3],
+        yaxis=dict(visible=False, range=[-1, 1]),
+        shapes=[dict(type="line", x0=0, x1=0, y0=-1, y1=1,
+                     line=dict(color="#999", width=1, dash="dot"))],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "sample size (n): "},
+            "steps": [
+                {"label": _short_n(int(f.name)), "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-04-fig-ols-fit": fig_ols_fit,
     "chapter-04-fig-ci-vs-pi": fig_ci_vs_pi,
     "chapter-04-fig-logistic-timeout": fig_logistic_timeout,
     "chapter-04-fig-r2-vs-adjusted": fig_r2_vs_adjusted,
     "chapter-04-fig-aic-bic": fig_aic_bic,
+    "chapter-04-fig-significance-vs-sample-size": fig_significance_vs_sample_size,
     "chapter-04-fig-regularization-paths": fig_regularization_paths,
     "chapter-04-fig-bayesian-ridge": fig_bayesian_ridge,
 }

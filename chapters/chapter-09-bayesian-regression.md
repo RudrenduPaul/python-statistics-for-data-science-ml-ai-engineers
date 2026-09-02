@@ -285,6 +285,12 @@ For a symmetric posterior like that one, the two nearly coincide. For a skewed p
 differ noticeably: an equal-tailed interval always cuts the same probability from each tail
 regardless of the posterior's shape, while the HDI does not.
 
+::: {.callout-tip}
+For a symmetric, unimodal posterior it rarely matters which interval type gets reported. For a
+skewed or multimodal one, prefer the HDI: an equal-tailed interval can exclude the single most
+probable value if enough posterior mass sits in one tail.
+:::
+
 ::: {#fig-bayesian-logistic}
 ```{=html}
 <iframe src="../_generated/chapter-bayes-regression-fig-bayesian-logistic.html" width="100%" height="540"
@@ -324,9 +330,33 @@ $\hat{R}$ works on that same logic: it compares the variance within each of the 
 the variance across all four, and a value above 1.01 means the chains have not mixed and have not
 converged on the same distribution.
 
+::: {#fig-rhat-diagnostic}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-rhat-diagnostic.html" width="100%"
+        height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Four simulated MCMC chains for one parameter. Well-mixed, all four land on the same
+distribution and $\hat{R}$ stays near 1.00; poorly-mixed, one chain gets stuck near a
+different value for the whole run and $\hat{R}$ climbs well past the 1.01 warning line.
+:::
+
+@fig-rhat-diagnostic makes the "four friends guessing a temperature" analogy concrete: the
+well-mixed view shows four chains started from different values converging onto the same band
+and staying there, the pattern behind an $\hat{R}$ near 1.00. The poorly-mixed view keeps that
+same setup except one chain never leaves the region it started in, and $\hat{R}$ rises well
+above the 1.01 line as a direct consequence, since the variance across chains dwarfs the
+variance within any single one of them.
+
 `ess_bulk`, the effective sample size, estimates how many independent draws the correlated MCMC
 samples are worth; an effective sample size under a few hundred, even with thousands of raw
 draws, means the posterior summary is noisier than it looks.
+
+::: {.callout-warning}
+A good $\hat{R}$ does not guarantee a good `ess_bulk`: chains can agree with each other on
+average while each one is still highly autocorrelated internally. Check both diagnostics
+before trusting a posterior summary, not just the one that happens to look reassuring.
+:::
 
 ::: {.callout-warning}
 PyMC also reports divergent transitions during sampling, a diagnostic flagging regions of the

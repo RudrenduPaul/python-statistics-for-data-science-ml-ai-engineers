@@ -204,6 +204,13 @@ model underfits, losing useful signal along with the noise.
 The $\lambda$ at the bottom of the curve is the value cross-validation recommends. Switching the
 toggle from $k=3$ to $k=10$ shows the curve firming up.
 
+::: {.callout-warning}
+The cross-validated error at that minimum is not a fair estimate of the selected model's
+performance on new data, because the same folds that picked $\lambda$ also scored it. Reporting
+a final performance number requires a further split, or nested cross-validation, that never
+touched the folds used to choose $\lambda$.
+:::
+
 With only 3 folds, each fold's error estimate rests on a smaller, noisier training set, so the
 curve's minimum can shift meaningfully from one run to the next. That instability stabilizes as
 $k$ grows.
@@ -284,6 +291,12 @@ The approximation is not reliable by default when a handful of observations wiel
 large influence on the fit. The method's own diagnostic, a Pareto shape-parameter estimate
 called Pareto-k, flags those cases directly, and an observation whose k value crosses the
 paper's threshold needs a direct refit rather than a trusted PSIS estimate.
+
+::: {.callout-note}
+Check the Pareto-k diagnostic before trusting a PSIS-LOO result. A shape-parameter value above
+the paper's threshold means the approximation for that observation cannot be relied on, and the
+fix is a direct refit for that point rather than the PSIS shortcut.
+:::
 
 The resulting number is the *expected log predictive density* (ELPD): a higher value means the
 model's posterior assigns higher probability, on average, to data it did not train on, the

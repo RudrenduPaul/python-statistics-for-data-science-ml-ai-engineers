@@ -106,6 +106,12 @@ fallen under one-in-four.
 Drag the slider toward beta=2, the value BART's default hyperparameters use later in this
 section, and the same depth-3 probability drops under one-in-ten instead.
 
+:::{.callout-note}
+The slider above starts at beta=1 for a clearer visual, not because that is what pymc-bart uses
+by default. Its own default is beta=2, the steeper-decay curve mentioned a paragraph up, so don't
+mistake the beta=1 curve for the shape a default BART fit grows.
+:::
+
 The *leaf-value prior* is a Normal distribution centered at zero with a small variance, placed
 on the value each leaf predicts. Because that variance is small, no leaf is allowed to swing
 far from zero on its own; a leaf's contribution to the final prediction is meant to be a small
@@ -115,6 +121,24 @@ The variance is chosen so that, roughly, the sum of all the trees' contributions
 plausible range of the outcome. That is why adding more trees to the ensemble (each contributing
 a smaller expected nudge) does not blow up the total prediction the way adding more
 unconstrained trees would.
+
+::: {#fig-leaf-value-prior}
+```{=html}
+<iframe src="../_generated/chapter-bayes-bart-fig-leaf-value-prior.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The x-axis is the value a single leaf can predict and the y-axis is prior density. At ten
+trees, the position shown here, the prior is wide enough that one leaf can plausibly swing the
+prediction by several tenths on its own. Dragging the slider toward two hundred trees pulls that
+same density into a sharp spike within a few hundredths of zero: with two hundred leaves each
+contributing a nudge, none of them needs to (or is allowed to) carry much weight alone.
+:::
+
+@fig-leaf-value-prior makes that scaling concrete: the peak at ten trees sits under 3, while the
+peak at two hundred trees rises past 11, all while the area under each curve still integrates to
+1. A wider ensemble does not mean a wilder one; it means every member of it is individually
+quieter.
 
 The *error-variance prior* governs how much unexplained noise the model expects in the outcome
 itself, playing the same role a residual-variance term plays in ordinary regression. It
@@ -269,6 +293,12 @@ with pm.Model() as rollback_model:
 size, hour of day, service dependency count). `m=100` sets the number of trees in the sum; the
 PyMC-BART documentation reports good results in the 50-to-200 range for problems like this
 one, with fewer trees useful mainly for faster iteration while developing the model.
+
+:::{.callout-tip}
+The `tune=1000` argument above is not wasted work: PyMC uses those iterations to adapt the
+sampler, then drops them from `idata` automatically, so the burn-in this chapter's MCMC trace
+figure shows by hand happens before the posterior samples in `idata` are ever inspected.
+:::
 
 Once `idata` holds the posterior samples, `pm.sample_posterior_predictive()` produces a
 posterior predictive distribution for any new deployment, from which a credible interval

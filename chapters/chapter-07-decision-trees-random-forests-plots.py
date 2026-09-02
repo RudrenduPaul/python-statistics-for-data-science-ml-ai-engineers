@@ -27,7 +27,12 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False matters for fig_confusion_threshold, the one frame-animated figure
+    # in this chapter: without it, Plotly auto-plays through every slider step on page
+    # load instead of waiting for the reader to drag the slider, which both wastes the
+    # interaction and can leave the chart mid-transition if the reader drags while it is
+    # still auto-advancing. Same fix used in the gradient boosting chapter.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -176,7 +181,7 @@ def fig_oob_error() -> go.Figure:
         title="Out-of-bag error for the rollback classifier as the forest grows",
         xaxis_title="Number of trees in the forest",
         yaxis_title="Out-of-bag error rate",
-        yaxis_tickformat=".0%",
+        yaxis_tickformat=".1%",
         margin=dict(t=60, l=60, r=30, b=50),
     )
     return fig
@@ -364,6 +369,206 @@ def fig_tree_instability() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 7: cost-complexity pruning path, cross-validated error vs. alpha
+# ---------------------------------------------------------------------------
+def fig_pruning_path() -> go.Figure:
+    from sklearn.model_selection import KFold
+    from sklearn.tree import DecisionTreeRegressor
+
+    x = RNG.uniform(0, 10, size=300)
+    y_true = 2 + 3 * np.sin(x / 2)
+    y = y_true + RNG.normal(0, 0.6, size=x.shape[0])
+    X = x.reshape(-1, 1)
+
+    full_tree = DecisionTreeRegressor(random_state=7)
+    path = full_tree.cost_complexity_pruning_path(X, y)
+    # thin the alpha sequence: a fully grown tree on 300 points produces hundreds of
+    # candidate alphas, most a hair's width apart: 25 evenly spaced points on a log
+    # scale cover the same range without 5-fold CV at every single one of them.
+    ccp_alphas = np.unique(path.ccp_alphas[path.ccp_alphas > 0])
+    # the smallest alphas in a fully grown tree's path sit many orders of magnitude
+    # below the largest (a fully grown 300-point tree's first few prunes cost almost
+    # nothing): keeping all of them stretches the x-axis into nano/micro SI-prefix
+    # territory with a long flat, uninformative run at the bottom. Capping the range
+    # to 4 orders of magnitude below the largest alpha keeps the log axis in the same
+    # 0.001-to-10-ish style every other regularization-path figure in the book uses,
+    # without losing the "low alpha barely prunes" part of the story.
+    ccp_alphas = ccp_alphas[ccp_alphas >= ccp_alphas[-1] / 1e4]
+    if len(ccp_alphas) > 25:
+        log_grid = np.linspace(np.log(ccp_alphas[0]), np.log(ccp_alphas[-1]), 25)
+        ccp_alphas = np.array([ccp_alphas[np.argmin(np.abs(np.log(ccp_alphas) - lg))]
+                                for lg in log_grid])
+        ccp_alphas = np.unique(ccp_alphas)
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=7)
+    cv_errors = []
+    leaf_counts = []
+    for alpha in ccp_alphas:
+        fold_errors = []
+        for train_idx, test_idx in kf.split(X):
+            tree = DecisionTreeRegressor(ccp_alpha=alpha, random_state=7)
+            tree.fit(X[train_idx], y[train_idx])
+            pred = tree.predict(X[test_idx])
+            fold_errors.append(np.mean((pred - y[test_idx]) ** 2))
+        cv_errors.append(np.mean(fold_errors))
+        full_fit = DecisionTreeRegressor(ccp_alpha=alpha, random_state=7).fit(X, y)
+        leaf_counts.append(full_fit.get_n_leaves())
+
+    best_idx = int(np.argmin(cv_errors))
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=ccp_alphas, y=cv_errors, mode="lines+markers", line=dict(color="#4C78A8"),
+        customdata=leaf_counts,
+        hovertemplate="alpha=%{x:.4g}<br>CV MSE=%{y:.3f}<br>leaves=%{customdata}<extra></extra>",
+        name="5-fold CV error",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[ccp_alphas[best_idx]], y=[cv_errors[best_idx]], mode="markers",
+        marker=dict(color="#54A24B", size=14, symbol="star"),
+        name=f"selected alpha (leaves={leaf_counts[best_idx]})",
+    ))
+    fig.update_layout(
+        title="Cost-complexity pruning: cross-validated error vs. the complexity "
+              "parameter alpha",
+        xaxis_title="alpha (cost-complexity penalty per leaf)",
+        xaxis_type="log",
+        yaxis_title="5-fold cross-validated mean squared error",
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 8: confusion matrix, precision/recall/F1, and the ROC curve, by threshold
+# ---------------------------------------------------------------------------
+def fig_confusion_threshold() -> go.Figure:
+    from plotly.subplots import make_subplots
+    from sklearn.metrics import roc_auc_score, roc_curve
+    from sklearn.model_selection import train_test_split
+
+    err_rate, payload, hour, deps, rollback = simulate_deployments(n=3000)
+    X = np.column_stack([err_rate, deps, payload, hour])
+    y = rollback.astype(int)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=0.3, random_state=11, stratify=y
+    )
+    rf = RandomForestClassifier(
+        n_estimators=400, max_depth=5, min_samples_leaf=10, random_state=11
+    )
+    rf.fit(X_train, y_train)
+    prob = rf.predict_proba(X_val)[:, 1]
+
+    fpr, tpr, _ = roc_curve(y_val, prob)
+    auc = roc_auc_score(y_val, prob)
+
+    thresholds = np.round(np.arange(0.10, 0.91, 0.05), 2)
+
+    def metrics_at(t):
+        pred = (prob >= t).astype(int)
+        tp = int(np.sum((pred == 1) & (y_val == 1)))
+        fn = int(np.sum((pred == 0) & (y_val == 1)))
+        fp = int(np.sum((pred == 1) & (y_val == 0)))
+        tn = int(np.sum((pred == 0) & (y_val == 0)))
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        fpr_t = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        return tp, fn, fp, tn, precision, recall, f1, fpr_t, recall
+
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=("Confusion matrix", "Precision, recall, F1", "ROC curve"),
+        column_widths=[0.32, 0.32, 0.36],
+    )
+
+    t0 = thresholds[len(thresholds) // 2]
+    tp, fn, fp, tn, precision, recall, f1, fpr_t, tpr_t = metrics_at(t0)
+    z0 = [[tp, fn], [fp, tn]]
+
+    # Trace order matters: frames below reference these by index (0, 1, 4), so the
+    # fixed ROC line and diagonal reference line have to sit at indices 2 and 3,
+    # between the two traces frames update and the marker frames also update.
+    fig.add_trace(
+        go.Heatmap(
+            z=z0, x=["Predicted rollback", "Predicted no rollback"],
+            y=["True rollback", "True no rollback"],
+            text=z0, texttemplate="%{text}", textfont=dict(size=16),
+            colorscale="Blues", showscale=False, zmin=0, zmax=len(y_val),
+        ),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Bar(
+            x=["Precision", "Recall", "F1"], y=[precision, recall, f1],
+            marker_color=["#4C78A8", "#F58518", "#54A24B"],
+            text=[f"{v:.2f}" for v in [precision, recall, f1]], textposition="outside",
+        ),
+        row=1, col=2,
+    )
+    fig.add_trace(
+        go.Scatter(x=fpr, y=tpr, mode="lines", line=dict(color="#4C78A8", width=3),
+                    name="ROC curve"),
+        row=1, col=3,
+    )
+    fig.add_trace(
+        go.Scatter(x=[0, 1], y=[0, 1], mode="lines",
+                    line=dict(color="#DDDDDD", width=2, dash="dot"), name="no-skill baseline"),
+        row=1, col=3,
+    )
+    fig.add_trace(
+        go.Scatter(x=[fpr_t], y=[tpr_t], mode="markers",
+                    marker=dict(color="#E45756", size=14, symbol="star"),
+                    name="current threshold"),
+        row=1, col=3,
+    )
+
+    frames = []
+    for t in thresholds:
+        tp, fn, fp, tn, precision, recall, f1, fpr_t, tpr_t = metrics_at(t)
+        z = [[tp, fn], [fp, tn]]
+        frames.append(
+            go.Frame(
+                name=f"{t:.2f}",
+                data=[
+                    go.Heatmap(z=z, text=z),
+                    go.Bar(y=[precision, recall, f1],
+                           text=[f"{v:.2f}" for v in [precision, recall, f1]]),
+                    go.Scatter(x=[fpr_t], y=[tpr_t]),
+                ],
+                traces=[0, 1, 4],
+            )
+        )
+
+    fig.frames = frames
+    fig.add_annotation(
+        text=f"AUC = {auc:.2f}", x=0.62, y=0.08, xref="x3", yref="y3",
+        showarrow=False, font=dict(size=13, color="#4C78A8"),
+    )
+    fig.update_layout(
+        title="Confusion matrix, precision/recall/F1, and ROC position as the "
+              "classification threshold moves",
+        showlegend=False,
+        yaxis2_range=[0, 1.1],
+        xaxis3_title="False positive rate",
+        yaxis3_title="True positive rate",
+        sliders=[{
+            "active": len(thresholds) // 2,
+            "currentvalue": {"prefix": "Classification threshold: "},
+            "steps": [
+                {"label": f"{t:.2f}", "method": "animate",
+                 "args": [[f"{t:.2f}"],
+                          {"mode": "immediate", "frame": {"duration": 0, "redraw": True},
+                           "transition": {"duration": 0}}]}
+                for t in thresholds
+            ],
+        }],
+        margin=dict(t=90, l=50, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-trees-fig-tree-overfitting": fig_tree_overfitting,
     "chapter-trees-fig-oob-error": fig_oob_error,
@@ -371,6 +576,8 @@ FIGURES = {
     "chapter-trees-fig-bart-vs-rf": fig_bart_vs_rf,
     "chapter-trees-fig-split-criteria": fig_split_criteria,
     "chapter-trees-fig-tree-instability": fig_tree_instability,
+    "chapter-trees-fig-pruning-path": fig_pruning_path,
+    "chapter-trees-fig-confusion-threshold": fig_confusion_threshold,
 }
 
 

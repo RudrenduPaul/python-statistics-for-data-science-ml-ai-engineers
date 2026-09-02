@@ -17,6 +17,7 @@ as such.
 """
 
 import os
+import re
 
 import numpy as np
 import plotly.graph_objects as go
@@ -29,6 +30,31 @@ os.makedirs(OUT_DIR, exist_ok=True)
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
     fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    if fig.frames:
+        # The CDN-pinned Plotly.js build mis-syncs a slider's visible frame with its
+        # declared "active" step on first load (most visible with three-step sliders,
+        # where it opens on the middle step instead of the first). Plotly.py always
+        # appends a `Plotly.animate(divid, null)` call after `newPlot` to sync the
+        # slider to the active step; pointing that call at the intended frame by name,
+        # instead of leaving it null, makes the opening frame match the slider's
+        # declared "active" step (and the chapter prose describing it) every load.
+        sliders = fig.layout.sliders
+        active = sliders[0].active if sliders and sliders[0].active is not None else 0
+        init_frame = fig.frames[active].name
+        with open(path, "r", encoding="utf-8") as f:
+            html = f.read()
+        fixed = re.sub(
+            r"Plotly\.animate\('([0-9a-f-]+)', null\);",
+            lambda m: (
+                f"Plotly.animate('{m.group(1)}', ['{init_frame}'], "
+                "{frame: {duration: 0, redraw: true}, transition: {duration: 0}, "
+                "mode: 'immediate'});"
+            ),
+            html,
+        )
+        if fixed != html:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(fixed)
     return path
 
 
@@ -71,8 +97,14 @@ def fig_ensemble_buildup() -> go.Figure:
         n_steps = max(2, m // 4)
         edges = np.linspace(0, 6, n_steps + 1)
         approx = np.zeros_like(x)
-        for lo, hi in zip(edges[:-1], edges[1:]):
-            mask = (x >= lo) & (x < hi)
+        # np.digitize against the interior edges (not the outer ones) puts x's last
+        # grid point, x=6.0, into the final bin. A half-open (x >= lo) & (x < hi) test
+        # per bin instead would exclude x=6.0 from every bin (6.0 is never < the last
+        # edge, which is also 6.0), leaving approx's last entry at its zero-initialized
+        # default and drawing a false vertical drop to 0 at the right edge of every frame.
+        bin_idx = np.digitize(x, edges[1:-1], right=False)
+        for b in range(n_steps):
+            mask = bin_idx == b
             if mask.any():
                 approx[mask] = y_true[mask].mean()
         noise_scale = 0.06 / np.sqrt(m)
@@ -268,8 +300,60 @@ def fig_tree_structure_prior() -> go.Figure:
         yaxis_title="P(node splits further)",
         yaxis_range=[0, 1],
         sliders=[{
-            "active": 2,
+            "active": 0,
             "currentvalue": {"prefix": "beta (depth penalty): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 6: leaf-value prior, narrowing as the tree count grows
+# ---------------------------------------------------------------------------
+def fig_leaf_value_prior() -> go.Figure:
+    """"The three priors doing the work" names the tree-structure prior, the leaf-value
+    prior, and the error-variance prior, but only the tree-structure prior gets a chart.
+    This closes that gap for the leaf-value prior: a Normal(0, sigma_leaf^2) density,
+    with sigma_leaf shrinking as the tree count m grows (sigma_leaf set proportional to
+    1 / (k * sqrt(m)), matching the qualitative role Chipman, George, and McCulloch's k
+    parameter plays). That shrinkage is what keeps the SUM of all m trees' leaf
+    contributions on the same rough scale regardless of m, the property the surrounding
+    prose describes without a supporting picture."""
+    leaf_grid = np.linspace(-1.2, 1.2, 400)
+    tree_counts = [10, 50, 100, 200]
+    k = 2.0
+    frames = []
+    for m in tree_counts:
+        sigma_leaf = 1.0 / (k * np.sqrt(m))
+        density = (1.0 / (sigma_leaf * np.sqrt(2 * np.pi))) * np.exp(
+            -0.5 * (leaf_grid / sigma_leaf) ** 2
+        )
+        frames.append(
+            go.Frame(
+                name=str(m),
+                data=[go.Scatter(
+                    x=leaf_grid, y=density, mode="lines", name=f"m={m}",
+                    line=dict(color="#4C78A8", width=2.5),
+                    fill="tozeroy", fillcolor="rgba(76,120,168,0.20)",
+                )],
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig.update_layout(
+        title="Leaf-value prior narrows as more trees share the work",
+        xaxis_title="Leaf value",
+        yaxis_title="Prior density",
+        yaxis_range=[0, 12],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Trees in the sum (m): "},
             "steps": [
                 {"label": f.name, "method": "animate",
                  "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
@@ -287,6 +371,7 @@ FIGURES = {
     "chapter-bayes-bart-fig-variable-importance": fig_variable_importance_posterior,
     "chapter-bayes-bart-fig-mcmc-trace": fig_mcmc_trace,
     "chapter-bayes-bart-fig-tree-structure-prior": fig_tree_structure_prior,
+    "chapter-bayes-bart-fig-leaf-value-prior": fig_leaf_value_prior,
 }
 
 

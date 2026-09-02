@@ -183,6 +183,12 @@ With 200,000 simulated draws per comparison, the two approaches agree to several
 places. The simulation approach also generalizes immediately to metrics that do not have a
 convenient closed form, which is why this chapter's figures use it throughout.
 
+::: {.callout-tip}
+Miller's closed-form sum grows more terms as successes accumulate, so it slows down right when
+a team wants it most: after a lot of traffic has arrived. Simulation cost stays flat regardless
+of sample size, which is the more practical reason production dashboards default to it.
+:::
+
 ## Expected loss as a stopping rule
 
 Imagine picking between two job offers without knowing which pays better long-term. Expected
@@ -397,6 +403,31 @@ standard deviation of \$18, the posterior mean settles close to \$44.05.
 The result is pulled only slightly toward the prior's \$42, because the sample of 500 carries
 far more precision than the prior did. This is the same prior-times-likelihood-equals-posterior
 logic from earlier in the chapter, applied to a different distribution family.
+
+::: {.callout-warning}
+This Normal-Normal update treats $\tau_{\text{data}}$ as known, but in practice it usually comes
+from the sample's own standard deviation. Plugging in an estimated precision as though it were
+fixed understates the true uncertainty, especially early in the experiment when the sample
+standard deviation itself is still unstable.
+:::
+
+::: {#fig-normal-normal-update}
+```{=html}
+<iframe src="../_generated/chapter-05-fig-normal-normal-update.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The average-order-value posterior narrows and slides from the \$42 prior toward the observed
+\$44.10 sample mean as converting visitors accumulate. Move the slider.
+:::
+
+@fig-normal-normal-update shows the same narrowing-and-settling behavior @fig-posterior-update
+showed for a Beta posterior, this time for the Normal-Normal pairing: at $n = 0$ the curve is
+just the prior, centered on \$42.
+
+By $n = 500$ the posterior has both narrowed and shifted almost entirely onto the observed
+\$44.10, since 500 observations at a precision of $1/18^2$ each outweigh the prior's single
+pseudo-observation-equivalent of precision by a wide margin.
 
 That said, plenty of continuous metrics do not stay this well behaved. Order value tends to be
 right-skewed in the same way the latency data from Chapter 1 was, carries outliers from bulk

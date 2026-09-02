@@ -242,6 +242,13 @@ gp.fit(rho.reshape(-1, 1), latency)
 mean, std = gp.predict(grid, return_std=True)
 ```
 
+:::{.callout-warning}
+Drop the `WhiteKernel` term from the code above and the kernel matrix $K(X, X)$ can turn
+near-singular whenever two training points sit closer together than the length-scale, making
+the matrix inversion in the posterior formulas fail or return garbage. The noise term is not
+just modeling honesty, it is what keeps that inversion numerically stable.
+:::
+
 @fig-posterior-fit fits this scikit-learn model to the concurrent-load-versus-latency data from
 Chapter 6, at growing sample sizes. The *credible band* shown there is the functional
 counterpart of the credible interval Chapter 9 built for a single coefficient: instead of one
@@ -351,6 +358,31 @@ A short length-scale on one dimension and a long length-scale on another is itse
 variable-importance signal: the model has learned that the function changes quickly along the
 first input and barely reacts to the second, without anyone hand-coding that conclusion in
 advance.
+
+:::{.callout-tip}
+An automatic-relevance-determination kernel only makes length-scales comparable across
+dimensions when every input is standardized first. Fit the same kernel to payload size in raw
+bytes and utilization on a 0-1 scale, and the length-scales say more about the units chosen than
+about which predictor matters.
+:::
+
+::: {#fig-ard-length-scales}
+```{=html}
+<iframe src="../_generated/chapter-bayes-gp-fig-ard-length-scales.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Two predictors, payload size and concurrent-request utilization, on inputs standardized to the
+same scale so the two length-scales are directly comparable. Concurrent-request utilization
+fits a length-scale under 1, since latency swings sharply as utilization approaches capacity.
+Payload size fits a length-scale over 20, since latency barely moves across its whole observed
+range once utilization is accounted for.
+:::
+
+@fig-ard-length-scales makes the point concrete: an automatic-relevance-determination kernel
+fit to both predictors at once returns a length-scale twenty-five times longer for payload size
+than for concurrent-request utilization, without anyone telling the model in advance which
+predictor mattered more.
 
 The same $O(n^3)$ cost applies regardless of how many input dimensions there are, since it
 depends only on the number of observations, not the number of predictors. That is one reason a

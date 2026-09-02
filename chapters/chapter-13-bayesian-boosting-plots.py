@@ -22,7 +22,16 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export appends a
+    # `Plotly.animate(divid, null)` call right after the initial render to prime the
+    # slider/animation machinery. In the CDN-pinned Plotly.js build this book ships
+    # (4.0.0), that priming call clears any trace that sits outside every frame's data
+    # (here, the static Contour background in fig_bo_search_trajectory) and never
+    # repaints it, leaving the loss surface blank on load. The slider itself calls
+    # Plotly.animate with concrete frame args on every step, so it works fine without
+    # the priming call. Disabling it fixes the blank-contour bug with no loss of
+    # interactivity.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -101,11 +110,6 @@ def fig_bo_search_trajectory() -> go.Figure:
         contours=dict(showlines=False),
     )
 
-    # KNOWN ISSUE: the contour background does not paint in a headless-Chrome screenshot of
-    # this figure even though its data is valid (confirmed via direct DOM/data inspection) and
-    # even after a forced Plotly.Plots.resize() call. Root cause not isolated; the scatter
-    # trace (the search trajectory this figure illustrates) renders correctly regardless. See
-    # the chapter's humanize-log addendum for what was tried.
     frames = []
     for k in range(4, n_trials_total + 1):
         frames.append(

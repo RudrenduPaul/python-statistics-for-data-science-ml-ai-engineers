@@ -120,6 +120,12 @@ when a handful of observations wield outsized influence on the fit.
 alternative Vehtari, Gelman, and Gabry (2017) built to answer the same question with better
 guarantees. It is the default `arviz.loo()` computes [@vehtarigelmangabry2017; @kumar2019arviz].
 
+::: {.callout-important}
+Default to PSIS-LOO over WAIC in practice. `az.compare()` uses it as the default measure, and
+PSIS-LOO's $\hat{k}$ diagnostic flags the influential-point and near-misspecification failures
+that leave WAIC's number looking fine when it should not.
+:::
+
 The idea starts from a shortcut. Literally leaving out one observation, refitting, and repeating
 $n$ times is precisely as expensive for a Bayesian model as LOOCV was for the linear models in
 Chapter 5. PSIS-LOO instead reuses the posterior draws from the single full-data fit,
@@ -242,6 +248,12 @@ comparison = az.compare({
 })
 ```
 
+::: {.callout-warning}
+`noise_feature` is not a parameter of `fit_latency_model`; it works only because Python resolves
+it as a free variable from the enclosing scope when `use_noise=True` runs. Reuse this pattern in
+your own code only after passing the array in explicitly, or a `NameError` is one refactor away.
+:::
+
 Running the equivalent computation directly from posterior draws (the approach this chapter's
 figures use, to keep every number reproducible without an MCMC sampler) on 80 simulated
 requests produces the table `az.compare()` would print:
@@ -251,6 +263,23 @@ requests produces the table `az.compare()` would print:
 | payload_concurrent | -272.6 | 6.0 | 0.0 | 0.0 |
 | payload_concurrent_noise | -273.4 | 6.1 | 0.8 | 0.7 |
 | payload_only | -345.4 | 12.5 | 72.8 | 10.9 |
+
+::: {#fig-elpd-compare}
+```{=html}
+<iframe src="../_generated/chapter-bayes-model-selection-fig-elpd-compare.html" width="100%"
+        height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The same three models plotted by elpd_loo with a standard-error bar around each point, best
+model first. `payload_concurrent` and `payload_concurrent_noise` overlap heavily;
+`payload_only` sits far enough left that its error bar never comes close to the other two.
+:::
+
+@fig-elpd-compare puts the table's first three columns on an axis: each point is a model's
+elpd_loo, and the horizontal bar through it is one standard error in each direction. The overlap
+between the top two error bars is the same "well within noise" story the `d_elpd`/`dSE` columns
+tell numerically; the gap between those two and `payload_only`'s bar is the same seven-standard-
+error separation, visible directly rather than computed from the table.
 
 Read the last two columns first: `d_elpd` is the gap between each model's elpd_loo and the best
 model's, and `dSE` is the standard error on that specific gap. That is a different quantity from

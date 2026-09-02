@@ -22,7 +22,12 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # write_html()'s auto_play defaults to True: for a figure built from animation
+    # frames, Plotly auto-plays through every frame once the page loads, so a reader
+    # lands on whichever frame the playback reaches rather than the slider's configured
+    # "active" step, and the slider handle and label can be caught mid-playback. Setting
+    # auto_play=False leaves the figure showing the active step, matching the slider.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 

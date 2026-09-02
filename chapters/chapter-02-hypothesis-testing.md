@@ -335,6 +335,13 @@ serves as its own baseline. That is why a paired design generally needs fewer ob
 reach the same statistical power as an unpaired one.
 :::
 
+::: {.callout-warning}
+Running an unpaired t-test on data that is naturally paired throws away the correlation
+between the two measurements, which usually inflates the variance estimate and makes a true
+effect harder to detect. Before choosing between a paired and unpaired test, check whether
+each unit in the sample was measured twice.
+:::
+
 An *unpaired t-test* (also called an independent t-test) applies when the two groups being
 compared are not linked, for instance a randomized A/B test where incoming requests are
 assigned to a control path or a cached path:
@@ -344,6 +351,13 @@ $$t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{S_1^2/n_1 + S_2^2/n_2}}$$
 When the two groups have unequal variances, which is common when comparing a stable control
 path to a newly deployed one, Welch's t-test (a variant that does not assume equal variances)
 is the safer default over the standard unpaired t-test.
+
+::: {.callout-warning}
+Statistics libraries do not agree on a default here. R's `t.test()` runs Welch's version
+unless told otherwise, while SciPy's `ttest_ind()` assumes equal variances unless called with
+`equal_var=False`. Check which default a codebase is using before trusting an unpaired t-test
+result pulled from unfamiliar code.
+:::
 
 Both paired and unpaired tests assume the underlying data is close to normal or that the
 sample is large; the non-parametric alternatives near the end of this chapter cover what to

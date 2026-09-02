@@ -20,7 +20,10 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def save(fig: go.Figure, name: str) -> str:
     path = os.path.join(OUT_DIR, f"{name}.html")
-    fig.write_html(path, include_plotlyjs="cdn", full_html=True)
+    # auto_play=False: plotly.py's default HTML export otherwise calls
+    # Plotly.animate(divid, null) after Plotly.newPlot, which advances the
+    # rendered frame past whatever "active": 0 the slider config specifies.
+    fig.write_html(path, include_plotlyjs="cdn", full_html=True, auto_play=False)
     return path
 
 
@@ -56,7 +59,7 @@ def fig_t_vs_normal() -> go.Figure:
             "currentvalue": {"prefix": "degrees of freedom: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -117,7 +120,7 @@ def fig_type1_type2() -> go.Figure:
             "currentvalue": {"prefix": "decision threshold: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -165,7 +168,7 @@ def fig_power_curve() -> go.Figure:
             "currentvalue": {"prefix": "effect size (Cohen's d): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -224,7 +227,7 @@ def fig_parametric_vs_nonparametric() -> go.Figure:
             "currentvalue": {"prefix": "outlier requests added to control: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -276,7 +279,7 @@ def fig_anova_between_within() -> go.Figure:
             "currentvalue": {"prefix": "Gap between region means (ms): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],

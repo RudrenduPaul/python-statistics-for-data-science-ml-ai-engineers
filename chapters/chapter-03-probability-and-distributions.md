@@ -159,6 +159,22 @@ The *standard normal distribution* is a normal distribution with $\mu = 0$ and $
 Converting any normal value $x$ into a *z-score*, $z = (x - \mu) / \sigma$, expresses it in
 standard deviations from the mean.
 
+::: {#fig-zscore}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-standard-normal-zscore.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The tail probability P(Z > z) beyond a given z-score. Moving the threshold from 0.5 to 3.0
+standard deviations shrinks the tail from roughly 31% of the distribution to about 0.1%.
+:::
+
+@fig-zscore shows why a z-score threshold makes a good anomaly trigger: the probability of a
+value landing that far out drops fast, so a fixed threshold like $z > 3$ flags a small share
+of normal variation while still catching outliers that matter. A p99 checkout latency of
+340ms against a service mean of 200ms and a standard deviation of 40ms gives a z-score of 3.5,
+worth a page regardless of whether the metric is in milliseconds or requests per second.
+
 ::: {.callout-tip}
 That is what makes z-scores useful for comparing values across services with different
 latency scales: a z-score of 3 means the same thing (three standard deviations above typical)
@@ -181,6 +197,21 @@ $$f(x) = \frac{1}{b-a} \quad \text{for } a \le x \le b$$
 A feature-flag rollout that assigns each user a uniformly random number between 0 and 1, then
 enables the feature for anyone below a chosen threshold, is a direct application.
 
+::: {#fig-uniform}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-uniform-rollout.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+A uniform draw on [0, 1] split by a rollout threshold. Moving the threshold from 0.05 to 1.00
+grows the treatment share from 5% of users to all of them, matching the threshold value.
+:::
+
+@fig-uniform shows the mechanism directly: because every draw is equally likely anywhere in
+[0, 1], the share of users below a threshold equals the threshold. A 10% canary rollout is
+just a threshold of 0.10, and doubling that threshold to 0.20 doubles the canary's size, no
+distributional surprises involved.
+
 Every user has an equal chance of landing in the treatment group, which is the completely
 randomized design Chapter 2 introduced for experiment assignment.
 
@@ -197,8 +228,22 @@ with probability $p$ of success:
 
 $$f(x) = p^x (1-p)^{1-x} \quad \text{for } x \in \{0, 1\}$$
 
-Whether a single request times out, whether a single canary request lands in the treatment
-group, and whether a single feature-flag check evaluates true are all Bernoulli trials.
+::: {#fig-bernoulli}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-bernoulli-trial.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+A single Bernoulli trial's two possible outcomes, at success probabilities from 10% to 90%.
+The two bars always sum to 100%, since a Bernoulli trial has no third outcome.
+:::
+
+@fig-bernoulli is the building block behind every other distribution in this section: a
+binomial count is a sum of Bernoulli trials, a geometric count is the wait for the first
+Bernoulli success, and the sharding logic later in this chapter reduces to a Bernoulli trial
+per shard when only one shard's outcome is in question. Whether a single request times out,
+whether a single canary request lands in the treatment group, and whether a single
+feature-flag check evaluates true are all Bernoulli trials.
 
 ### Binomial distribution
 
@@ -237,6 +282,13 @@ conversion counts shifts and spreads as that probability rises.
 Part 3 builds directly on this distribution: a Bayesian A/B test of a conversion rate treats
 the number of conversions as binomial and updates a prior belief about the underlying
 conversion probability as data arrives.
+
+::: {.callout-warning}
+The binomial model assumes every trial shares the same success probability and that trials are
+independent. A batch of requests hit by a partial outage breaks both assumptions at once:
+failures cluster together, so the count of failures shows more variance than a binomial model
+predicts, the same overdispersion pattern the Poisson section below describes.
+:::
 
 ::: {.callout-tip}
 When both $np$ and $n(1-p)$ are at least about 10, a binomial distribution is close enough to
@@ -325,6 +377,22 @@ $\lambda$:
 
 $$f(x) = \lambda e^{-\lambda x} \quad \text{for } x \ge 0$$
 
+::: {#fig-exponential}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-exponential-wait.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Wait-time density at rates from 0.25 to 4 events per unit time. A higher rate pulls the whole
+curve toward zero: the mean wait is always $1/\lambda$, so the probability of a short wait
+climbs fast as the rate increases.
+:::
+
+@fig-exponential also gives a direct way to compute with the distribution: at a constant rate
+of one event every two units of time ($\lambda = 0.5$), the mean wait is 2 units, and the
+probability the next event arrives within one unit is $1 - e^{-0.5} \approx 39\%$, read
+straight off the shaded area under the curve up to that point.
+
 The time between consecutive requests in a Poisson arrival process is exponentially
 distributed. So is the time until a service instance fails, under the assumption that failure
 risk does not change with how long the instance has been running (the distribution's defining
@@ -356,6 +424,14 @@ variance is the average squared distance between an outcome and that mean.
 
 $E(X^2) - (E(X))^2$ is an algebraically equivalent shortcut for computing that average
 squared distance without having to subtract the mean from every outcome first.
+
+::: {.callout-warning}
+That shortcut is convenient by hand but risky in floating-point code: when the mean is large
+relative to the spread, $E(X^2)$ and $(E(X))^2$ are two large, nearly equal numbers, and
+subtracting them can lose precision to cancellation. A running algorithm like Welford's method
+avoids the problem by updating variance incrementally instead of computing the two terms
+separately.
+:::
 
 Recall from Chapter 1 that these are the population-level counterparts of the sample mean and
 sample variance computed from data. Every distribution introduced in this chapter has a known

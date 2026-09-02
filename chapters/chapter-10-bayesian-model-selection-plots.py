@@ -289,6 +289,11 @@ def fig_elpd_compare() -> go.Figure:
     fig.update_layout(
         title="Model comparison by elpd_loo, best model first (arviz.compare style)",
         xaxis_title="elpd_loo (higher is better)",
+        # Plotly draws the first categorical y-value at the bottom by default, which would
+        # put the best model (first in the best-first sorted `labels` list) at the bottom
+        # of the chart instead of the top. Reverse the axis so "best model first" reads
+        # true from top to bottom, matching the title and the chapter's table.
+        yaxis=dict(autorange="reversed"),
         margin=dict(t=60, l=160, r=40, b=50),
     )
     return fig
