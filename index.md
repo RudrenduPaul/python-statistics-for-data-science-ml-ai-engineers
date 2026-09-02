@@ -1,3 +1,5 @@
+![](assets/cover.png){.book-cover-banner fig-alt="Book cover: Applied Statistics for Data Science, Machine Learning, and AI Engineers"}
+
 # Preface {.unnumbered}
 
 ```{=html}
