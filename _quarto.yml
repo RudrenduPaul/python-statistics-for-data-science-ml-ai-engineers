@@ -1,10 +1,18 @@
 project:
   type: book
   output-dir: _book
+  resources:
+    - llms.txt
 
 book:
   title: "Applied Statistics for Data Science, Machine Learning, and AI Engineers"
   subtitle: "A Practical, Open-Source Guide to Regression, Gradient Boosting, Bayesian Methods, and A/B Testing in Python"
+  description: >-
+    A free, open-source, interactive statistics handbook for data scientists, ML engineers,
+    and AI engineers. Covers descriptive statistics, hypothesis testing, regression, decision
+    trees, gradient boosting (XGBoost, LightGBM), and Bayesian methods (PyMC, Gaussian
+    processes, BART, Bayesian A/B testing) in Python, with every figure a live, draggable
+    Plotly chart and every example built from runnable code.
   author:
     - name: Rudrendu Paul
       url: https://github.com/RudrenduPaul
@@ -48,6 +56,11 @@ format:
     code-fold: false
     toc: true
     number-depth: 2
+    open-graph:
+      image: assets/cover.png
+    twitter-card:
+      image: assets/cover.png
+    include-in-header: assets/schema.html
 
 execute:
   freeze: auto

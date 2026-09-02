@@ -1,4 +1,4 @@
-# Applied Statistics for Data Scientists and Engineers: Quarto book
+# Applied Statistics for Data Science, Machine Learning, and AI Engineers
 
 Interactive rewrite of the original manuscript
 (`../Applied Statistics for Data Science_ A Handbook for Data Scientists and Engineers.docx`,

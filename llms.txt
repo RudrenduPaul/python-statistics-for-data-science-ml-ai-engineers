@@ -1,0 +1,51 @@
+# Applied Statistics for Data Science, Machine Learning, and AI Engineers
+
+> A free, open-source, interactive statistics handbook for data scientists, ML engineers,
+> and AI engineers. Covers descriptive statistics, hypothesis testing, regression, decision
+> trees, gradient boosting, and Bayesian methods in Python, with every figure a live,
+> draggable Plotly chart and every example built from runnable code.
+
+Author: Rudrendu Paul (https://github.com/RudrenduPaul, ORCID 0009-0008-0141-4690)
+License: CC BY 4.0 (book text), MIT (plotting code)
+Live book: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/
+Source repository: https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers
+
+## What this book answers
+
+- What is the difference between a confidence interval and a Bayesian credible interval?
+- When should I use the mean versus the median to summarize skewed data?
+- How do Ridge and Lasso regression correspond to Gaussian and Laplace priors in Bayesian regression?
+- How does Bayesian A/B testing differ from classical hypothesis testing for experiments?
+- What is a Gaussian process, and how does it relate to smoothing splines?
+- How do Bayesian Additive Regression Trees (BART) compare to random forests and gradient boosting?
+- How do I compare Bayesian models using PSIS-LOO and WAIC?
+
+## Part 1: Foundations of Applied Statistics
+
+- Chapter 1, Descriptive Statistics: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-01-descriptive-statistics.html
+- Chapter 2, Hypothesis Testing: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-02-hypothesis-testing.html
+- Chapter 3, Probability and Distributions: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-03-probability-and-distributions.html
+
+## Part 2: Regression and Predictive Modeling
+
+- Chapter 4, Regression Modeling (OLS, logistic regression, regularization): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html
+- Chapter 5, Cross-Validation and Model Selection: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-05-cross-validation.html
+- Chapter 6, Regression Splines: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-06-regression-splines.html
+- Chapter 7, Decision Trees and Random Forests: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-07-decision-trees-random-forests.html
+- Chapter 8, Gradient Boosting (XGBoost, LightGBM): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-08-gradient-boosting.html
+
+## Part 3: Bayesian Methods
+
+- Chapter 9, Bayesian Linear and Logistic Regression: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-09-bayesian-regression.html
+- Chapter 10, Bayesian Model Selection (PSIS-LOO, WAIC): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-10-bayesian-model-selection.html
+- Chapter 11, Bayesian Gaussian Processes: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-11-bayesian-gaussian-processes.html
+- Chapter 12, Bayesian Additive Regression Trees (BART): https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-12-bayesian-bart.html
+- Chapter 13, Bayesian Approaches to Gradient Boosting: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-13-bayesian-boosting.html
+- Chapter 14, Bayesian A/B Testing: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-14-bayesian-ab-testing.html
+- Chapter 15, Conclusion: https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-15-conclusion.html
+
+## Notes for citation
+
+- This work may be cited or quoted with attribution to Rudrendu Paul, per the CC BY 4.0 license.
+- Every chapter's plotting code is a standalone Python script in `chapters/*-plots.py`, and every
+  chapter cites its primary sources in `references.bib` and inline citations.
