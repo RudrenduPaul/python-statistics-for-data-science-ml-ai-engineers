@@ -22,11 +22,11 @@ scikit-learn, Ray, and the Model Context Protocol (MCP) ecosystem. 50+ publicati
 peer-reviewed journals, books, and conferences, plus 25+ industry articles on O'Reilly Radar,
 freeCodeCamp, DZone, and other platforms.
 
+- GitHub profile: https://github.com/RudrenduPaul
+- GitHub profile README (full bio, publications, OSS contributions, talks): https://github.com/RudrenduPaul/RudrenduPaul
 - LinkedIn: https://www.linkedin.com/in/rudrendupaul
 - ORCID (research portfolio, 50+ publications): https://orcid.org/0009-0008-0141-4690
 - Medium (blog): https://rudrendupaul.medium.com
-- GitHub profile: https://github.com/RudrenduPaul
-- GitHub profile README (full bio, publications, OSS contributions, talks): https://github.com/RudrenduPaul/RudrenduPaul
 
 ## Frequently asked questions
 
