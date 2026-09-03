@@ -119,7 +119,7 @@ regression's penalty term produces, derived instead from a Gaussian prior.
 
 **Rudrendu Paul** is an agent-native B2A/A2A builder, applied AI/ML leader, and published author (ICML, Springer Nature, Elsevier, IEEE) with 15+ years turning applied machine learning and causal inference into production systems. He is an open source contributor to HuggingFace Transformers, scikit-learn, and the Model Context Protocol (MCP) ecosystem, with 50+ publications across peer-reviewed journals, books, and conferences, plus 25+ industry articles on O'Reilly Radar, freeCodeCamp, DZone, and other platforms.
 
+- GitHub: [github.com/RudrenduPaul](https://github.com/RudrenduPaul)
 - LinkedIn: [linkedin.com/in/rudrendupaul](https://www.linkedin.com/in/rudrendupaul)
 - ORCID (research portfolio, 50+ publications): [0009-0008-0141-4690](https://orcid.org/0009-0008-0141-4690)
 - Medium: [rudrendupaul.medium.com](https://rudrendupaul.medium.com)
-- GitHub: [github.com/RudrenduPaul](https://github.com/RudrenduPaul)
