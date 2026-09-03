@@ -30,6 +30,16 @@
     ]
   },
   {
+    "objectID": "index.html#about-the-author",
+    "href": "index.html#about-the-author",
+    "title": "Applied Statistics for Data Science, Machine Learning, and AI Engineers",
+    "section": "About the author",
+    "text": "About the author\nRudrendu Paul is an agent-native B2A/A2A builder, applied AI/ML leader, and published author (ICML, Springer Nature, Elsevier, IEEE) with 15+ years turning applied machine learning and causal inference into production systems. He is an open source contributor to HuggingFace Transformers, scikit-learn, and the Model Context Protocol (MCP) ecosystem, with 50+ publications across peer-reviewed journals, books, and conferences, plus 25+ industry articles on O’Reilly Radar, freeCodeCamp, DZone, and other platforms.\n\nLinkedIn: linkedin.com/in/rudrendupaul\nORCID (research portfolio, 50+ publications): 0009-0008-0141-4690\nMedium: rudrendupaul.medium.com\nGitHub: github.com/RudrenduPaul",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
     "objectID": "chapters/chapter-01-descriptive-statistics.html",
     "href": "chapters/chapter-01-descriptive-statistics.html",
     "title": "1  Introduction to Descriptive Statistics",
