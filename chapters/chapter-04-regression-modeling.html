@@ -687,11 +687,11 @@ Note
 <iframe src="../_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.8: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the posterior on the payload-size coefficient narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
+Figure&nbsp;4.8: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the fitted line on the left visibly flattens away from the fixed, dashed OLS reference, while the posterior on the right narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> shows this pattern directly for the payload-size coefficient: one full distribution at a time, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
+<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> shows this pattern from two angles at once: the left panel grounds it in the fitted line itself, which pulls away from the OLS reference as the prior tightens, and the right panel shows the full distribution behind that line, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
 <p>Logistic regression does not offer the same clean arithmetic. Because the logistic function is nonlinear, the posterior over its coefficients has no closed form the way Ridge and Lasso’s Gaussian and Laplace posteriors do.</p>
 <p>Fitting a Bayesian logistic regression means approximating that posterior instead, typically with Markov chain Monte Carlo sampling or a Laplace approximation around the posterior mode.</p>
 <p>The added computational cost buys something a point estimate cannot: a <em>credible interval</em> on each coefficient, a range that directly states the probability the true effect falls inside it. A standard error, by contrast, is only as trustworthy as the model’s specification, and its validity also depends on the sample being large enough for its asymptotic guarantees to hold.</p>
