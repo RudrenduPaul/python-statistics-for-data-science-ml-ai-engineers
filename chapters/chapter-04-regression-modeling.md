@@ -447,14 +447,16 @@ that prior clusters around zero before any data arrives.
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-As the prior variance shrinks, equivalent to $\lambda$ growing, the posterior on the
-payload-size coefficient narrows and its center moves toward zero, tracing the same shrinkage
-Ridge regression's penalty term produces.
+As the prior variance shrinks, equivalent to $\lambda$ growing, the fitted line on the left
+visibly flattens away from the fixed, dashed OLS reference, while the posterior on the right
+narrows and its center moves toward zero, tracing the same shrinkage Ridge regression's
+penalty term produces.
 :::
 
-@fig-bayesian-ridge shows this pattern directly for the payload-size coefficient: one full
-distribution at a time, instead of one point estimate, tracing out the same shrinkage Ridge
-regression produces as the prior tightens.
+@fig-bayesian-ridge shows this pattern from two angles at once: the left panel grounds it in
+the fitted line itself, which pulls away from the OLS reference as the prior tightens, and the
+right panel shows the full distribution behind that line, instead of one point estimate,
+tracing out the same shrinkage Ridge regression produces as the prior tightens.
 
 Logistic regression does not offer the same clean arithmetic. Because the logistic function is
 nonlinear, the posterior over its coefficients has no closed form the way Ridge and Lasso's

@@ -491,8 +491,9 @@ holds within each group can reverse itself when the groups are combined.
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-Success rate by treatment, split by stone size vs. combined (Charig et al. 1986). Treatment A
-wins both subgroups yet loses once the two groups are pooled together.
+Success rate by treatment, split by stone size vs. combined (Charig et al. 1986). Drag the
+slider from an even case mix toward the study's own mix: Treatment A wins both subgroups yet
+loses once each treatment's own share of small and large cases is applied.
 :::
 
 This is *Simpson's paradox*, and @fig-simpsons shows the clearest documented case of it: a

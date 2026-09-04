@@ -64,14 +64,14 @@ Three figures pulled from the live book, shown here as static images since GitHu
 <img src="assets/readme-previews/chapter-01-simpsons-paradox.png" alt="Simpson's paradox in the Charig et al. 1986 kidney stone treatment data">
 </a>
 <br>
-<b>Simpson's paradox, with the 1986 kidney-stone data.</b> Treatment A wins on both stone sizes taken separately. Pool the two groups together and Treatment B wins instead. The slider flips between the split view and the combined view so you can watch the reversal happen. <a href="https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-01-descriptive-statistics.html">Fully interactive in Chapter 1</a>.
+<b>Simpson's paradox, with the 1986 kidney-stone data.</b> Treatment A wins on both stone sizes taken separately. Drag the slider from an even case mix toward the study's own mix, and watch the combined bars cross over as Treatment B pulls ahead. <a href="https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-01-descriptive-statistics.html">Fully interactive in Chapter 1</a>.
 </td>
 <td width="33%">
 <a href="https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html">
 <img src="assets/readme-previews/chapter-04-bayesian-ridge.png" alt="Bayesian posterior narrowing as the prior variance shrinks, tracing Ridge regression's shrinkage path">
 </a>
 <br>
-<b>Ridge regression, derived from a Gaussian prior.</b> Shrink the prior variance with the slider and watch the posterior over a regression coefficient narrow and slide toward zero, tracing the same shrinkage path Ridge regression's penalty term draws algebraically. <a href="https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html">Fully interactive in Chapter 4</a>.
+<b>Ridge regression, derived from a Gaussian prior.</b> Shrink the prior variance with the slider and watch the fitted line pull away from the dashed OLS reference on the left, while the posterior over the coefficient narrows and slides toward zero on the right, tracing the same shrinkage path Ridge regression's penalty term draws algebraically. <a href="https://rudrendupaul.github.io/python-statistics-for-data-science-ml-ai-engineers/chapters/chapter-04-regression-modeling.html">Fully interactive in Chapter 4</a>.
 </td>
 </tr>
 </table>

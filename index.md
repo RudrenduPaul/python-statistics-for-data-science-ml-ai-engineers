@@ -51,8 +51,9 @@ points.
 ```
 
 Charig et al.'s 1986 kidney-stone data: Treatment A wins on both stone sizes taken
-separately. Drag the slider to pool the two groups together, and Treatment B wins instead.
-Chapter 1 uses this reversal to introduce Simpson's paradox.
+separately. Drag the slider from an even case mix toward the study's own mix, and watch
+the combined bars cross over as Treatment B pulls ahead. Chapter 1 uses this reversal to
+introduce Simpson's paradox.
 :::
 
 ::: {#fig-index-bayesian-ridge}
@@ -61,8 +62,9 @@ Chapter 1 uses this reversal to introduce Simpson's paradox.
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-Shrink the prior variance with the slider and watch the posterior over a regression
-coefficient narrow and slide toward zero. Chapter 4 shows this is the same shrinkage Ridge
+Shrink the prior variance with the slider and watch the fitted line pull away from the
+dashed OLS reference on the left, while the posterior over the coefficient narrows and
+slides toward zero on the right. Chapter 4 shows this is the same shrinkage Ridge
 regression's penalty term produces, derived instead from a Gaussian prior.
 :::
 
