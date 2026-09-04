@@ -137,7 +137,8 @@ def fig_bo_search_trajectory() -> go.Figure:
             "currentvalue": {"prefix": "Trials evaluated: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300},
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
                                       "transition": {"duration": 0}}]}
                 for f in frames
             ],
@@ -219,7 +220,9 @@ def fig_expected_improvement() -> go.Figure:
             "currentvalue": {"prefix": "Trials so far: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -295,7 +298,9 @@ def fig_ngboost_predictive_width() -> go.Figure:
             "currentvalue": {"prefix": "Predictive interval width (std. multiples): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],

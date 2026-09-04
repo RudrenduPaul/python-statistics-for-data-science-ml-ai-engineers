@@ -83,7 +83,9 @@ def fig_prior_shapes() -> go.Figure:
                 # to give the last tick's centered text room to breathe. Frame names
                 # stay unchanged below since the animate() call targets them by name.
                 {"label": short, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f, short in zip(frames, ["(1,1)", "(11,91)", "(50,450)",
                                               "(200,1800)", "(1000,9000)"])
             ],
@@ -133,7 +135,9 @@ def fig_posterior_update() -> go.Figure:
             "currentvalue": {"prefix": "visitors observed: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -186,7 +190,9 @@ def fig_ab_overlay() -> go.Figure:
             "currentvalue": {"prefix": "visitors per variant: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -248,7 +254,9 @@ def fig_decision_metrics() -> go.Figure:
             "currentvalue": {"prefix": "visitors per variant: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -313,7 +321,9 @@ def fig_normal_normal_update() -> go.Figure:
             "currentvalue": {"prefix": "converting visitors observed: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
@@ -373,7 +383,9 @@ def fig_peeking_problem() -> go.Figure:
             "currentvalue": {"prefix": "number of times the test is checked: "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],
