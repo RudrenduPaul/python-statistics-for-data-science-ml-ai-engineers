@@ -496,7 +496,15 @@ def fig_birthday_collision() -> go.Figure:
     frames = []
     for bits in id_bits_options:
         space = 2 ** bits
-        n = np.unique(np.round(np.geomspace(2, min(space, 2 ** 26), 200)).astype(np.int64))
+        # Sample x out to where collision probability is ~99.99% (not a fixed 2**26 cap).
+        # A fixed cap looked fine through 48 bits, where the birthday threshold
+        # (~sqrt(2*space*ln2)) still falls under 2**26 IDs generated, but at 64 bits the
+        # threshold is ~5 billion IDs -- so the fixed cap sampled only the flat, near-zero
+        # start of the curve and the line never visibly moved when the slider reached 64.
+        # This is closed-form (no simulation loop), so raising the cap per bit length costs
+        # nothing.
+        n_max = max(int(np.ceil(np.sqrt(2 * space * np.log(1e4)))), 4)
+        n = np.unique(np.round(np.geomspace(2, min(space, n_max), 200)).astype(np.int64))
         # Standard birthday-problem approximation: P(collision) ~ 1 - exp(-n^2 / (2 * space))
         p_collision = 1 - np.exp(-(n.astype(np.float64) ** 2) / (2 * space))
         frames.append(
