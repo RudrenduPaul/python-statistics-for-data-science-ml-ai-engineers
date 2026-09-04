@@ -281,7 +281,13 @@ def fig_bayesian_logistic() -> go.Figure:
     p_timeout = 1 / (1 + np.exp(-logit_p))
     timeout = RNG.binomial(1, p_timeout)
 
-    prior_sds = [10.0, 3.0, 1.0]
+    # Prior sd values span 5.0 down to 0.03: with n=300 observations the likelihood is
+    # informative enough that a "weakly informative" range like [10, 3, 1] barely moves the
+    # posterior at all (mode stayed at 0.307 to three decimals end to end, confirmed numerically),
+    # which made the slider look frozen. Tight prior territory (sd=0.1, sd=0.03) is what it takes
+    # to pull the mode toward zero and visibly narrow/heighten the posterior, so the slider shows
+    # meaningful shrinkage instead of a no-op.
+    prior_sds = [5.0, 1.0, 0.3, 0.1, 0.03]
     beta_grid = np.linspace(-0.2, 0.9, 600)
     frames = []
     for prior_sd in prior_sds:
@@ -314,6 +320,9 @@ def fig_bayesian_logistic() -> go.Figure:
         title="Grid-evaluated posterior for the timeout-probability logistic coefficient",
         xaxis_title="Coefficient value (log-odds per KB, centered payload)",
         yaxis_title="Posterior density",
+        # Fixed range (rather than autorange) so the y-axis doesn't jump between frames; sized
+        # to fit the tallest, most tightly-shrunk posterior (sd=0.03, peak density ~20.5).
+        yaxis_range=[0, 23],
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "Prior std. dev.: "},
@@ -409,6 +418,12 @@ def fig_rhat_diagnostic() -> go.Figure:
         title="Four MCMC chains for one parameter: what the R-hat check is looking for",
         xaxis_title="MCMC iteration",
         yaxis_title="Sampled parameter value",
+        # Fixed range covering both frames: without it, the axis autoscales from the
+        # well-mixed frame's data (~0.09-0.52) and never rescales on animate(), so the
+        # poorly-mixed frame's stuck fourth chain (which drifts up to ~0.84) renders with
+        # negative pixel y-coordinates, off the top of the visible plot area entirely -- the
+        # one chain the R-hat check exists to catch would be invisible to the reader.
+        yaxis_range=[0.05, 0.9],
         showlegend=False,
         sliders=[{
             "active": 0,
