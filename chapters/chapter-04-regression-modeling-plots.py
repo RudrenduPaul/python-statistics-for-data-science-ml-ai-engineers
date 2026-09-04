@@ -10,6 +10,7 @@ import os
 
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from scipy import stats
 
 RNG = np.random.default_rng(23)
@@ -330,6 +331,22 @@ def fig_regularization_paths() -> go.Figure:
 # prior variance shrinks (equivalently, as the Ridge penalty strengthens)
 # ---------------------------------------------------------------------------
 def fig_bayesian_ridge() -> go.Figure:
+    # Two panels driven by the same slider: the left panel grounds the abstract
+    # posterior in something concrete (the fitted line visibly flattening toward
+    # the dashed, never-changing OLS reference as the prior tightens), the right
+    # panel keeps the posterior-density view for the uncertainty story the left
+    # panel alone can't tell.
+    #
+    # Slider steps use method="restyle", not the frames/animate() pattern used
+    # elsewhere in this book. animate() was tried first and confirmed broken
+    # here: inspecting the live page's Plotly data model after moving the
+    # slider showed trace 2 (the left-panel fit line) HAD received the correct
+    # new y-values internally (decoded its typed-array binary buffer to
+    # confirm), but the on-screen SVG never redrew, even with
+    # frame.redraw=True. Traces 3-4 on the second subplot's axes (xaxis2/
+    # yaxis2) animated correctly the whole time; only the trace sharing the
+    # figure's default xaxis/yaxis with a two-column make_subplots layout was
+    # affected. restyle() does not break this way.
     x, y = payload_latency_sample(150, 30, seed_offset=9)
     x_c = x - x.mean()
     y_c = y - y.mean()
@@ -339,57 +356,88 @@ def fig_bayesian_ridge() -> go.Figure:
     S = np.sum(x_c ** 2)
     b = np.sum(x_c * y_c)
 
+    x_line = np.linspace(x.min(), x.max(), 50)
+    ols_y_line = intercept + slope * x_line
+
     prior_variances = [1e6, 50, 10, 3, 1, 0.3]
     beta_grid = np.linspace(-2, 16, 400)
-    frames = []
-    for tau2 in prior_variances:
+
+    def stats_at(tau2):
         precision = S / sigma2 + 1 / tau2
         post_mean = (b / sigma2) / precision
         post_sd = np.sqrt(1 / precision)
         implied_lambda = sigma2 / tau2
-        density = stats.norm.pdf(beta_grid, loc=post_mean, scale=post_sd)
-        frames.append(
-            go.Frame(
-                name=f"{tau2:g}",
-                data=[
-                    go.Scatter(x=beta_grid, y=density, mode="lines",
-                               line=dict(color="#4C78A8", width=3), fill="tozeroy",
-                               fillcolor="rgba(76,120,168,0.2)", name="posterior"),
-                ],
-                layout=go.Layout(annotations=[dict(
-                    x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False,
-                    align="left",
-                    text=(f"posterior mean = {post_mean:.2f}<br>"
-                          f"posterior sd = {post_sd:.2f}<br>"
-                          f"implied Ridge λ = {implied_lambda:.2f}"),
-                    font=dict(size=13, color="#333"),
-                )]),
-            )
-        )
+        return post_mean, post_sd, implied_lambda
 
-    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    post_mean0, post_sd0, lambda0 = stats_at(prior_variances[0])
+    density0 = stats.norm.pdf(beta_grid, loc=post_mean0, scale=post_sd0)
+    fit_y_line0 = y.mean() + post_mean0 * (x_line - x.mean())
+    stat_text0 = (f"posterior mean = {post_mean0:.2f}<br>posterior sd = {post_sd0:.2f}"
+                  f"<br>implied Ridge λ = {lambda0:.2f}")
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Fitted line on the data", "Posterior over the slope"),
+        horizontal_spacing=0.1,
+    )
+    fig.add_trace(go.Scatter(x=x, y=y, mode="markers",
+                              marker=dict(color="#999", size=5, opacity=0.5),
+                              name="data", showlegend=False), row=1, col=1)
+    fig.add_trace(go.Scatter(x=x_line, y=ols_y_line, mode="lines",
+                              line=dict(color="#999", width=2, dash="dash"),
+                              name="OLS fit (no prior)"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=x_line, y=fit_y_line0, mode="lines",
+                              line=dict(color="#4C78A8", width=3),
+                              name="posterior-mean fit"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=beta_grid, y=density0, mode="lines",
+                              line=dict(color="#4C78A8", width=3), fill="tozeroy",
+                              fillcolor="rgba(76,120,168,0.2)", name="posterior",
+                              showlegend=False), row=1, col=2)
+    fig.add_trace(go.Scatter(x=[10.5], y=[0.85], mode="text", text=[stat_text0],
+                              textposition="middle right", textfont=dict(size=12, color="#333"),
+                              showlegend=False, hoverinfo="skip"), row=1, col=2)
+
+    steps = []
+    for tau2 in prior_variances:
+        post_mean, post_sd, implied_lambda = stats_at(tau2)
+        density = stats.norm.pdf(beta_grid, loc=post_mean, scale=post_sd)
+        fit_y_line = y.mean() + post_mean * (x_line - x.mean())
+        stat_text = (f"posterior mean = {post_mean:.2f}<br>posterior sd = {post_sd:.2f}"
+                     f"<br>implied Ridge λ = {implied_lambda:.2f}")
+
+        steps.append({
+            "label": f"{tau2:g}",
+            "method": "restyle",
+            "args": [
+                {
+                    "x": [x_line.tolist(), beta_grid.tolist(), [10.5]],
+                    "y": [fit_y_line.tolist(), density.tolist(), [0.85]],
+                    "text": [None, None, [stat_text]],
+                },
+                [2, 3, 4],
+            ],
+        })
+
     fig.update_layout(
-        title="A tighter Gaussian prior on the slope is Ridge regression: the posterior "
-              "narrows and shrinks toward zero",
-        xaxis_title="coefficient on payload size (beta)",
-        yaxis_title="posterior density",
-        xaxis_range=[-2, 16],
+        title="A tighter Gaussian prior on the slope is Ridge regression: the fitted "
+              "line flattens and the posterior narrows toward zero",
+        legend=dict(orientation="h", y=-0.15, x=0.0),
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "prior variance on beta (tau-squared): "},
             # y and pad.t push the slider well clear of the x-axis title below it,
             # which otherwise renders in the same vertical band and overlaps the
             # slider's "currentvalue" caption text.
-            "y": -0.32,
+            "y": -0.35,
             "pad": {"t": 40},
-            "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
-            ],
+            "steps": steps,
         }],
-        margin=dict(t=60, l=60, r=30, b=120),
+        margin=dict(t=90, l=60, r=30, b=150),
     )
+    fig.update_xaxes(title_text="payload size (KB)", row=1, col=1)
+    fig.update_yaxes(title_text="latency (ms)", row=1, col=1)
+    fig.update_xaxes(title_text="coefficient on payload size (beta)", range=[-2, 16], row=1, col=2)
+    fig.update_yaxes(title_text="posterior density", range=[0, 1.0], row=1, col=2)
     return fig
 
 

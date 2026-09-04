@@ -265,77 +265,74 @@ def fig_simpsons_paradox_kidney_stones() -> go.Figure:
     # of renal calculi by open surgery, percutaneous nephrolithotomy, and
     # extracorporeal shockwave lithotripsy." BMJ 1986;292:879-882.
     #
-    # x-axis positions and tick labels are set once at the layout level (below) and
-    # never re-derived from trace category strings, since Plotly does not reliably
-    # redraw categorical tick text when a frame changes the number of bars. A single
-    # trace covers every frame, and every per-frame array (x, y, colors, text,
-    # annotations) is kept at the SAME LENGTH (4 bars, 4 annotation slots) across
-    # both frames: Plotly's animate() does not reliably apply a restyle when a
-    # frame's array length differs from the currently rendered trace's, so the
-    # "combined" frame renders as two equal-height bars per treatment (touching,
-    # so they read as one solid block) rather than collapsing to a shorter,
-    # differently sized 2-bar array. This also sidesteps a separate bug where a
-    # two-trace-per-frame version loaded the wrong initial data on first render.
-    small = dict(rate_a=81 / 87 * 100, rate_b=234 / 270 * 100)
-    large = dict(rate_a=192 / 263 * 100, rate_b=55 / 80 * 100)
-    combined = dict(rate_a=273 / 350 * 100, rate_b=289 / 350 * 100)
+    # The reversal is not "pooling flips the number": at ANY shared small/large
+    # mix, Treatment A's rate beats Treatment B's (93% vs 87% all-small, 73% vs
+    # 69% all-large). The paradox comes entirely from the two treatments having
+    # DIFFERENT case mixes: Treatment A was used on mostly large (harder) stones
+    # (263 of 350 cases), Treatment B on mostly small (easier) ones (270 of 350).
+    # The slider interpolates each treatment's own case-mix weight from a
+    # hypothetical neutral 50/50 split (both combined bars above both split
+    # bars, A leads) to the Charig et al. mix (bars cross, B leads) so the
+    # crossover itself, not a jump cut, is what the reader watches happen. The
+    # small/large split bars never move; only the two "combined" bars animate.
+    rate_a_small, rate_a_large = 81 / 87 * 100, 192 / 263 * 100
+    rate_b_small, rate_b_large = 234 / 270 * 100, 55 / 80 * 100
+    n_a_small, n_a_large = 87, 263
+    n_b_small, n_b_large = 270, 80
+    target_weight_a_large = n_a_large / (n_a_small + n_a_large)
+    target_weight_b_large = n_b_large / (n_b_small + n_b_large)
 
-    grouped_x = [-0.2, 0.2, 0.8, 1.2]
-    grouped_y = [small["rate_a"], large["rate_a"], small["rate_b"], large["rate_b"]]
-    grouped_colors = ["#4C78A8", "#A6C6E3", "#F58518", "#FDBF7A"]
-    grouped_text = [f"{v:.0f}%" for v in grouped_y]
+    bar_x = [-0.3, 0.0, 0.3, 0.7, 1.0, 1.3]
+    bar_colors = ["#A6C6E3", "#4C78A8", "#2C5581", "#FDBF7A", "#F58518", "#C4650B"]
 
-    # Same 4 x-positions as the grouped view; each treatment's pair of bars is set
-    # to the identical combined value and widened to touch, so it reads as one bar.
-    combined_y = [combined["rate_a"], combined["rate_a"],
-                  combined["rate_b"], combined["rate_b"]]
-    combined_colors = ["#4C78A8", "#4C78A8", "#F58518", "#F58518"]
-    combined_text = [f"{combined['rate_a']:.0f}%", "",
-                      f"{combined['rate_b']:.0f}%", ""]
-
-    grouped_annotations = [
-        dict(x=-0.2, y=small["rate_a"] + 8, text="Small", showarrow=False,
-             font=dict(size=10, color="#555")),
-        dict(x=0.2, y=large["rate_a"] + 8, text="Large", showarrow=False,
-             font=dict(size=10, color="#555")),
-        dict(x=0.8, y=small["rate_b"] + 8, text="Small", showarrow=False,
-             font=dict(size=10, color="#555")),
-        dict(x=1.2, y=large["rate_b"] + 8, text="Large", showarrow=False,
-             font=dict(size=10, color="#555")),
+    fixed_annotations = [
+        dict(x=-0.3, y=rate_a_small + 8, text="Small", showarrow=False, font=dict(size=10, color="#555")),
+        dict(x=0.3, y=rate_a_large + 8, text="Large", showarrow=False, font=dict(size=10, color="#555")),
+        dict(x=0.7, y=rate_b_small + 8, text="Small", showarrow=False, font=dict(size=10, color="#555")),
+        dict(x=1.3, y=rate_b_large + 8, text="Large", showarrow=False, font=dict(size=10, color="#555")),
     ]
-    # Same 4 slots, emptied rather than removed, so the annotations array length
-    # matches grouped_annotations and the frame update applies reliably.
-    combined_annotations = [dict(a, text="") for a in grouped_annotations]
 
-    frames = [
-        go.Frame(name="By stone size", data=[go.Bar(
-            x=grouped_x, y=grouped_y, marker_color=grouped_colors, width=0.35,
-            text=grouped_text, textposition="outside")],
-            layout=go.Layout(annotations=grouped_annotations)),
-        go.Frame(name="Combined", data=[go.Bar(
-            x=grouped_x, y=combined_y, marker_color=combined_colors, width=0.4,
-            text=combined_text, textposition="outside")],
-            layout=go.Layout(annotations=combined_annotations)),
-    ]
+    realism_steps = np.linspace(0.0, 1.0, 21)
+    frames = []
+    for realism in realism_steps:
+        weight_a_large = 0.5 + realism * (target_weight_a_large - 0.5)
+        weight_b_large = 0.5 + realism * (target_weight_b_large - 0.5)
+        combined_a = weight_a_large * rate_a_large + (1 - weight_a_large) * rate_a_small
+        combined_b = weight_b_large * rate_b_large + (1 - weight_b_large) * rate_b_small
+
+        y = [rate_a_small, combined_a, rate_a_large, rate_b_small, combined_b, rate_b_large]
+        text = [f"{rate_a_small:.0f}%", f"{combined_a:.0f}%", f"{rate_a_large:.0f}%",
+                f"{rate_b_small:.0f}%", f"{combined_b:.0f}%", f"{rate_b_large:.0f}%"]
+        combined_annotations = [
+            dict(x=0.0, y=combined_a + 8, text="Combined", showarrow=False,
+                 font=dict(size=10, color="#2C5581", weight="bold")),
+            dict(x=1.0, y=combined_b + 8, text="Combined", showarrow=False,
+                 font=dict(size=10, color="#C4650B", weight="bold")),
+        ]
+        frames.append(go.Frame(
+            name=f"{realism:.2f}",
+            data=[go.Bar(x=bar_x, y=y, marker_color=bar_colors, width=0.28, text=text, textposition="outside")],
+            layout=go.Layout(annotations=fixed_annotations + combined_annotations),
+        ))
 
     fig = go.Figure(data=frames[0].data, frames=frames)
     fig.update_layout(
-        title="Kidney stone treatment success rate: split by stone size vs. combined"
+        title="Kidney stone treatment success rate: why pooling reverses the winner"
               "<br><sup>Data: Charig et al. 1986, BMJ 292:879-882</sup>",
         yaxis_title="Success rate (%)",
         yaxis_range=[0, 112],
-        xaxis=dict(tickvals=[0, 1], ticktext=["Treatment A", "Treatment B"], range=[-0.6, 1.6]),
-        annotations=grouped_annotations,
+        xaxis=dict(tickvals=[0, 1], ticktext=["Treatment A", "Treatment B"], range=[-0.65, 1.65]),
+        annotations=frames[0].layout.annotations,
         sliders=[{
             "active": 0,
-            "currentvalue": {"prefix": "View: "},
+            "currentvalue": {"prefix": "Case-mix skew: ", "suffix": " (0 = equal small/large mix for both treatments, 1 = the Charig et al. mix)"},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 400, "redraw": True}, "transition": {"duration": 0}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 200, "redraw": True}, "transition": {"duration": 150}}]}
                 for f in frames
             ],
         }],
-        margin=dict(t=90, l=60, r=30, b=50),
+        margin=dict(t=90, l=60, r=30, b=70),
     )
     return fig
 
