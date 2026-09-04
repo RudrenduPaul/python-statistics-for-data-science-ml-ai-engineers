@@ -86,11 +86,18 @@ def target_function(x: np.ndarray) -> np.ndarray:
 # Figure 1: many weak trees summing to the ensemble fit as tree count grows
 # ---------------------------------------------------------------------------
 def fig_ensemble_buildup() -> go.Figure:
+    # Slider steps use method="restyle", not the frames/animate() pattern used
+    # elsewhere in this book. animate() was tried first and confirmed broken here
+    # by decoding the live page's Plotly typed-array binary buffer: the slider's
+    # "currentvalue" label and the active step both advanced correctly, but
+    # trace 2's (the approximation line) underlying y-data never changed and the
+    # on-screen SVG stayed frozen on the m=1 step no matter which step was
+    # clicked. restyle() does not break this way.
     x = np.linspace(0, 6, 200)
     y_true = target_function(x)
 
     tree_counts = [1, 5, 20, 50, 200]
-    frames = []
+    approx_list = []
     for m in tree_counts:
         # Each of m trees contributes a small step function; more trees means finer,
         # more accurate steps, matching BART's "many weak learners" behavior.
@@ -101,7 +108,7 @@ def fig_ensemble_buildup() -> go.Figure:
         # grid point, x=6.0, into the final bin. A half-open (x >= lo) & (x < hi) test
         # per bin instead would exclude x=6.0 from every bin (6.0 is never < the last
         # edge, which is also 6.0), leaving approx's last entry at its zero-initialized
-        # default and drawing a false vertical drop to 0 at the right edge of every frame.
+        # default and drawing a false vertical drop to 0 at the right edge of every step.
         bin_idx = np.digitize(x, edges[1:-1], right=False)
         for b in range(n_steps):
             mask = bin_idx == b
@@ -109,20 +116,26 @@ def fig_ensemble_buildup() -> go.Figure:
                 approx[mask] = y_true[mask].mean()
         noise_scale = 0.06 / np.sqrt(m)
         approx_noisy = approx + RNG.normal(0, noise_scale, size=approx.shape)
-        frames.append(
-            go.Frame(
-                name=str(m),
-                data=[
-                    go.Scatter(x=x, y=y_true, mode="lines", name="true risk curve",
-                               line=dict(color="#999", dash="dot", width=2)),
-                    go.Scatter(x=x, y=approx_noisy, mode="lines",
-                               name=f"sum of {m} weak trees",
-                               line=dict(color="#4C78A8", width=3)),
-                ],
-            )
-        )
+        approx_list.append(approx_noisy)
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x, y=y_true, mode="lines", name="true risk curve",
+                              line=dict(color="#999", dash="dot", width=2)))
+    fig.add_trace(go.Scatter(x=x, y=approx_list[0], mode="lines",
+                              name=f"sum of {tree_counts[0]} weak trees",
+                              line=dict(color="#4C78A8", width=3)))
+
+    steps = []
+    for m, approx_noisy in zip(tree_counts, approx_list):
+        steps.append({
+            "label": str(m),
+            "method": "restyle",
+            "args": [
+                {"y": [approx_noisy.tolist()], "name": [f"sum of {m} weak trees"]},
+                [1],
+            ],
+        })
+
     fig.update_layout(
         title="A sum of weak trees approximates the rollback-risk curve as tree count grows",
         xaxis_title="Canary error rate (%)",
@@ -131,11 +144,7 @@ def fig_ensemble_buildup() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "Number of trees in the sum: "},
-            "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
-            ],
+            "steps": steps,
         }],
         margin=dict(t=60, l=60, r=30, b=50),
     )
@@ -240,22 +249,30 @@ def fig_mcmc_trace() -> go.Figure:
     chain1 = ar1_chain(start=0.10, target=0.4, phi=0.93, noise_sd=0.025, seed=3)
     chain2 = ar1_chain(start=0.72, target=0.4, phi=0.93, noise_sd=0.025, seed=4)
 
+    # Slider steps use method="restyle" rather than frames/animate() (see the
+    # note in fig_ensemble_buildup above): animate() left the slider's label and
+    # active step correctly synced while both chain traces stayed frozen on the
+    # burn=0 step in the rendered page, confirmed by decoding the live trace
+    # data. restyle() redraws correctly on every step.
     burn_in_options = [0, 100, 300]
-    frames = []
-    for burn in burn_in_options:
-        frames.append(
-            go.Frame(
-                name=str(burn),
-                data=[
-                    go.Scatter(x=np.arange(burn, n_iter), y=chain1[burn:], mode="lines",
-                               name="chain 1", line=dict(color="#4C78A8", width=1)),
-                    go.Scatter(x=np.arange(burn, n_iter), y=chain2[burn:], mode="lines",
-                               name="chain 2", line=dict(color="#F58518", width=1)),
-                ],
-            )
-        )
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=np.arange(burn_in_options[0], n_iter), y=chain1[burn_in_options[0]:],
+                              mode="lines", name="chain 1", line=dict(color="#4C78A8", width=1)))
+    fig.add_trace(go.Scatter(x=np.arange(burn_in_options[0], n_iter), y=chain2[burn_in_options[0]:],
+                              mode="lines", name="chain 2", line=dict(color="#F58518", width=1)))
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    steps = []
+    for burn in burn_in_options:
+        x_vals = np.arange(burn, n_iter).tolist()
+        steps.append({
+            "label": str(burn),
+            "method": "restyle",
+            "args": [
+                {"x": [x_vals, x_vals], "y": [chain1[burn:].tolist(), chain2[burn:].tolist()]},
+                [0, 1],
+            ],
+        })
+
     fig.update_layout(
         title="Two MCMC chains for one leaf-value parameter, before and after discarding burn-in",
         xaxis_title="MCMC iteration",
@@ -263,11 +280,7 @@ def fig_mcmc_trace() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "Burn-in samples discarded: "},
-            "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
-            ],
+            "steps": steps,
         }],
         margin=dict(t=60, l=60, r=30, b=50),
     )
@@ -278,22 +291,35 @@ def fig_mcmc_trace() -> go.Figure:
 # Figure 5: tree-structure prior, split probability decaying with depth
 # ---------------------------------------------------------------------------
 def fig_tree_structure_prior() -> go.Figure:
+    # Slider steps use method="restyle" rather than frames/animate() (see the
+    # note in fig_ensemble_buildup above): animate() left the slider's label and
+    # active step correctly synced while the bar heights and text labels stayed
+    # frozen on the beta=1.0 step in the rendered page, confirmed by decoding the
+    # live trace data. restyle() redraws correctly on every step.
     depths = np.arange(0, 7)
     alpha = 0.95
     beta_values = [1.0, 1.5, 2.0, 3.0, 5.0]
-    frames = []
-    for beta in beta_values:
-        split_prob = alpha * (1 + depths) ** (-beta)
-        frames.append(
-            go.Frame(
-                name=f"{beta:.1f}",
-                data=[go.Bar(x=depths, y=split_prob, marker_color="#4C78A8",
-                              text=[f"{p:.2f}" for p in split_prob], textposition="outside")],
-            )
-        )
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    def split_prob_at(beta):
+        return alpha * (1 + depths) ** (-beta)
+
+    split_prob0 = split_prob_at(beta_values[0])
+    fig = go.Figure(go.Bar(x=depths, y=split_prob0, marker_color="#4C78A8",
+                            text=[f"{p:.2f}" for p in split_prob0], textposition="outside"))
     fig.add_hline(y=0.5, line_dash="dot", line_color="#999")
+
+    steps = []
+    for beta in beta_values:
+        split_prob = split_prob_at(beta)
+        steps.append({
+            "label": f"{beta:.1f}",
+            "method": "restyle",
+            "args": [
+                {"y": [split_prob.tolist()], "text": [[f"{p:.2f}" for p in split_prob]]},
+                [0],
+            ],
+        })
+
     fig.update_layout(
         title="Probability a node splits again, by depth (the tree-structure prior)",
         xaxis_title="Node depth",
@@ -302,11 +328,7 @@ def fig_tree_structure_prior() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "beta (depth penalty): "},
-            "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
-            ],
+            "steps": steps,
         }],
         margin=dict(t=60, l=60, r=30, b=50),
     )
@@ -325,27 +347,40 @@ def fig_leaf_value_prior() -> go.Figure:
     parameter plays). That shrinkage is what keeps the SUM of all m trees' leaf
     contributions on the same rough scale regardless of m, the property the surrounding
     prose describes without a supporting picture."""
+    # Slider steps use method="restyle" rather than frames/animate() (see the
+    # note in fig_ensemble_buildup above): animate() left the slider's label and
+    # active step correctly synced while the density curve stayed frozen on the
+    # m=10 step in the rendered page, confirmed by decoding the live trace data.
+    # restyle() redraws correctly on every step.
     leaf_grid = np.linspace(-1.2, 1.2, 400)
     tree_counts = [10, 50, 100, 200]
     k = 2.0
-    frames = []
-    for m in tree_counts:
+
+    def density_at(m):
         sigma_leaf = 1.0 / (k * np.sqrt(m))
-        density = (1.0 / (sigma_leaf * np.sqrt(2 * np.pi))) * np.exp(
+        return (1.0 / (sigma_leaf * np.sqrt(2 * np.pi))) * np.exp(
             -0.5 * (leaf_grid / sigma_leaf) ** 2
         )
-        frames.append(
-            go.Frame(
-                name=str(m),
-                data=[go.Scatter(
-                    x=leaf_grid, y=density, mode="lines", name=f"m={m}",
-                    line=dict(color="#4C78A8", width=2.5),
-                    fill="tozeroy", fillcolor="rgba(76,120,168,0.20)",
-                )],
-            )
-        )
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    density0 = density_at(tree_counts[0])
+    fig = go.Figure(go.Scatter(
+        x=leaf_grid, y=density0, mode="lines", name=f"m={tree_counts[0]}",
+        line=dict(color="#4C78A8", width=2.5),
+        fill="tozeroy", fillcolor="rgba(76,120,168,0.20)",
+    ))
+
+    steps = []
+    for m in tree_counts:
+        density = density_at(m)
+        steps.append({
+            "label": str(m),
+            "method": "restyle",
+            "args": [
+                {"y": [density.tolist()], "name": [f"m={m}"]},
+                [0],
+            ],
+        })
+
     fig.update_layout(
         title="Leaf-value prior narrows as more trees share the work",
         xaxis_title="Leaf value",
@@ -354,11 +389,7 @@ def fig_leaf_value_prior() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "Trees in the sum (m): "},
-            "steps": [
-                {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
-                for f in frames
-            ],
+            "steps": steps,
         }],
         margin=dict(t=60, l=60, r=30, b=50),
     )
