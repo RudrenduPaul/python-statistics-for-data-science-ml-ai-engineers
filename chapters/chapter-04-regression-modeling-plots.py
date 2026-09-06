@@ -916,6 +916,12 @@ def fig_aic_bic() -> go.Figure:
             bic_vals.append(-2 * log_lik + k * np.log(n))
 
         labels = [name for name, _ in model_specs]
+        # AIC and BIC both grow with n (they scale with the log-likelihood over n
+        # observations), so the y-axis range must be recomputed per frame from that
+        # frame's own bar values. Without this, the axis stays locked to the n=30
+        # scale and every bar from n=60 onward clips flat at that stale ceiling.
+        frame_max = max(aic_vals + bic_vals)
+        y_max = frame_max * 1.05 if frame_max > 0 else 1.0
         frames.append(
             go.Frame(
                 name=str(n),
@@ -923,6 +929,7 @@ def fig_aic_bic() -> go.Figure:
                     go.Bar(x=labels, y=aic_vals, name="AIC", marker_color="#4C78A8"),
                     go.Bar(x=labels, y=bic_vals, name="BIC", marker_color="#E45756"),
                 ],
+                layout=go.Layout(yaxis=dict(range=[0, y_max], autorange=False)),
             )
         )
 
@@ -936,7 +943,7 @@ def fig_aic_bic() -> go.Figure:
             "currentvalue": {"prefix": "sample size (n): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],

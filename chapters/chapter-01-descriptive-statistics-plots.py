@@ -344,8 +344,24 @@ def fig_mean_imputation() -> go.Figure:
     full = simulated_latency_ms(n=2000, contamination=0.03)
     missing_shares = [0.0, 0.1, 0.25, 0.4, 0.6]
     frames = []
+    # Draw the per-point "is this value missing" threshold once, not once per share.
+    # With a fresh RNG.random() call inside the loop, each share picked an
+    # independent random subset of points, so a higher share was not guaranteed to
+    # carry forward the same missing points as a lower share, and this dataset's
+    # variance is dominated by a small pool of contaminated slow-request points
+    # (~3% of 2000 rows). That let noise in which specific outliers a given
+    # share's draw happened to catch swamp the underlying missing-share effect,
+    # so 10%, 25%, and 40% missing came within a fraction of a millisecond of
+    # each other in standard deviation, rounding to the same displayed value.
+    # Drawing the thresholds once and reusing them for every share instead makes
+    # each larger share's missing set a superset of every smaller share's, so the
+    # standard deviation after imputation shrinks monotonically as share rises.
+    # This draw uses its own local generator (fixed seed, independent of the
+    # shared module-level RNG) so this fix does not shift the shared RNG's
+    # position and change any other figure defined later in this file.
+    draws = np.random.default_rng(2024).random(full.shape[0])
     for share in missing_shares:
-        mask = RNG.random(full.shape[0]) < share
+        mask = draws < share
         observed = full[~mask]
         imputed = full.copy()
         imputed[mask] = observed.mean() if observed.size else full.mean()

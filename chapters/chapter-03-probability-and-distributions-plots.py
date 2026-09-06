@@ -686,14 +686,20 @@ def fig_clt_simulation() -> go.Figure:
         parent = RNG.exponential(scale=1.0, size=(n_draws, n))
         sample_means = parent.mean(axis=1)
         hist = np.histogram(sample_means, bins=60, range=(0, 4))
+        # As n grows, the sample-mean distribution concentrates and the tallest bin
+        # count rises well past what n=1 needed, so the y-axis range must be
+        # recomputed per frame from that frame's own histogram. Without this, the
+        # axis stays locked to the n=1 scale and later frames clip flat at the top.
+        y_max = float(hist[0].max()) * 1.1 if hist[0].max() > 0 else 1.0
         frames.append(
             go.Frame(
                 name=str(n),
                 data=[go.Bar(x=hist[1][:-1], y=hist[0], marker_color="#B279A2")],
+                layout=go.Layout(yaxis=dict(range=[0, y_max], autorange=False)),
             )
         )
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
     fig.update_layout(
         title="Sample means of a skewed (exponential) parent distribution turn normal-shaped "
               "as sample size grows",
@@ -705,7 +711,7 @@ def fig_clt_simulation() -> go.Figure:
             "currentvalue": {"prefix": "observations per sample (n): "},
             "steps": [
                 {"label": f.name, "method": "animate",
-                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
                 for f in frames
             ],
         }],

@@ -314,6 +314,11 @@ def fig_permutation_null() -> go.Figure:
         subset = diffs[:m]
         perm_p = np.mean(np.abs(subset) >= np.abs(obs_diff))
         hist = np.histogram(subset, bins=40)
+        # Each frame's histogram counts grow with the shuffle count, so the y-axis
+        # range must be recomputed per frame from that frame's own data. Without this,
+        # the axis stays locked to whatever range the first frame (m=100) needed, and
+        # bars in later frames clip flat against that stale ceiling.
+        y_max = float(hist[0].max()) * 1.1 if hist[0].max() > 0 else 1.0
         frames.append(
             go.Frame(
                 name=str(m),
@@ -322,6 +327,7 @@ def fig_permutation_null() -> go.Figure:
                            name="Permuted mean differences"),
                 ],
                 layout=go.Layout(
+                    yaxis=dict(range=[0, y_max], autorange=False),
                     shapes=[dict(type="line", x0=obs_diff, x1=obs_diff, y0=0, y1=1,
                                  yref="paper", line=dict(color="#E45756", width=2, dash="dash"))],
                     annotations=[dict(

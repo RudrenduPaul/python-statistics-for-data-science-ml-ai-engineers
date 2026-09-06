@@ -53,14 +53,16 @@ More data narrows the posterior and pulls it away from the prior toward the OLS 
 :::
 
 @fig-posterior-narrowing traces the posterior starting from a weakly informative prior,
-$\beta_1 \sim \text{Normal}(0, 5^2)$, centered on zero because the direction of the
-payload-latency relationship is left open before the data speaks, across five sample sizes
-drawn from the same simulated request stream Chapter 4 used.
+$\beta_1 \sim \text{Normal}(0, 3^2)$, centered on zero because the direction of the
+payload-latency relationship is left open before the data speaks, paired with a cautious
+pre-data assumption of 20 milliseconds for the residual noise's standard deviation, across
+five sample sizes drawn from the same simulated request stream Chapter 4 used.
 
-At $n=10$, the posterior is still wide and noticeably left of the true slope, since the prior
-still has meaningful influence. By $n=1000$, the posterior mean lands at 9.50 milliseconds per
-kilobyte with a posterior standard deviation of 0.01, closely matching the true slope this
-simulation was built from.
+At $n=10$, the posterior mean sits at 8.52 milliseconds per kilobyte with a posterior standard
+deviation of 0.99: still wide, and noticeably left of the true slope of 9.5, since the prior
+still has meaningful influence at this sample size. By $n=1000$, the posterior mean lands at
+9.48 milliseconds per kilobyte with a posterior standard deviation of 0.12, closely matching
+the true slope this simulation was built from.
 
 This is because as $S_{xx}$ grows, the $\tau_n^2$ formula above gives the prior's precision,
 $1/\tau_0^2$, less and less weight relative to the data's. Eventually the posterior mean
@@ -373,7 +375,7 @@ or its priors need reworking, not a number to note and move past.
 ```
 
 Forty draws from the timeout model's priors alone, before any request data, at two prior widths
-for the payload-size coefficient. The narrower prior (standard deviation 3) keeps most curves
+for the payload-size coefficient. The narrower prior (standard deviation 0.5) keeps most curves
 gentle; the wider one (standard deviation 10) produces curves that swing from near 0% to near
 100% timeout probability within a couple of kilobytes.
 :::
@@ -389,12 +391,13 @@ prior predictive check compares simulated data to what an analyst would expect t
 nothing but the priors, a routine step in the modern Bayesian workflow literature
 [@gabrysimpsonvehtaribetancourtgelman2019].
 
-The distinction matters because a prior that looks harmless written down as $\text{Normal}(0, 3^2)$ can
-imply something an analyst would reject on sight once it is drawn out as a curve. At standard
-deviation 3, most of the forty curves above stay in a believable range: a gradual rise in timeout
-probability as payload size grows. At standard deviation 10, several curves jump from
-near-certain success to near-certain timeout across a two- or three-kilobyte window, a claim no
-engineer running this checkout API would sign off on before seeing a single request.
+The distinction matters because a prior that looks harmless written down as $\text{Normal}(0, 0.5^2)$
+can imply something an analyst would reject on sight once it is drawn out as a curve. At standard
+deviation 0.5, 38 of the forty curves above stay in a believable range: a gradual rise in timeout
+probability spread over several kilobytes of payload size. At standard deviation 10, 37 of the
+forty curves jump from near-certain success to near-certain timeout across a two- or
+three-kilobyte window, a claim no engineer running this checkout API would sign off on before
+seeing a single request.
 
 The earlier posterior-narrowing figure in this chapter showed that a prior still shapes the
 posterior meaningfully at n = 10. A prior that implies impossible curves does the same kind of
@@ -455,9 +458,9 @@ az.plot_ppc(ppc, kind="cumulative")
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-Observed latency against data simulated from the fitted model's posterior, under two
-different noise assumptions. Only the log-normal assumption reproduces the observed right
-tail.
+Residuals (observed latency minus the fitted line) against data simulated from the fitted
+model's posterior, averaged over 200 replications under two different noise assumptions. Only
+the log-normal assumption reproduces the observed right tail.
 :::
 
 @fig-posterior-predictive-check runs this check on a regression model for latency itself
@@ -467,14 +470,19 @@ The first assumes $\varepsilon$ is normally distributed, the default behind both
 conjugate Gaussian posterior used earlier in this chapter. The second draws $\varepsilon$ from
 a distribution matching the log-normal noise Chapter 1 established for this data.
 
-Under the Gaussian-noise assumption, the simulated draws spread symmetrically around the fitted
-line and undershoot the right tail the observed data has. Recall from Chapter 1 that
+Plotting raw latency would bury the noise term's shape under the much larger spread the
+payload-size predictor contributes on its own, so @fig-posterior-predictive-check subtracts the
+fitted line first and compares residuals, averaged over 200 simulated replications to smooth
+out the noise a single draw would carry. Above 3 milliseconds of residual, the observed data
+has 18 requests.
+The Gaussian-noise model's average is 10, undershooting the tail the observed data has; the
+log-normal-noise model's average is 18.9, matching it closely. Recall from Chapter 1 that
 checkout-API latency is right-skewed by construction, a hard floor near zero and an unbounded
 upside; a symmetric noise model cannot reproduce that shape no matter how its variance is tuned.
 
-Switching the noise assumption to match the log-normal shape closes the gap in the tail. That is
-the kind of mismatch a posterior predictive check exists to catch before a model with a wrong
-noise assumption gets used to set an alerting threshold or a service-level objective.
+Switching the noise assumption to match the log-normal shape closes most of the gap in the tail.
+That is the kind of mismatch a posterior predictive check exists to catch before a model with a
+wrong noise assumption gets used to set an alerting threshold or a service-level objective.
 
 A model can have a perfectly reasonable-looking posterior over its coefficients and still make
 this mistake, because the coefficients and the noise assumption are separate modeling choices.

@@ -44,8 +44,12 @@ def simulated_latency_ms(payload_kb: np.ndarray, n_extra: int = 0) -> np.ndarray
 # ---------------------------------------------------------------------------
 def fig_posterior_narrowing() -> go.Figure:
     sample_sizes = [10, 30, 100, 300, 1000]
-    prior_mean, prior_var = 0.0, 25.0  # weakly-informative N(0, 5^2) prior on the slope
-    noise_var = 2.0**2  # assumed known residual variance for the conjugate update
+    prior_mean, prior_var = 0.0, 9.0  # weakly-informative N(0, 3^2) prior on the slope
+    # A cautious pre-data assumption of 20 ms for the residual noise's standard
+    # deviation: with the payload range this simulation draws from, anything
+    # smaller lets even n=10 points swamp the prior entirely, leaving nothing
+    # for the "still shapes the posterior at small n" claim below to point to.
+    noise_var = 20.0**2
 
     payload_full = RNG.uniform(2, 20, size=max(sample_sizes))
     latency_full = simulated_latency_ms(payload_full)
@@ -282,13 +286,13 @@ def fig_bayesian_logistic() -> go.Figure:
     p_timeout = 1 / (1 + np.exp(-logit_p))
     timeout = RNG.binomial(1, p_timeout)
 
-    # Prior sd values span 5.0 down to 0.03: with n=300 observations the likelihood is
-    # informative enough that a "weakly informative" range like [10, 3, 1] barely moves the
-    # posterior at all (mode stayed at 0.307 to three decimals end to end, confirmed numerically),
-    # which made the slider look frozen. Tight prior territory (sd=0.1, sd=0.03) is what it takes
-    # to pull the mode toward zero and visibly narrow/heighten the posterior, so the slider shows
-    # meaningful shrinkage instead of a no-op.
-    prior_sds = [5.0, 1.0, 0.3, 0.1, 0.03]
+    # With n=300 observations the likelihood is informative enough that these three
+    # widths barely move the posterior at all: the mode stays at 0.307 to three decimals
+    # across all of them (confirmed numerically), which is precisely the point the
+    # caption and surrounding text make. A tighter range (sd=0.3, 0.1, 0.03) does pull
+    # the mode toward zero, but including those steps here would contradict the "same
+    # mode regardless of width" claim this figure exists to demonstrate.
+    prior_sds = [10.0, 3.0, 1.0]
     beta_grid = np.linspace(-0.2, 0.9, 600)
     frames = []
     for prior_sd in prior_sds:
@@ -322,8 +326,8 @@ def fig_bayesian_logistic() -> go.Figure:
         xaxis_title="Coefficient value (log-odds per KB, centered payload)",
         yaxis_title="Posterior density",
         # Fixed range (rather than autorange) so the y-axis doesn't jump between frames; sized
-        # to fit the tallest, most tightly-shrunk posterior (sd=0.03, peak density ~20.5).
-        yaxis_range=[0, 23],
+        # to fit the tallest of these three posteriors (peak density ~11.5).
+        yaxis_range=[0, 13],
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "Prior std. dev.: "},
@@ -444,30 +448,48 @@ def fig_rhat_diagnostic() -> go.Figure:
 # Figure 7: posterior predictive check, Gaussian-noise model vs. log-normal-noise model
 # ---------------------------------------------------------------------------
 def fig_posterior_predictive_check() -> go.Figure:
-    payload = RNG.uniform(2, 20, size=400)
-    observed = simulated_latency_ms(payload)
+    # A dedicated RNG: this figure's draws no longer need to share the module-level
+    # RNG's position with every other figure that still reads from it.
+    rng = np.random.default_rng(411)
+    payload = rng.uniform(2, 20, size=400)
+    noise = rng.lognormal(mean=0, sigma=0.18, size=payload.shape[0]) * 8
+    observed = (30 + 9.5 * payload) + noise - 8
 
     beta0, beta1 = 30.0, 9.5
-    resid_sd = float(np.std(observed - (beta0 + beta1 * payload)))
+    # Binning raw latency mixes the noise term in with the much larger spread the
+    # payload-size predictor itself contributes (base latency alone spans roughly
+    # 49 to 220 ms), which swamps any difference between the two noise
+    # assumptions. Subtracting the fitted line isolates the noise term the two
+    # models disagree about.
+    resid_obs = observed - (beta0 + beta1 * payload)
+    resid_sd = float(np.std(resid_obs))
 
-    gaussian_sim = (beta0 + beta1 * payload) + RNG.normal(0, resid_sd, size=payload.shape[0])
-    lognormal_sim = (beta0 + beta1 * payload - 8) + RNG.lognormal(0, 0.18, size=payload.shape[0]) * 8
-
-    bins = np.linspace(0, 260, 60)
-    hist_obs = np.histogram(observed, bins=bins)[0]
-    hist_gauss = np.histogram(gaussian_sim, bins=bins)[0]
-    hist_ln = np.histogram(lognormal_sim, bins=bins)[0]
+    # One simulated replication understates how much the two noise assumptions
+    # differ in the tail; average bin heights over many replications instead,
+    # the same averaging thousands of `pm.sample_posterior_predictive` draws
+    # would give in the PyMC workflow this figure stands in for.
+    n_reps = 200
+    bins = np.linspace(-8, 20, 45)
     centers = (bins[:-1] + bins[1:]) / 2
+    gauss_hists, ln_hists = [], []
+    for _ in range(n_reps):
+        resid_gauss = rng.normal(0, resid_sd, size=payload.shape[0])
+        resid_ln = rng.lognormal(0, 0.18, size=payload.shape[0]) * 8 - 8
+        gauss_hists.append(np.histogram(resid_gauss, bins=bins)[0])
+        ln_hists.append(np.histogram(resid_ln, bins=bins)[0])
+    hist_gauss = np.mean(gauss_hists, axis=0)
+    hist_ln = np.mean(ln_hists, axis=0)
+    hist_obs = np.histogram(resid_obs, bins=bins)[0]
 
     frames = [
         go.Frame(name="Gaussian-noise model", data=[
             go.Bar(x=centers, y=hist_obs, name="Observed", marker_color="#333", opacity=0.55),
-            go.Bar(x=centers, y=hist_gauss, name="Posterior predictive draw",
+            go.Bar(x=centers, y=hist_gauss, name="Posterior predictive mean (200 draws)",
                    marker_color="#E45756", opacity=0.55),
         ]),
         go.Frame(name="Log-normal-noise model", data=[
             go.Bar(x=centers, y=hist_obs, name="Observed", marker_color="#333", opacity=0.55),
-            go.Bar(x=centers, y=hist_ln, name="Posterior predictive draw",
+            go.Bar(x=centers, y=hist_ln, name="Posterior predictive mean (200 draws)",
                    marker_color="#54A24B", opacity=0.55),
         ]),
     ]
@@ -476,7 +498,7 @@ def fig_posterior_predictive_check() -> go.Figure:
     fig.update_layout(
         barmode="overlay",
         title="Posterior predictive check: does the fitted model's noise assumption fit?",
-        xaxis_title="Latency (ms)",
+        xaxis_title="Residual: observed latency minus the fitted line (ms)",
         yaxis_title="Requests",
         sliders=[{
             "active": 0,
@@ -501,15 +523,23 @@ def fig_posterior_predictive_check() -> go.Figure:
 # Figure 8: prior predictive check, timeout curves implied by the prior alone
 # ---------------------------------------------------------------------------
 def fig_prior_predictive_check() -> go.Figure:
+    # A dedicated RNG, decoupled from the module-level RNG other figures share.
+    rng = np.random.default_rng(911)
     payload_grid = np.linspace(2, 20, 200)
     payload_centered = payload_grid - 11.0  # matches the centering used in the timeout model
     n_draws = 40
-    prior_sds = [3.0, 10.0]
+    # sd=3 on the slope still let 29 of 40 draws swing fully from near 0% to near
+    # 100% within a couple of kilobytes (confirmed numerically), not the "most
+    # curves gentle" contrast the text describes. sd=0.5 is a narrower prior for
+    # this slope (the true value the timeout model was built from is 0.35, well
+    # within one prior standard deviation), and it keeps the large majority of
+    # draws gentle while sd=10 still swings nearly all of them.
+    prior_sds = [0.5, 10.0]
 
     frames = []
     for prior_sd in prior_sds:
-        beta0_draws = RNG.normal(0, 10, size=n_draws)
-        beta1_draws = RNG.normal(0, prior_sd, size=n_draws)
+        beta0_draws = rng.normal(0, 10, size=n_draws)
+        beta1_draws = rng.normal(0, prior_sd, size=n_draws)
         traces = []
         for b0, b1 in zip(beta0_draws, beta1_draws):
             logit_p = b0 + b1 * payload_centered
@@ -738,25 +768,44 @@ def fig_metropolis_walkthrough() -> go.Figure:
     frames = [
         go.Frame(name="Step-by-step mechanics", data=[
             go.Scatter(x=iters, y=chain[:n_show], mode="lines", name="Chain (accepted path)",
-                       line=dict(color="#4C78A8", width=2)),
+                       line=dict(color="#4C78A8", width=2), showlegend=True),
             go.Scatter(x=iters[accepted_mask], y=proposed[:n_show][accepted_mask],
-                       mode="markers", name="Proposal accepted",
+                       mode="markers", name="Proposal accepted", showlegend=True,
                        marker=dict(color="#54A24B", size=9, symbol="triangle-up")),
+            # showlegend is pinned explicitly on every trace in both frames (see the
+            # "Long-run convergence" frame below): the same merge-not-replace behavior
+            # that stales an unset axis range across frames also stales an unset
+            # showlegend, so going from the other frame back to this one previously
+            # dropped this trace's legend entry.
             go.Scatter(x=iters[~accepted_mask], y=proposed[:n_show][~accepted_mask],
-                       mode="markers", name="Proposal rejected",
+                       mode="markers", name="Proposal rejected", showlegend=True,
                        marker=dict(color="#E45756", size=9, symbol="x")),
         ], layout=go.Layout(
-            xaxis=dict(title="Iteration"), yaxis=dict(title="Coefficient value",
-                                                        range=[-0.3, 1.0]),
+            # Both axes get an explicit setting (a fixed range or autorange=True)
+            # in every frame below. Plotly's Plotly.animate() merges each frame's
+            # layout onto whatever the page is currently showing; a property left
+            # unset in the target frame is not reset, it keeps whatever the prior
+            # frame put there. Leaving either axis to its default here is what let
+            # the "Long-run convergence" frame inherit this frame's y-axis range
+            # of [-0.3, 1.0] and clip its own density curve.
+            xaxis=dict(title="Iteration", autorange=True),
+            yaxis=dict(title="Coefficient value", range=[-0.3, 1.0], autorange=False),
         )),
         go.Frame(name="Long-run convergence", data=[
             go.Histogram(x=post_chain, histnorm="probability density", name="MH samples",
-                         marker_color="#4C78A8", opacity=0.6, nbinsx=40),
+                         marker_color="#4C78A8", opacity=0.6, nbinsx=40, showlegend=True),
             go.Scatter(x=x_grid, y=target_density, mode="lines", name="Closed-form posterior",
-                       line=dict(color="#B279A2", width=3)),
+                       line=dict(color="#B279A2", width=3), showlegend=True),
+            # A third, empty, legend-hidden trace at the same index the
+            # step-by-step frame's "Proposal rejected" markers occupy. Without an
+            # explicit replacement here, that trace and its legend entry are left
+            # untouched by animate() rather than cleared, since this frame's data
+            # only names two traces.
+            go.Scatter(x=[], y=[], mode="markers", showlegend=False, hoverinfo="skip"),
         ], layout=go.Layout(
-            xaxis=dict(title="Coefficient value", range=[post_mean - 5*post_sd, post_mean + 5*post_sd]),
-            yaxis=dict(title="Density"),
+            xaxis=dict(title="Coefficient value",
+                       range=[post_mean - 5 * post_sd, post_mean + 5 * post_sd], autorange=False),
+            yaxis=dict(title="Density", autorange=True),
         )),
     ]
 

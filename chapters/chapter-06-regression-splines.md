@@ -270,9 +270,9 @@ specifically to prevent that kind of swing.
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 ```
 
-A small lambda produces a wiggly curve that chases individual points, and a large lambda
-flattens the fit back toward a straight line, recovering something close to the OLS fit that
-opened this chapter.
+A small lambda produces a wiggly curve that chases individual points. A large lambda smooths
+that noise-chasing away, leaving a simple curve that keeps the gentle bend of the saturation
+shape all the way to the high-load edge.
 :::
 
 Choosing how many knots to use, and where to place them, is itself a decision that can be made
@@ -294,8 +294,11 @@ $\lambda$ trades fit against complexity, except here the penalty targets the cur
 entire function rather than the size of a fixed set of coefficients.
 
 @fig-smoothing-lambda shows the smoothing spline at several values of $\lambda$, tracing the
-path from near-interpolation of every point at small $\lambda$ to a nearly straight line at
-large $\lambda$.
+path from near-interpolation of every point at small $\lambda$ to a smooth, simple curve at
+large $\lambda$ that keeps the saturation bend the data itself carries. The penalty targets
+how sharply the function bends from point to point. Push $\lambda$ high enough and the fit
+settles at a single global cubic curve, the least flexible shape this basis can take, and
+that shape still rises to track the saturation curve at high utilization.
 
 Recall from Chapter 5's discussion of cross-validation that a tuning parameter like $\lambda$
 should not be picked by eye. In practice, $\lambda$ is chosen the same way the regularization
