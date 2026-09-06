@@ -91,8 +91,7 @@ instead of 40 milliseconds pulls the mean toward it; the median does not notice.
 :::
 
 This is why on-call dashboards that show "average response time" are trusted less than
-dashboards that show median and tail percentiles side by side. The mean alone hides the
-failure mode (a growing slow tail) that engineers most need to catch early.
+dashboards that show median and tail percentiles side by side. The mean alone hides the one thing engineers most need to catch early: a growing slow tail.
 
 ## Measures of spread: variance and standard deviation
 

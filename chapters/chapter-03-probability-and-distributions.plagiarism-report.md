@@ -239,3 +239,19 @@ Extracted and searched the most distinctive new phrasing:
 No Critical or Warning findings. All six additions classified **Clear**. Verdict unchanged:
 PUBLICATION-READY (local review only, not for public release per the standing "do not publish"
 instruction on this project).
+
+## Addendum (independent re-audit, 2026-09-05)
+
+An independent adversarial re-audit (a separate reviewer, not the agent that wrote the section
+above) re-fetched gedeck's Chapter 2 notebook and found this report's earlier claim of
+"different sample sizes" from gedeck's CLT demonstration did not hold up: both this chapter and
+gedeck's notebook used the same two sample sizes, 5 and 20. The report writer had not checked
+that specific number against the source before writing the claim.
+
+Fix applied: the panel's sample sizes were changed from 5 and 20 to 8 and 32 in both
+`chapter-03-probability-and-distributions.md` and `chapter-03-probability-and-distributions-plots.py`,
+the figure and notebook output were regenerated, and the change was synced to `quarto-book`.
+The dataset (simulated JVM garbage-collection pauses), distribution family, variable names, and
+plotting implementation stay independent of gedeck's loan-income example, which held before this
+fix too; the fix removes the one remaining numeric coincidence. Re-verified with a fresh
+WebSearch sweep: no matching source for the updated 8/32 framing. **Clear.**

@@ -653,22 +653,22 @@ def fig_clt_three_panel() -> go.Figure:
     n_draws = 6000
     shape_param, scale_param = 1.6, 35.0  # right-skewed GC pause durations, ms
     raw = RNG.gamma(shape_param, scale_param, size=n_draws)
-    mean_of_5 = RNG.gamma(shape_param, scale_param, size=(n_draws, 5)).mean(axis=1)
-    mean_of_20 = RNG.gamma(shape_param, scale_param, size=(n_draws, 20)).mean(axis=1)
+    mean_of_8 = RNG.gamma(shape_param, scale_param, size=(n_draws, 8)).mean(axis=1)
+    mean_of_32 = RNG.gamma(shape_param, scale_param, size=(n_draws, 32)).mean(axis=1)
 
     x_max = 260
     fig = make_subplots(
         rows=1, cols=3,
-        subplot_titles=("raw pause durations (n=1)", "mean of 5 pauses", "mean of 20 pauses"),
+        subplot_titles=("raw pause durations (n=1)", "mean of 8 pauses", "mean of 32 pauses"),
     )
     fig.add_trace(go.Histogram(x=raw, nbinsx=50, marker_color="#E45756"), row=1, col=1)
-    fig.add_trace(go.Histogram(x=mean_of_5, nbinsx=50, marker_color="#F58518"), row=1, col=2)
-    fig.add_trace(go.Histogram(x=mean_of_20, nbinsx=50, marker_color="#4C78A8"), row=1, col=3)
+    fig.add_trace(go.Histogram(x=mean_of_8, nbinsx=50, marker_color="#F58518"), row=1, col=2)
+    fig.add_trace(go.Histogram(x=mean_of_32, nbinsx=50, marker_color="#4C78A8"), row=1, col=3)
     fig.update_xaxes(range=[0, x_max], title_text="pause duration (ms)")
     fig.update_yaxes(title_text="count of samples", row=1, col=1)
     fig.update_layout(
         title=f"Garbage-collection pause durations across {n_draws:,} JVM instances, raw "
-              "versus averaged in groups of 5 and 20",
+              "versus averaged in groups of 8 and 32",
         showlegend=False,
         margin=dict(t=80, l=60, r=30, b=50),
     )

@@ -664,7 +664,7 @@ this way.
 ```
 
 Garbage-collection pause durations across 6,000 simulated JVM instances: raw pauses on the
-left, means of 5 pauses in the middle, means of 20 pauses on the right. The right-skewed shape
+left, means of 8 pauses in the middle, means of 32 pauses on the right. The right-skewed shape
 from the left panel is nearly gone by the right panel.
 :::
 
@@ -672,12 +672,12 @@ from the left panel is nearly gone by the right panel.
 production scenario: garbage-collection pause durations sampled across a fleet of JVM
 instances. The left panel plots 6,000 raw pause durations, heavily right-skewed, most pauses
 short with a long tail of rare, much longer ones. The middle panel plots the mean of every
-group of 5 of those same pauses; the tail is shorter and the peak has shifted. The right panel
-plots the mean of every group of 20; the shape is close to a symmetric bell, even though not
+group of 8 of those same pauses; the tail is shorter and the peak has shifted. The right panel
+plots the mean of every group of 32; the shape is close to a symmetric bell, even though not
 one of the 6,000 raw pauses that fed into it was drawn from a normal distribution.
 
-Nothing about the three panels required naming a formula first. Averaging 5 raw pause
-durations, then 20, and watching the histogram's shape change is the entire content of the
+Nothing about the three panels required naming a formula first. Averaging 8 raw pause
+durations, then 32, and watching the histogram's shape change is the entire content of the
 theorem below, before any notation gets involved.
 
 The *Central Limit Theorem* (CLT) states that, given a large enough sample, the distribution
@@ -815,7 +815,7 @@ is small enough that each draw meaningfully changes the odds for the next one, t
 the canary cohort above sits in.
 
 By contrast, choosing a canary cohort by hand, rather than through a documented random
-process, is a quiet source of selection bias, the same failure mode Chapter 1 introduced. A
+process, is a quiet source of selection bias, the same problem Chapter 1 introduced. A
 canary chosen to "look representative" is not a canary chosen at random, and the two are not
 interchangeable.
 

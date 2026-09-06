@@ -135,7 +135,7 @@ The importance weight for observation $i$ under draw $s$ is proportional to $1/p
 \theta_s)$: a draw that explained $y_i$ well needs little adjustment to stand in for the
 leave-one-out posterior, and a draw that explained $y_i$ poorly needs a much larger adjustment.
 
-Raw importance weights like this have a well-known failure mode: a handful of huge weights can
+Raw importance weights like this have a well-known weak point: a handful of huge weights can
 dominate the average and make the estimate unstable.
 
 PSIS smooths the largest weights by fitting a *generalized Pareto distribution*, built

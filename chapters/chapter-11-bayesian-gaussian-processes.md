@@ -378,6 +378,12 @@ variables with priors instead of numbers an optimizer chose. `gp.conditional`, t
 hyperparameters' own uncertainty forward into every prediction, rather than conditioning on one
 fixed setting the way `.predict()` does.
 
+The `Gamma(alpha=2, ...)` shape for the length-scale prior above is not specific to this
+example: it is a common choice across the Gaussian process literature (documented in
+Betancourt's Gaussian process case studies and PyMC's own example gallery) because it keeps
+positive support while pulling the prior away from implausibly small length-scales, a mode that
+would otherwise let the fit chase noise.
+
 @fig-full-bayes-hyperparams shows what that costs and buys on this eight-point dataset. The
 length-scale posterior's 95% interval runs from about 0.09 to 0.41, comfortably containing the
 point estimate of 0.15 near its lower end but also reaching more than twice as far. The noise
