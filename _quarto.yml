@@ -16,7 +16,6 @@ book:
   author:
     - name: Rudrendu Paul
       url: https://github.com/RudrenduPaul
-  reader-mode: true
   cover-image: assets/cover.png
   repo-url: https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers
   repo-actions: [issue]
