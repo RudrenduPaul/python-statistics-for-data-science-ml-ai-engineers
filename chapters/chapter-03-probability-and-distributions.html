@@ -999,6 +999,20 @@ CWI Amsterdam and Google Research. 2017. <span>“Announcing the First SHA-1 Col
 </section>
 
 </main> <!-- /main -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var tools = document.querySelector(".sidebar-title .sidebar-tools-main");
+  if (tools && !document.querySelector(".sidebar-byline")) {
+    var byline = document.createElement("div");
+    byline.className = "sidebar-byline";
+    var link = document.createElement("a");
+    link.href = "https://github.com/RudrenduPaul";
+    link.textContent = "by Rudrendu Paul";
+    byline.appendChild(link);
+    tools.insertAdjacentElement("afterend", byline);
+  }
+});
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
