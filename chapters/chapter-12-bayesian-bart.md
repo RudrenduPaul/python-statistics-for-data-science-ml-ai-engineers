@@ -294,6 +294,36 @@ size, hour of day, service dependency count). `m=100` sets the number of trees i
 PyMC-BART documentation reports good results in the 50-to-200 range for problems like this
 one, with fewer trees useful mainly for faster iteration while developing the model.
 
+The model above wraps `mu`, the BART term itself, in a sigmoid before it ever reaches the
+Bernoulli likelihood:
+
+```python
+import numpy as np
+
+mu_values = np.array([-2.0, -0.5, 0.0, 0.5, 2.0])
+p_values = 1 / (1 + np.exp(-mu_values))
+```
+
+`p_values` comes back as roughly `[0.12, 0.38, 0.50, 0.62, 0.88]`: every input, however far from
+zero, lands strictly between 0 and 1.
+
+`pmb.BART` models a continuous latent function of the four rollback features, the same
+unconstrained numeric output a BART fit would produce for an ordinary regression target.
+Nothing about summing a hundred trees keeps that sum between 0 and 1 on its own. A deployment
+with an unusually high error rate can push `mu` past 2, and one with a clean canary can push it
+below -2, both values a probability can never take.
+
+Skip the sigmoid, and a script reading `idata`'s posterior summary could pull `mu`'s posterior
+mean straight out and treat it as a rollback probability. A canary comfortably under its
+error-rate threshold can still produce a raw `mu` above 1, and a routing rule comparing that
+number against the 0.15 credible-interval-width threshold this chapter builds later would be
+reading numbers off the wrong scale for every deployment, not just an unusual one.
+
+The conversion itself is the same one Chapter 4 introduced for mapping a linear predictor to a
+timeout probability, applied here to a tree-sum instead of $\beta_0 + \beta_1 x$:
+
+$$p = \text{sigmoid}(\mu) = \frac{1}{1 + e^{-\mu}}$$
+
 :::{.callout-tip}
 The `tune=1000` argument above is not wasted work: PyMC uses those iterations to adapt the
 sampler, then drops them from `idata` automatically, so the burn-in this chapter's MCMC trace

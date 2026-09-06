@@ -394,6 +394,88 @@ own range before reading anything else. A length-scale several times wider than 
 its input is a cheap early sign that dimension is not doing much work in the fit.
 :::
 
+## Periodic structure: composing kernels for signals that repeat
+
+The chart below fits two kernels to three days of hourly latency and asks both to predict the
+fourth, unobserved day.
+
+::: {#fig-periodic-kernel}
+```{=html}
+<iframe src="../_generated/chapter-bayes-gp-fig-periodic-kernel.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The dotted line is the true mean latency behind the data: a slow four-day drift plus a
+business-hours peak near 2pm each day. Markers show the first three days, the only data either
+model sees; the shaded region marks the fourth day, held out. The RBF-only fit (orange, dashed)
+never reproduces the afternoon bump: its mean drifts downward across the whole fourth day, and
+the single highest point it does reach in that window falls at 2am, half a cycle from the true
+2pm peak, with a credible band about three times as wide as the alternative. The RBF-plus-periodic
+fit (blue) tracks the true curve through the fourth day, peak included, and closes most of the
+way in on that day's latency values.
+:::
+
+A commuter who has watched traffic build for three straight afternoons does not need a fourth
+afternoon to guess when tomorrow's rush hour starts. An RBF kernel, on its own, cannot make that
+same guess: it only measures how close two points sit on the input axis, so hour 38 and hour 62,
+both mid-afternoon on different days, look no more related to it than hour 38 and hour 50.
+
+Every kernel used so far in this chapter, RBF and Matern alike, shares that property: correlation
+depends only on distance between two points, with no notion that some pairs of points sit in the
+same phase of a repeating cycle. Chapter 7's rollback classifier treats hour of day as a feature
+carrying signal on its own; a GP asked to model a metric with that same daily rhythm needs a
+kernel built to notice it.
+
+The *periodic kernel*, most commonly the `ExpSineSquared` form, supplies that missing structure
+directly:
+
+$$k_{\text{periodic}}(x, x') = \sigma_f^2 \exp\!\left(-\frac{2 \sin^2\!\left(\pi |x - x'| / p\right)}{\ell^2}\right).$$
+
+The period $p$ sets how often the pattern repeats (24 hours for a daily cycle, 168 for a weekly
+one); the length-scale $\ell$ sets how much the shape is allowed to drift from one cycle to the
+next, the periodic kernel's counterpart to the RBF length-scale from earlier in this chapter.
+
+A periodic kernel alone would treat every day as a rescaled copy of every other day forever, with
+no way to represent the slow four-day drift in the figure above. Kernels compose: adding a
+periodic term to an RBF term lets one part of the sum absorb the smooth trend while the other
+absorbs the daily reshaping, and the two are estimated together from the same data. Rasmussen and
+Williams build a kernel this way, a smooth trend term added to a periodic term plus further terms
+for medium-term drift and noise, to model the rise and seasonal fall in the Mauna Loa atmospheric
+carbon dioxide record, one of the standard worked examples of kernel composition in the Gaussian
+process literature [@rasmussenwilliams2006].
+
+```python
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ExpSineSquared, WhiteKernel
+
+kernel = (
+    RBF(length_scale=48.0, length_scale_bounds=(10.0, 200.0))
+    + ExpSineSquared(length_scale=1.0, periodicity=24.0, periodicity_bounds="fixed")
+    + WhiteKernel(1.0)
+)
+gp = GaussianProcessRegressor(kernel=kernel, normalize_y=True, n_restarts_optimizer=6)
+gp.fit(hours.reshape(-1, 1), latency)
+```
+
+Fixing `periodicity_bounds="fixed"` at 24 hours instead of letting the optimizer search for it is
+deliberate. The length-scale in earlier sections came from data because nothing else pins it
+down; a metric's period, by contrast, is usually known ahead of time from the process generating
+it (a day, a week, a billing cycle), and three or four observed cycles is a thin basis for the
+same marginal-likelihood search to also discover that period from noise. Fix what is known ahead
+of time and let the optimizer spend its search on what is not.
+
+@fig-periodic-kernel shows the payoff on the held-out fourth day: the RBF-only fit's root-mean-
+squared error against the true curve is about 13.8 ms, against about 1.2 ms for the fit with the
+periodic term added, and the RBF-only credible band stays roughly three times as wide across that
+same day. Both models see the identical three days of data; only the kernel's assumptions differ.
+
+:::{.callout-tip}
+Add a periodic term whenever a metric is known to repeat on a fixed cycle, hour of day or day of
+week, rather than asking a plain RBF or Matern kernel to infer that structure from a handful of
+observed cycles. Fix the period at its known value and let the optimizer fit the length-scale and
+noise around it.
+:::
+
 ## When the closed form runs out
 
 Everything in this chapter relied on a Gaussian process with Gaussian observation noise, which

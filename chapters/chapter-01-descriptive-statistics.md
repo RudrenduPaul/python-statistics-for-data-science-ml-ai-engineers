@@ -172,6 +172,110 @@ to the next for reasons that have nothing to do with how the service is performi
 why teams that lean on tail percentiles also have to watch request volume per window, not
 just the percentile line itself.
 
+## Robust statistics: trimmed mean, IQR, and MAD
+
+A judged competition, an Olympic dive or a gymnastics routine, drops the highest and the
+lowest scores before averaging the rest, so one score from an unusually harsh or generous
+judge cannot swing the final result. That is the same idea behind a family of statistics
+built to resist a handful of extreme values instead of bending around them.
+
+Before any formula, the same simulated checkout-API latency data used throughout this chapter
+shows what happens to the mean, the standard deviation, and three alternatives built to resist
+outliers, as a growing share of requests turns slow:
+
+| Slow-request share | Mean | Trimmed mean (10%) | Median | Std. deviation | IQR | MAD |
+|---|---|---|---|---|---|---|
+| 0% | 47.5 ms | 45.9 ms | 44.9 ms | 17.2 ms | 20.8 ms | 15.2 ms |
+| 5% | 78.5 ms | 48.0 ms | 45.6 ms | 158.3 ms | 23.5 ms | 16.6 ms |
+| 20% | 172.9 ms | 96.4 ms | 49.6 ms | 295.9 ms | 39.7 ms | 22.4 ms |
+
+By 20% contamination, the mean has moved more than three and a half times past its
+clean-traffic value, and the standard deviation has grown more than seventeen-fold. The
+median, the trimmed mean, the interquartile range, and the median absolute deviation all move
+too, since a fifth of requests are slower now, but every one of them stays within a few
+multiples of where it started instead of running away.
+
+*Robust statistics* are built specifically to behave this way: to track a shift in the
+underlying data without being pulled far off course by a minority of extreme values.
+
+The *trimmed mean* sorts the data, discards a fixed percentage of the smallest and largest
+values, and averages what is left. Dropping the most extreme 10 percent from each end, as the
+table above does, keeps the middle 80 percent of requests and throws out the slow-tail
+contamination that pulled the ordinary mean from 47.5 ms to 172.9 ms. A dashboard built on the
+10 percent trimmed mean instead of the plain mean would have reported 96.4 ms at the same
+moment, a number much closer to what most requests were experiencing.
+
+To compute a trimmed mean by hand: sort the $n$ observations, remove the $k = \lfloor np
+\rfloor$ smallest and the $k$ largest, and average the remaining $n - 2k$ values.
+
+$$\bar{x}_{tr(p)} = \frac{1}{n - 2k}\sum_{i=k+1}^{n-k} x_{(i)}, \qquad k = \lfloor np \rfloor$$
+
+Here $x_{(i)}$ denotes the $i$-th smallest value once the data is sorted. In other words, the
+trimmed mean is an ordinary mean computed after the most extreme values on both ends have
+been discarded.
+
+::: {.callout-note}
+The mean and standard deviation have a *breakdown point* of zero: a single sufficiently
+extreme value can pull either one arbitrarily far from where it started. The median and MAD
+have a breakdown point near 50 percent, since roughly half the data would need to be replaced
+with extreme values before either statistic moves without bound.
+:::
+
+Recall the percentile from earlier in this chapter, the value below which a given share of
+observations falls. The *interquartile range*, or IQR, is the width of the middle half of the
+data: the 75th percentile ($Q_3$) minus the 25th percentile ($Q_1$).
+
+$$\text{IQR} = Q_3 - Q_1$$
+
+In other words, the IQR answers how spread out the middle half of the requests is, ignoring
+the fastest and slowest quarters entirely. That is why it barely moved in the table above
+(20.8 ms to 39.7 ms, under a two-fold increase) while the standard deviation, which factors in
+every value including the slow-tail requests, moved more than seventeen-fold over the same
+range.
+
+::: {.callout-tip}
+The IQR is the basis of Tukey's classic outlier fence: flag any value below $Q_1 - 1.5 \times
+\text{IQR}$ or above $Q_3 + 1.5 \times \text{IQR}$. It requires no assumption about the shape
+of the distribution, unlike a mean-plus-standard-deviation rule.
+:::
+
+The *median absolute deviation*, or MAD, measures spread the same way the median measures
+center: by taking the median of how far each value sits from the overall median, then scaling
+that number so it lines up with the standard deviation on data that follows a normal
+distribution.
+
+$$\text{MAD} = 1.4826 \times \text{median}_i\left(|x_i - \tilde{x}|\right)$$
+
+Here $\tilde{x}$ denotes the median, and 1.4826 is the constant that makes MAD estimate the
+standard deviation consistently when the data is normally distributed. In other words, MAD
+asks how far a value typically sits from the middle, using the median twice instead of using
+the mean once.
+
+The alert-threshold problem from the previous section resurfaces here. A
+mean-plus-standard-deviation rule and a MAD-based rule (the *modified z-score*, $M_i = (x_i -
+\tilde{x}) / \text{MAD}$, flagging anything with $|M_i| > 3.5$) start out close together on
+clean traffic and diverge sharply once contamination sets in:
+
+| Slow-request share | mean + 3·std threshold | Requests flagged | median + 3.5·MAD threshold | Requests flagged |
+|---|---|---|---|---|
+| 0% | 99 ms | 1.3% | 98 ms | 1.4% |
+| 5% | 553 ms | 2.7% | 104 ms | 5.9% |
+| 20% | 1,060 ms | 2.8% | 128 ms | 20.1% |
+
+At 20 percent contamination, the standard-deviation-based threshold has climbed to 1,060 ms,
+chasing the slow requests it exists to catch, and still flags barely more traffic than it did
+on clean data. The MAD-based threshold barely moves and flags almost the same share of traffic
+that has slowed. An alerting system built on the first rule would miss most of an ongoing
+degradation event; one built on the second would catch it.
+
+::: {.callout-important}
+Iglewicz and Hoaglin chose 3.5 as the flagging threshold because it gives the modified
+z-score roughly the same false-positive rate on normally distributed data that a classical
+threshold of 3 gives the ordinary z-score [@iglewiczhoaglin1993]. It holds up under
+contamination because the median and MAD do not move much even when a large share of the data
+is contaminated, the same breakdown-point property described above.
+:::
+
 ## Covariance and correlation
 
 Think about height and shoe size. Taller people tend to have bigger feet, though not
@@ -230,6 +334,93 @@ tier that both uploads larger images and hits a slower code path for unrelated r
 
 Part 3 returns to this problem directly, because untangling correlation from causation is the
 entire reason controlled experiments and Bayesian A/B testing exist.
+
+## Spearman correlation and correlation across many metrics
+
+A driver pressing harder on the accelerator does not need to know how many more kilometers
+per hour each extra bit of pedal pressure produces to know that pressing harder always means
+going faster. Some relationships are best captured by a narrower question: do the two
+quantities always move in the same direction, whatever the size of each step?
+
+Suppose the same engineering team studies how request-queue utilization affects tail latency
+as a service approaches its capacity limit. Utilization and latency were simulated for 400
+observation windows, following the shape queuing theory predicts: latency stays fairly flat
+while utilization is low, then bends sharply upward as utilization climbs past roughly
+two-thirds. Computed on that data, the ordinary Pearson correlation from the previous section
+comes out to $r = 0.69$. Ranking each observation instead of using its raw value, then
+correlating the ranks, gives $\rho = 0.93$.
+
+The relationship is strong: every increase in utilization corresponds to a consistent increase
+in latency across the simulated range, and a perfectly monotonic relationship, one that never
+reverses direction, would score $\rho = 1$. Pearson's $r$ understates that consistency because
+it only measures how closely two variables track a straight line, and this relationship bends.
+
+*Spearman's rank correlation* replaces each value of each variable with its rank, then
+computes the ordinary Pearson correlation on those ranks instead of on the raw values.
+
+$$\rho = 1 - \frac{6\sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}$$
+
+Here $d_i$ is the difference between the ranks of the two values in the $i$-th pair, and this
+simplified form holds when no two observations share a rank. In other words, Spearman
+correlation asks whether the request with the second-highest utilization also tends to have
+the second-highest latency, ignoring how large the gap between first and second happens to be.
+
+A capacity-planning dashboard reporting only the Pearson correlation between utilization and
+latency would understate the relationship where it matters most, near the saturation point,
+because the ordinary correlation formula was never built to detect a bend, only a straight
+line.
+
+::: {.callout-note}
+Kendall's tau is a second rank-based correlation measure. It counts concordant and discordant
+pairs directly rather than computing a correlation on ranks, tends to be more stable in small
+samples, and is slower to compute as the sample size grows.
+:::
+
+::: {.callout-warning}
+Spearman correlation only requires that a relationship move consistently in one direction; it
+never requires that movement to follow a straight line. It can still miss a relationship
+entirely if the relationship is not monotonic: a U-shaped curve where latency first falls and
+then rises as utilization increases would score close to zero on both Pearson and Spearman
+correlation, despite a strong underlying pattern.
+:::
+
+Correlation rarely stops at two variables in production. A single service typically exposes a
+dozen or more health metrics at once, and the more interesting question is often how several
+of them move together.
+
+::: {#fig-metric-correlations}
+```{=html}
+<iframe src="../_generated/chapter-01-fig-metric-correlation-ellipses.html" width="100%" height="580"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Correlation among five cluster health metrics, by traffic regime. Under normal traffic, every
+pairwise correlation sits close to zero; by full incident-level overload, nearly every pair has
+climbed into the 0.5 to 0.85 range at once.
+:::
+
+@fig-metric-correlations draws this cluster's correlation matrix as an ellipse for each pair of
+metrics instead of a single heatmap cell. Color still communicates strength (a darker fill for
+a stronger correlation in either direction), but the ellipse's shape carries the same
+information a second way: a shape close to a circle signals a correlation near zero, and the
+ellipse flattens into a thin diagonal line as the correlation strengthens, tilted toward the
+upper right for a positive relationship and the upper left for a negative one. That second
+channel matters for the same reason the SRE book's percentile recommendation mattered earlier:
+a black-and-white printout or a colorblind-unfriendly dashboard still communicates the finding
+correctly, because the shape is doing work the color alone was doing.
+
+Drag the slider from normal traffic toward incident-level overload and watch every ellipse
+flatten and rotate at close to the same rate. CPU utilization, memory utilization, queue
+depth, error rate, and p99 latency carry almost no relationship to each other under normal
+load, then move into the 0.5 to 0.85 range together as the system saturates.
+
+::: {.callout-important}
+A single metric spiking is common and often means little on its own. Five metrics that are
+usually loosely related suddenly moving together is a stronger, more specific signal: some
+shared upstream cause, most often resource saturation, is now driving the whole cluster at
+once. The correlation section above named this confounding-variable pattern for two variables;
+here it plays out across five at the same time.
+:::
 
 ## Skewness and kurtosis
 

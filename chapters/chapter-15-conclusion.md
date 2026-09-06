@@ -41,6 +41,12 @@ measures (Chapter 2, and the American Statistical Association said so directly, 
 An R-squared goes up every time a useless predictor is added, whether or not that predictor
 means anything (Chapter 4).
 
+The rollback classifier's own error rate told a similar half-truth. A single number said how
+often the model was wrong, but nothing about which of two ways it was wrong. Chapters 7 and 8
+broke that number apart into a confusion matrix and an ROC curve, because a rollback that fires
+on a healthy deploy costs a team something different than a bad deploy that slips through
+untouched.
+
 In every case, the fix was the same: ask what the number was built to measure, then check
 whether that matches the question being asked.
 

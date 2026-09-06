@@ -26,6 +26,14 @@ scientist has to decide whether an observed difference means something:
    refuses to look normal?*
    ANOVA, chi-squared tests, ANCOVA, experimental design, and non-parametric alternatives
    cover the cases a simple t-test cannot.
+7. *How do I turn a single estimate into a range I can trust, or compare two proportions
+   instead of two means?*
+   Confidence intervals and the two-proportion z-test extend the machinery above to estimates
+   and proportions directly.
+8. *What goes wrong when a test gets checked before it is finished, or when many tests run at
+   once?*
+   Sequential testing and the multiple-comparisons problem cover two of the most common ways a
+   correct test still misleads a team in production.
 
 ## Stating a hypothesis
 
@@ -63,8 +71,31 @@ The Z-test and t-test do the same thing for averages: they measure how far a sam
 average sits from what plain chance would predict.
 
 Suppose the team wants to check the new mean latency against a fixed target, 40 ms, the
-number the SLA promises. The *Z-test* compares a sample mean to a target when the population
-standard deviation is known:
+number the SLA promises.
+
+Before naming a test, a simulation can answer the same question with nothing but arithmetic.
+Suppose the team collects 50 requests after the rollout and the sample mean comes out to 34.8
+ms, well under target. Years of pre-rollout monitoring pinned the population's spread at a
+standard deviation of 20 ms, so a computer can draw thousands of pretend samples from a system
+whose average never moved off 40 ms and count how often a mean that low turns up by chance
+alone.
+
+```python
+import numpy as np
+rng = np.random.default_rng(7)
+mu0, sigma, n = 40.0, 20.0, 50
+sim_means = rng.normal(mu0, sigma, size=(20_000, n)).mean(axis=1)
+observed = 34.8
+p_simulated = (sim_means <= observed).mean()
+# p_simulated = 0.034
+```
+
+Out of 20,000 pretend samples drawn from a population that never moved off the 40 ms target,
+only about 3.4 percent came in at 34.8 ms or lower. That count answers how surprising the
+result would be if the cache changed nothing: rare, not impossible.
+
+The *Z-test* compares a sample mean to a target when the population standard deviation is
+known, reaching the same answer without simulating a single sample:
 
 $$z = \frac{\bar{x} - \mu}{\sigma / \sqrt{n}}$$
 
@@ -73,7 +104,9 @@ standard deviation, and $n$ is the sample size.
 
 Roughly speaking, the Z-test asks how many standard errors the sample mean sits from the
 target: a $z$ far from zero means the sample mean is unlikely to have occurred by chance if
-the target were correct.
+the target were correct. Plugging in $\bar{x} = 34.8$, $\mu = 40$, $\sigma = 20$, and $n = 50$
+gives $z \approx -1.84$ and a one-sided p-value of 0.033, matching the 3.4 percent the
+simulation counted directly.
 
 In practice, the population standard deviation is almost never known in advance; it has to
 be estimated from the same sample used to estimate the mean. The *t-test* handles that case:
@@ -241,6 +274,28 @@ effect can need many times more traffic than a large one before a test reliably 
 @fig-power-curve shows how power climbs as sample size grows, for a few different effect
 sizes; small effects need dramatically more traffic before the test can reliably see them.
 
+The slider beneath that figure steps through values of *Cohen's d*, a term used but never
+defined until now.
+
+*Cohen's d* is a standardized effect size: a way of expressing how far apart two group means
+sit that does not depend on the units the underlying metric happens to use.
+
+Comparing a 7.5 ms latency gap against a two-point jump in a conversion-rate percentage is not
+a fair comparison on raw numbers alone, since the two metrics sit on different scales with
+different natural spreads. Putting both gaps on the same d-scale is what makes it possible to
+say a latency change and a conversion-rate change carry a similar amount of evidence, or that
+one is a much bigger jump relative to its own noise than the other.
+
+Computing it divides the gap between two means by a pooled standard deviation that blends both
+groups' variability into one number:
+
+$$d = \frac{\bar{x}_1 - \bar{x}_2}{s_{\text{pooled}}}$$
+
+A latency gap of 7.5 ms against a pooled standard deviation of 15 ms works out to $d = 0.5$, a
+medium-sized effect under the loose convention Cohen proposed: 0.2 small, 0.5 medium, 0.8
+large. Those are the same values (plus 0.1 and 0.3) the slider under @fig-power-curve steps
+through.
+
 A team running a canary deployment for the caching layer is, whether they call it this or
 not, deciding how much statistical power they want before they trust the result.
 
@@ -283,6 +338,143 @@ sample or historical data. If that estimate is wrong, the resulting sample size 
 too, which is why sample size calculations are typically treated as a starting point rather
 than a fixed target.
 :::
+
+## Confidence intervals for a mean and a proportion
+
+::: {#fig-ci-bootstrap}
+```{=html}
+<iframe src="../_generated/chapter-02-fig-ci-bootstrap.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Resampling the same 25-request sample thousands of times and recomputing its mean each time
+traces out how much that mean would wobble on a re-draw. Demanding more confidence widens the
+interval; there is no way to buy both narrowness and certainty at once.
+:::
+
+@fig-ci-bootstrap resamples a small sample of 25 post-rollout requests with replacement ten
+thousand times, recomputes the mean of each resample, and reads off the middle 80, 90, 95, or
+99 percent of that bootstrap distribution as a confidence interval. A thermometer read once
+tells you the temperature at that moment; reading it many times under the same conditions
+tells you how much a single reading could have wobbled.
+
+A single sample mean is a point estimate: one number, with nothing attached to say how far off
+a second sample might land. A *confidence interval* answers that question directly, giving a
+range of values likely to contain the population parameter, along with a confidence level
+stating how often intervals built this way would capture the truth across repeated sampling.
+
+Shipping a dashboard that reports "mean latency: 45.2 ms" with no interval invites a team to
+treat every day-to-day wiggle in that number as meaningful, when part of that wiggle is the
+sampling noise the bootstrap distribution above traces out.
+
+### A confidence interval for a mean
+
+The same interval has a closed-form shortcut once the sample is close to normal, or the sample
+size is large enough for the Central Limit Theorem to cover for it:
+
+$$\bar{x} \pm t^{*} \frac{S}{\sqrt{n}}$$
+
+where $\bar x$ is the sample mean, $S$ is the sample standard deviation, $n$ is the sample
+size, and $t^{*}$ is the critical value from the t-distribution at the chosen confidence level
+and $n - 1$ degrees of freedom (the same t-distribution introduced earlier in this chapter).
+
+For the 25-request sample behind @fig-ci-bootstrap, the sample mean is 45.2 ms with a sample
+standard deviation of 13.4 ms. Plugging those numbers in gives a 95 percent confidence interval
+of [39.7, 50.8] ms, close to the bootstrap's [40.3, 50.5] ms: two different routes landing on
+almost the same range.
+
+::: {.callout-note}
+A wider interval reports honest uncertainty, not a weaker result. A 25-request sample cannot
+pin down the mean as tightly as a 2,500-request sample can, and a properly built confidence
+interval says so instead of hiding it behind a single deceptively precise number.
+:::
+
+### A confidence interval for a proportion
+
+The same logic applies to a proportion, the fraction of requests that succeed rather than the
+average of a continuous metric. Suppose a canary release serves 120 requests and 109 of them
+complete successfully:
+
+```python
+import numpy as np
+rng = np.random.default_rng(41)
+successes = rng.binomial(1, 0.91, 120)  # 109 of 120 succeeded
+p_hat = successes.mean()  # 0.9083
+
+boot_p = np.array([rng.choice(successes, size=120, replace=True).mean()
+                    for _ in range(10_000)])
+ci_95 = np.percentile(boot_p, [2.5, 97.5])
+# ci_95 = [0.850, 0.958]
+```
+
+Bootstrapping the 120 successes the same way as the latency sample gives a 95 percent interval
+of roughly [0.850, 0.958] around the observed success rate of 0.908.
+
+A confidence interval for a proportion has its own closed-form shortcut, built the same way as
+the interval for a mean but using the proportion's own standard error:
+
+$$\hat{p} \pm z^{*} \sqrt{\frac{\hat{p}(1 - \hat{p})}{n}}$$
+
+where $\hat p$ is the sample proportion, $n$ is the sample size, and $z^{*}$ is 1.96 for a 95
+percent interval. This gives [0.857, 0.960] here, close to the bootstrap's range but not
+centered quite the same way.
+
+::: {.callout-warning}
+This formula (the Wald interval) can misbehave when the observed proportion sits close to 0 or
+1, sometimes producing bounds above 1.0 or below 0.0 for a small sample with an extreme success
+rate. The Wilson score interval corrects for this and is the safer default whenever a canary's
+success rate lands above roughly 0.9 or below 0.1.
+:::
+
+## Sequential testing: the cost of checking early
+
+::: {#fig-peeking}
+```{=html}
+<iframe src="../_generated/chapter-02-fig-peeking.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Two thousand simulated A/B tests, each built with no difference between control and treatment,
+checked every 100 requests per group instead of once at the end. The share flagged significant
+climbs well past the nominal 5 percent as the checking continues.
+:::
+
+@fig-peeking simulates 2,000 A/B tests where nothing separates the two groups (the null
+hypothesis is true in every one of them), then checks each test's p-value after every 100
+requests per group instead of waiting for a single planned sample size. By 2,000 requests per
+group, 23.8 percent of these null-true tests had crossed the 0.05 threshold at some earlier
+checkpoint, compared with 4.7 percent that would have crossed it under a single planned look
+at that same final sample size.
+
+*Sequential testing*, or "peeking," is the practice of checking a hypothesis test's p-value
+repeatedly as data accumulates and stopping the moment it crosses the significance threshold,
+rather than fixing the sample size in advance and checking once. A dashboard that shows a live
+p-value for a running A/B test invites this behavior, whether or not the team checking it
+knows the term for what it is doing.
+
+Each additional look at the data is another chance for random noise alone to cross the 0.05
+line, even when nothing in the underlying system changed. Stopping the moment a test looks
+significant, instead of continuing to the planned sample size, systematically favors declaring
+victory on noise: a team using this habit across many launches will ship changes that do
+nothing measurable far more often than the 5 percent rate a single, pre-planned look promises.
+
+Two standard fixes exist. **Fixing the sample size in advance** (using the sample size formula
+from earlier in this chapter) and checking the result once removes the temptation entirely, at
+the cost of waiting for the full sample before learning anything. **Sequential testing
+methods**, such as alpha-spending functions or always-valid p-values, allow repeated looks by
+shrinking the significance threshold at each check so that the combined false-positive rate
+across all the looks still lands at the intended level.
+
+::: {.callout-warning}
+A live dashboard showing a running p-value only counts as a sequential test when the
+underlying calculation accounts for how many times the result gets checked. Watching that
+number and stopping when it dips below 0.05 otherwise carries the inflated false-positive rate
+shown above, well past the 5 percent rate the threshold implies.
+:::
+
+Recall from earlier in this chapter that statistical power and sample size determine how much
+data a decision needs before it can be trusted; peeking is what happens when a team acts on a
+decision before that data has finished arriving.
 
 ## Confounding variables
 
@@ -344,9 +536,44 @@ each unit in the sample was measured twice.
 
 An *unpaired t-test* (also called an independent t-test) applies when the two groups being
 compared are not linked, for instance a randomized A/B test where incoming requests are
-assigned to a control path or a cached path:
+assigned to a control path or a cached path.
+
+::: {#fig-permutation-null}
+```{=html}
+<iframe src="../_generated/chapter-02-fig-permutation-null.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Shuffling which latency values belong to "control" and which belong to "cached" 20,000 times,
+and recomputing the difference in group means after each shuffle, builds a null distribution
+with no formula involved. The observed difference sits far out in that distribution's tail.
+:::
+
+@fig-permutation-null takes 60 control-path and 60 cached-path latency measurements and pools
+them into one list of 120 numbers, on the logic that if the caching layer changed nothing,
+"control" and "cached" are just arbitrary labels stuck onto interchangeable measurements.
+Shuffling those labels thousands of times and recomputing the mean difference under each
+relabeling shows what differences arise from label-shuffling alone, with no cache effect
+anywhere in the data.
+
+The observed difference between the two groups is 9.8 ms. Only 0.56 percent of 20,000 shuffles
+produced a difference at least that large in either direction, making a 9.8 ms gap far bigger
+than what label-shuffling alone tends to produce.
+
+The slider under the figure also shows what happens with too few shuffles: at 100 shuffles,
+none of the reshuffled differences reached 9.8 ms, making the gap look rarer than the fuller
+shuffle count later confirms; the estimate settles down only once the shuffle count reaches the
+thousands. Running a permutation test on a production dataset carries this same cost: enough
+shuffles to trust the resulting p-value can mean tens of thousands of recomputations of a group
+mean, a compute cost worth weighing against simply running the closed-form test below.
+
+The *unpaired t-test* answers the same question the permutation test just answered, in one
+closed-form step instead of thousands of reshuffles:
 
 $$t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{S_1^2/n_1 + S_2^2/n_2}}$$
+
+Welch's version of this test, applied to the same 120 measurements, returns a p-value of
+0.0065, close to the permutation test's 0.0056 despite never shuffling a single label.
 
 When the two groups have unequal variances, which is common when comparing a stable control
 path to a newly deployed one, Welch's t-test (a variant that does not assume equal variances)
@@ -362,6 +589,60 @@ result pulled from unfamiliar code.
 Both paired and unpaired tests assume the underlying data is close to normal or that the
 sample is large; the non-parametric alternatives near the end of this chapter cover what to
 do when that assumption fails.
+
+## The two-proportion z-test
+
+```python
+import numpy as np
+from scipy import stats
+
+rng = np.random.default_rng(2030)
+old_layer = rng.binomial(1, 0.81, 1500)    # old caching layer: checkout completion
+new_layer = rng.binomial(1, 0.855, 1500)   # new caching layer: checkout completion
+
+p1, p2 = old_layer.mean(), new_layer.mean()           # 0.815, 0.864
+pooled = (old_layer.sum() + new_layer.sum()) / 3000   # 0.840
+se = np.sqrt(pooled * (1 - pooled) * (1/1500 + 1/1500))
+z = (p2 - p1) / se                                    # 3.63
+p_value = 2 * (1 - stats.norm.cdf(abs(z)))            # 0.0003
+```
+
+Everything the two-sample t-test does for a continuous measurement like latency, a
+*two-proportion z-test* does for a checkout completion rate: it compares two proportions
+against each other rather than each against a fixed target.
+
+Comparing conversion rates, error rates, or completion rates between two variants is at least
+as common in production A/B testing as comparing two means, yet the tools built for
+categorical data so far in this chapter (the chi-squared test, covered next) are built around
+counting categories, not directly comparing two rates the way an engineer thinks about them:
+"the new layer completes checkouts 4.9 percentage points more often, is that gap believable."
+
+For the old caching layer, 1,500 checkouts complete at a rate of 81.5 percent; for the new one,
+1,500 checkouts complete at 86.4 percent, a 4.9 percentage point gap. Pooling both groups'
+completions into one combined rate under the assumption that the two layers perform
+identically gives the standard error the test statistic is measured against:
+
+$$z = \frac{\hat{p}_2 - \hat{p}_1}{\sqrt{\hat{p}(1 - \hat{p})\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}}$$
+
+where $\hat p_1$ and $\hat p_2$ are the two observed proportions, $\hat p$ is the pooled
+proportion across both groups combined, and $n_1$ and $n_2$ are the two sample sizes. Here $z
+= 3.63$, giving a two-sided p-value of 0.0003, a result unlikely to come from label-shuffling
+noise: a permutation test on the same 3,000 checkout outcomes, shuffling which group each 0/1
+outcome belongs to 20,000 times, puts the resampled p-value at 0.00025, in close agreement.
+
+::: {.callout-tip}
+The two-proportion z-test needs a pooled proportion under the assumption of no difference,
+unlike the two-sample t-test, which estimates each group's variance separately. A proportion's
+variance is fixed by the proportion itself ($\hat p(1-\hat p)$), leaving nothing extra to
+estimate, which is why Welch's correction, the safer default for comparing two means, has no
+equivalent step here.
+:::
+
+A small absolute gap in proportions can still be a substantial relative change: an 81.5
+percent to 86.4 percent completion rate is a 4.9-point absolute gain, but it also means the
+checkout failure rate dropped from 18.5 percent to 13.6 percent, close to a 27 percent cut in
+the share of checkouts that fail. Reporting only the absolute gap can undersell a result like
+this one.
 
 ## Comparing three or more groups: ANOVA
 
@@ -404,6 +685,18 @@ random noise alone.
 ANOVA answers only whether at least one region differs, not which one; the pairwise tests
 later in this chapter pick up from there.
 
+The same shuffle-based logic from the unpaired t-test extends here without much change:
+relabel which of the three regions each latency observation belongs to, recompute the
+between-group and within-group variance under that relabeling, and repeat thousands of times
+to build a null distribution for $F$ directly. The closed-form F-test above is the fast version
+of that process. Running the full permutation version costs more compute for the same reason
+the unpaired t-test's permutation check did: the earlier comparison needed thousands of
+reshuffles before its estimated p-value stopped moving (0.0040 at 1,000 shuffles versus 0.0056
+at 20,000), and a three-group relabeling has more ways to shuffle than a two-group one, so it
+settles even more slowly. Production pipelines default to the closed-form F-test for this
+reason, reaching for the permutation version mainly when a group's data is too irregular for
+the F-test's assumptions to hold with any confidence.
+
 ::: {.callout-warning}
 Standard ANOVA assumes each group's latency varies by roughly the same amount. When one
 region's traffic is far noisier than another's, the F-test's false-positive rate can drift
@@ -445,6 +738,15 @@ too small (a common rule of thumb is at least 5). With rarer categories, Fisher'
 around permutation probabilities computed directly rather than the chi-squared approximation)
 is the safer choice.
 :::
+
+The chi-squared statistic also has a permutation version, built the same way as the tests
+above: shuffle the error-type label attached to each observed request, recompute $\chi^2$
+under each shuffle, and compare the observed statistic against the resulting simulated null.
+As a rule of thumb, resolving a permutation p-value near a stricter threshold such as 0.01
+reliably needs on the order of ten times as many shuffles as resolving one near 0.05, since the
+estimate's own uncertainty shrinks only with the square root of the shuffle count. A pipeline
+that reuses a shuffle count tuned for a 0.05 cutoff at a stricter 0.01 cutoff elsewhere is
+working with a noisier estimate than the first case.
 
 ## Controlling for a continuous confounder: ANCOVA
 
@@ -542,6 +844,56 @@ comparisons, a risk that grows the more pairs are checked.
 Choosing among these is a trade between power and conservatism: a stricter correction lowers
 the chance of a false positive across many comparisons but raises the chance of missing a
 difference that exists between any single pair.
+
+## The multiple-comparisons problem
+
+```python
+import numpy as np
+rng = np.random.default_rng(5)
+m_tests, alpha = 20, 0.05
+count_any_significant = 0
+for _ in range(20_000):
+    p_values = rng.uniform(0, 1, m_tests)   # p-values are uniform when every null is true
+    if np.any(p_values < alpha):
+        count_any_significant += 1
+share = count_any_significant / 20_000   # 0.637
+```
+
+Running 20,000 simulated dashboards, each checking 20 independent metrics where nothing has
+changed on any of them, found that 63.7 percent of those dashboards had at least one metric
+cross the 0.05 threshold anyway. The closed-form probability agrees:
+$1 - (1 - 0.05)^{20} \approx 0.642$.
+
+The post-hoc tests above solve a narrow version of a wider problem: checking many things at
+once inflates the chance that something looks significant by chance alone, whether those "many
+things" are pairwise comparisons after ANOVA or twenty unrelated metrics on a monitoring
+dashboard. The *multiple-comparisons problem* names this general fact and reaches far beyond
+ANOVA follow-up testing.
+
+A team running one hypothesis test accepts a 5 percent chance of a false alarm on that one
+test. A team running twenty independent tests, each at the same 5 percent threshold, faces
+close to a 64 percent chance that at least one of them flags a change that is not there,
+purely from running that many tests. A metrics dashboard checking latency, error rate,
+throughput, and a dozen other signals across several regions every morning is running this
+same experiment without recognizing it as one.
+
+Two corrections handle this differently. The **Bonferroni correction**, introduced earlier in
+this chapter for post-hoc pairwise tests, divides the significance threshold by the number of
+tests: checking 20 metrics at a combined 5 percent risk means treating no single metric as
+significant unless its own p-value clears 0.0025, a considerably stricter bar. The
+**Benjamini-Hochberg procedure** takes a different approach, controlling the *false discovery
+rate* (the expected share of flagged results that are false alarms, rather than the chance of
+any false alarm at all) instead of the family-wise error rate Bonferroni protects. It is less
+conservative than Bonferroni and is the more common choice for a dashboard running dozens of
+tests routinely, where missing a regression is often costlier than tolerating an occasional
+false alarm among the flagged metrics.
+
+::: {.callout-warning}
+Treating a dashboard's individual metric thresholds as independent 5 percent risks, with no
+correction at all, is one of the most common ways a monitoring system generates false alarms.
+The more metrics a dashboard checks routinely, the more its uncorrected alert rate drifts away
+from the 5 percent a single test promises.
+:::
 
 ## When the data will not cooperate: non-parametric tests
 

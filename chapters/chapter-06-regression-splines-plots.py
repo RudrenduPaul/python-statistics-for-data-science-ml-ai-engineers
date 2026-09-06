@@ -13,7 +13,9 @@ import os
 
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from scipy.interpolate import CubicSpline, LSQUnivariateSpline, UnivariateSpline
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 RNG = np.random.default_rng(7)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_generated")
@@ -34,6 +36,76 @@ def save(fig: go.Figure, name: str) -> str:
 def saturation_curve(rho: np.ndarray, base_ms: float = 20.0) -> np.ndarray:
     """Mean latency under an M/M/1-style saturation curve as utilization rho -> 1."""
     return base_ms / (1.0 - rho)
+
+
+def simulated_load_payload_latency(n: int = 180, noise_scale: float = 3.0, seed: int | None = None):
+    """Latency driven by two predictors: concurrent load (rho) and payload size.
+
+    The load term reuses saturation_curve() unchanged, the same nonlinear
+    relationship this whole chapter is built around. The payload term reuses
+    Chapter 4's own fitted coefficient (9 ms per KB, payload range 2-20 KB)
+    instead of inventing a new number, since Chapter 4 established that
+    relationship as close to linear. The generalized-additive-model section
+    below fits a spline to the load term and a plain line to the payload term,
+    a pairing that only makes sense with a linear payload term.
+    """
+    rng = RNG if seed is None else np.random.default_rng(seed)
+    rho = rng.uniform(0.05, 0.93, size=n)
+    payload_kb = rng.uniform(2, 20, size=n)
+    load_component = saturation_curve(rho)
+    payload_component = 9.0 * payload_kb
+    noise = rng.normal(0, noise_scale, size=n) * (1 + load_component / 40)
+    latency = np.clip(load_component + payload_component + noise, 1, None)
+    return rho, payload_kb, latency
+
+
+def fit_backfit_gam(rho: np.ndarray, payload_kb: np.ndarray, latency: np.ndarray,
+                     n_interior_knots: int = 3, n_iter: int = 10) -> dict:
+    """Fit an additive model, y = intercept + beta*payload + f(rho), by backfitting.
+
+    Each iteration re-estimates one term against the residual left over once
+    every other term's current estimate is subtracted out, then centers that
+    term to mean zero so the intercept alone carries the overall average. The
+    loop runs a fixed 10 iterations rather than checking for convergence,
+    which is enough for two terms and this sample size to settle down well
+    before the last pass; a from-scratch implementation gets to make that call
+    explicit instead of hiding it inside a library default.
+    """
+    y = latency
+    grand_mean = y.mean()
+    payload_c = payload_kb - payload_kb.mean()
+    payload_ss = np.sum(payload_c ** 2)
+    interior_knots = np.quantile(rho, np.linspace(0, 1, n_interior_knots + 2)[1:-1])
+    order = np.argsort(rho)
+    rho_sorted = rho[order]
+
+    f_load = np.zeros_like(y)
+    beta_payload = 0.0
+    spline = None
+    f_load_mean = 0.0
+    for _ in range(n_iter):
+        resid_for_payload = y - grand_mean - f_load
+        beta_payload = np.sum(resid_for_payload * payload_c) / payload_ss
+        payload_term = beta_payload * payload_c
+
+        resid_for_load = (y - grand_mean - payload_term)[order]
+        spline = LSQUnivariateSpline(rho_sorted, resid_for_load, t=interior_knots, k=3)
+        f_load_raw = spline(rho)
+        f_load_mean = f_load_raw.mean()
+        f_load = f_load_raw - f_load_mean
+
+    payload_term = beta_payload * payload_c
+    fitted = grand_mean + payload_term + f_load
+    return {
+        "intercept": grand_mean,
+        "beta_payload": beta_payload,
+        "payload_mean": payload_kb.mean(),
+        "spline": spline,
+        "f_load_mean": f_load_mean,
+        "fitted": fitted,
+        "payload_term": payload_term,
+        "f_load": f_load,
+    }
 
 
 def simulated_load_latency(n: int = 220, noise_scale: float = 3.0, seed: int | None = None):
@@ -398,7 +470,123 @@ def fig_gp_posterior() -> go.Figure:
 
 
 # ---------------------------------------------------------------------------
-# Figure 6: individual basis functions, by family (polynomial, step, spline)
+# Figure 6: local regression (LOESS) at varying span
+# ---------------------------------------------------------------------------
+def fig_loess_span() -> go.Figure:
+    rho, latency = simulated_load_latency(n=90, noise_scale=2.5, seed=7)
+    grid = np.linspace(rho.min(), rho.max(), 300)
+    true_curve = saturation_curve(grid)
+    spans = [0.08, 0.2, 0.4, 0.7]
+    frames = []
+    for span in spans:
+        fit = lowess(latency, rho, frac=span, it=0, xvals=grid)
+        frames.append(
+            go.Frame(
+                name=f"{span:.2f}",
+                data=[
+                    go.Scatter(x=rho, y=latency, mode="markers", name="observed",
+                               marker=dict(color="#B7C7DB", size=6, opacity=0.6)),
+                    go.Scatter(x=grid, y=true_curve, mode="lines", name="true curve",
+                               line=dict(color="#54A24B", width=2, dash="dot")),
+                    go.Scatter(x=grid, y=fit, mode="lines", name=f"LOESS, span {span:.2f}",
+                               line=dict(color="#E45756", width=3)),
+                ],
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig.update_layout(
+        title="Local regression (LOESS) fit as the span widens",
+        xaxis_title="Utilization (rho)",
+        yaxis_title="Latency (ms)",
+        yaxis_range=[-20, 400],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Span (fraction of data in each local fit): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 7: a two-predictor GAM, shown as its two additive component functions
+# ---------------------------------------------------------------------------
+def fig_gam_components() -> go.Figure:
+    rho, payload_kb, latency = simulated_load_payload_latency(n=180, noise_scale=3.0, seed=11)
+    result = fit_backfit_gam(rho, payload_kb, latency)
+
+    payload_grid = np.linspace(payload_kb.min(), payload_kb.max(), 100)
+    payload_curve = result["beta_payload"] * (payload_grid - result["payload_mean"])
+
+    rho_grid = np.linspace(rho.min(), rho.max(), 300)
+    load_curve = result["spline"](rho_grid) - result["f_load_mean"]
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Payload term: f(payload size)", "Load term: f(utilization)"),
+    )
+    fig.add_trace(
+        go.Scatter(x=payload_grid, y=payload_curve, mode="lines", name="payload term",
+                   line=dict(color="#4C78A8", width=3)),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Scatter(x=rho_grid, y=load_curve, mode="lines", name="load term",
+                   line=dict(color="#E45756", width=3)),
+        row=1, col=2,
+    )
+    fig.update_xaxes(title_text="Payload size (KB)", row=1, col=1)
+    fig.update_xaxes(title_text="Utilization (rho)", row=1, col=2)
+    fig.update_yaxes(title_text="Contribution to latency (ms)", row=1, col=1)
+    fig.update_yaxes(title_text="Contribution to latency (ms)", row=1, col=2)
+    fig.update_layout(
+        title="A fitted additive model, split into its two term functions",
+        showlegend=False,
+        margin=dict(t=80, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 8: partial residual plot for the load spline term
+# ---------------------------------------------------------------------------
+def fig_gam_partial_residual() -> go.Figure:
+    rho, payload_kb, latency = simulated_load_payload_latency(n=180, noise_scale=3.0, seed=11)
+    result = fit_backfit_gam(rho, payload_kb, latency)
+
+    # Partial residual for the load term: subtract every other term's fitted
+    # contribution but leave the load term's own variation untouched, so what
+    # remains is that term's signal plus whatever noise the model did not
+    # explain.
+    partial_resid = latency - result["intercept"] - result["payload_term"]
+
+    grid = np.linspace(rho.min(), rho.max(), 300)
+    load_curve = result["spline"](grid) - result["f_load_mean"]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=rho, y=partial_resid, mode="markers",
+                              name="partial residual (load term)",
+                              marker=dict(color="#B7C7DB", size=6, opacity=0.6)))
+    fig.add_trace(go.Scatter(x=grid, y=load_curve, mode="lines",
+                              name="fitted load spline term",
+                              line=dict(color="#E45756", width=3)))
+    fig.update_layout(
+        title="Partial residual plot: what the load spline term is fitting, payload held constant",
+        xaxis_title="Utilization (rho)",
+        yaxis_title="Partial residual (ms)",
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 9: individual basis functions, by family (polynomial, step, spline)
 # ---------------------------------------------------------------------------
 def fig_basis_functions() -> go.Figure:
     grid = np.linspace(0, 1, 300)
@@ -483,6 +671,9 @@ FIGURES = {
     "chapter-splines-fig-knot-count": fig_knot_count,
     "chapter-splines-fig-natural-boundary": fig_natural_boundary,
     "chapter-splines-fig-smoothing-lambda": fig_smoothing_lambda,
+    "chapter-splines-fig-loess-span": fig_loess_span,
+    "chapter-splines-fig-gam-components": fig_gam_components,
+    "chapter-splines-fig-gam-partial-residual": fig_gam_partial_residual,
     "chapter-splines-fig-gp-posterior": fig_gp_posterior,
 }
 

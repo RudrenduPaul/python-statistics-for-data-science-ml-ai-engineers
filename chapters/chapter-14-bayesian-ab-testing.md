@@ -189,6 +189,87 @@ a team wants it most: after a lot of traffic has arrived. Simulation cost stays 
 of sample size, which is the more practical reason production dashboards default to it.
 :::
 
+## Sample ratio mismatch: checking the split before trusting the comparison
+
+A referee checks that both teams took the field with the agreed number of players before a
+single point on the scoreboard means anything. A sample ratio check plays the same role for an
+experiment: confirm the assignment mechanism did what it was told before reading any result it
+produced.
+
+::: {#fig-srm-check}
+```{=html}
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-srm-check.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Cumulative logged traffic by variant, week over week. Weeks 1 and 2 sit close to the dashed 50%
+line; a redirect-timeout bug shipped after Week 2 pulls Variant B's share down every week after,
+crossing the flag threshold by Week 5.
+:::
+
+@fig-srm-check tracks a checkout-button test across five weeks at 15,000 new visitors per week.
+Assignment stays a clean coin flip the whole time.
+
+After Week 2, a redirect-timeout bug on Variant B's page drops roughly 6% of visitors assigned
+to it from the logging pipeline before a conversion is ever recorded for them. Variant A's page
+is untouched, so its logged count always matches its assigned count.
+
+By the end of Week 4, cumulative logged traffic sits at 29,921 for A against 29,145 for B, a
+chi-square statistic of 10.19 and a p-value of 0.0014, a split drifting the wrong way but not
+yet flagged. One more week of the same bug pushes it past the line: 37,430 logged for A against
+36,243 for B, chi-square 19.12, p-value near 0.00001.
+
+*Sample ratio mismatch* (SRM) is what a test has when the traffic that ends up analyzed splits
+differently from the traffic the randomization mechanism was told to produce. It says nothing
+yet about which variant converts better. It says the two groups being compared are no longer
+the two groups the experiment was designed to compare.
+
+The gap between who was randomized and who got counted is the whole reason SRM deserves a
+check of its own, separate from every decision rule earlier in this chapter. Win probability,
+expected loss, and the frequentist
+p-value all assume the visitors landing in each bucket are a fair, randomized sample. A
+redirect bug does not touch who gets randomized; it touches who survives to be counted, and
+that survival is not random. Slower connections and older devices are the ones most likely to
+time out on a redirect, so the visitors quietly dropped from Variant B's logs are not a random
+5% of Variant B; they skew toward whichever population is slower to load a page.
+
+Comparing the two groups that remain, then, is not comparing Variant A to Variant B. It is
+comparing Variant A's full population to a filtered slice of Variant B's population, missing
+the specific visitors most likely to behave differently. A win probability of 93.7% computed on
+that filtered comparison is a precise answer to a question nobody meant to ask.
+
+Chapter 2 introduced the *goodness of fit* test for this shape of question: whether observed
+category counts still match an expected distribution, using the same chi-squared statistic
+behind the association test in that chapter,
+
+$$\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}$$
+
+with $O_i$ the observed logged count for variant $i$ and $E_i$ the count the intended split
+would produce out of the same total. For a 50/50 design with $n$ total logged visitors, $E_i$ is
+simply $n / 2$ for each variant.
+
+::: {.callout-warning}
+Run the SRM check on cumulative totals throughout the experiment, not once at the end. This
+chapter's peeking-problem section warns against optional stopping on the decision metric;
+checking the split itself carries no such penalty, since it is a validity check on the
+experiment's plumbing, not a test of the effect being measured.
+:::
+
+Kohavi, Tang, and Xu's practitioner reference on controlled experiments recommends a stricter
+significance threshold than the conventional 0.05 for this specific check, on the order of
+$p < 0.001$, because with tens of thousands of visitors even a trivial, harmless imbalance
+clears 0.05 routinely; the stricter bar reserves a flag for a split large enough to point to a
+pipeline problem worth fixing [@kohavitangxu2020]. A large-scale study of SRM across four
+production companies catalogs the usual culprits behind that kind of split: assignment
+bucketing bugs, bot traffic filtered asymmetrically after the fact, and, as in this section's
+example, telemetry lost somewhere downstream of assignment [@fabijan2019].
+
+::: {.callout-important}
+An SRM flag stops the analysis cold. Every other number this chapter computes needs to wait
+until the split is fixed: win probability and expected loss are answers to the wrong question
+until then.
+:::
+
 ## Expected loss as a stopping rule
 
 Imagine picking between two job offers without knowing which pays better long-term. Expected
@@ -442,6 +523,185 @@ via Markov chain Monte Carlo once a model no longer has a closed-form answer.
 Every figure in this chapter needed nothing more than arithmetic, because Beta-Binomial and
 Normal-Normal conjugacy both had closed-form solutions. A model with correlated segment-level
 effects or a skewed, non-normal outcome usually will not.
+
+## Multiple metrics, multiple chances to be wrong
+
+Buying ten lottery tickets instead of one does not raise any single ticket's odds, but it does
+raise the odds that at least one of them pays out. Watching ten metrics on a dashboard works the
+same way: each one gets its own chance to look like a win purely by luck.
+
+::: {#fig-multiple-metrics}
+```{=html}
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-multiple-metrics.html" width="100%"
+        height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The probability that at least one of $k$ metrics clears a 95% win-probability bar, with no true
+difference behind any of them. The uncorrected rate climbs past 60% by twenty metrics; a
+per-metric threshold adjusted for $k$ holds it near 5% throughout.
+:::
+
+@fig-multiple-metrics runs the checkout-button test's own setup, 2,000 visitors per variant,
+both arms at a true 10% conversion rate, so any flagged metric is by construction a false one,
+across a growing number of simultaneously tracked metrics.
+
+At $k = 1$, a metric flagged as a winner (win probability above 97.5% or below 2.5%) by chance
+alone happens 4.8% of the time, close to the 5% a single well-calibrated test should produce. At
+$k = 5$ metrics, that rises to 22.6%. At $k = 20$, it reaches 64.4%, close to the 64.2% the
+closed-form probability $1 - (1 - 0.05)^{20}$ predicts.
+
+The same arithmetic, $1 - (1 - \alpha)^k$, applied to a different threshold rule, produces the
+identical 64.2% figure Chapter 2 found for twenty p-value-based dashboard metrics. A
+win-probability cutoff and a p-value cutoff are both single-metric decision rules applied
+independently across metrics, with no correction for how many chances each experiment gets.
+
+A Bayesian framing changes what is being estimated, a full posterior instead of a point
+estimate and a p-value, but it changes nothing about this specific arithmetic. Nineteen metrics
+with no true effect and one metric carrying a true 3-point lift still produce, on average,
+several false alarms alongside the one true finding, whether the flagging rule is $p < 0.05$
+or win probability above 97.5%.
+
+The frequentist fix from Chapter 2, dividing the significance threshold by the number of
+metrics tracked, has a direct analogue here: instead of flagging a metric at a 97.5%/2.5%
+win-probability cutoff, raise the bar to $1 - \alpha / (2k)$ on the correct side, the same
+Bonferroni logic applied to a probability threshold instead of a p-value. @fig-multiple-metrics
+shows this correction holding the false-alarm rate near 5% at every value of $k$ tested.
+
+::: {.callout-warning}
+Nothing about computing a posterior instead of a p-value removes the multiple-comparisons
+problem. A win-probability threshold checked independently across many metrics inflates its
+false-alarm rate the same way a p-value threshold does, because the underlying arithmetic is
+the same regardless of which framework produced the threshold.
+:::
+
+A hierarchical model offers a more natural Bayesian-native answer than a narrower
+Bonferroni-style correction. Treating each metric's effect as drawn from a shared distribution
+pulls a noisy metric's estimate toward the group's pattern; a Bonferroni correction only raises
+the bar the metric has to clear. The next section builds that same kind of partial-pooling
+model, applied to segments of an experiment's traffic instead of metrics, and the shrinkage
+mechanism carries over directly.
+
+## Hierarchical A/B testing: partial pooling across segments
+
+A retail chain trusts its flagship store's weekly numbers on their own, treats a brand-new
+kiosk's first week with more caution, and still lets what it has learned across every other
+store inform its guess about that kiosk. Hierarchical modeling formalizes that same instinct:
+each segment gets its own estimate, but small or noisy segments lean on the pattern the other
+segments share.
+
+Chapter 10 introduced PSIS-LOO and `az.compare()` with a promise attached: this chapter would
+use both to check whether adding a segment-level effect to an experiment's model earns its
+keep, or only adds machinery without adding predictive accuracy. This section keeps that
+promise on the checkout-button test itself, split across four traffic-source segments: organic
+search, paid search, referral links, and email.
+
+| Segment | $n_A$ | $n_B$ | Observed lift (pp) |
+|---|---:|---:|---:|
+| Organic | 6,000 | 6,000 | +0.80 |
+| Paid search | 4,000 | 4,000 | +1.88 |
+| Referral | 1,200 | 1,200 | +0.08 |
+| Email | 350 | 350 | +0.57 |
+
+Three models fit that same table three different ways. *No pooling* estimates each segment's
+lift on its own data alone, as if the other three segments did not exist. *Complete pooling*
+collapses all four segments into a single shared lift, as if traffic source made no difference
+at all. *Hierarchical* partial pooling sits between the two: each segment keeps its own lift
+parameter, but those four parameters are drawn from a shared Normal distribution whose own
+mean and spread the model also estimates from the data.
+
+```python
+import pymc as pm
+import arviz as az
+
+def fit_segment_model(n_a, k_a, n_b, k_b, pooling):
+    segments = ["organic", "paid_search", "referral", "email"]
+    with pm.Model(coords={"segment": segments}) as model:
+        alpha = pm.Normal("alpha", mu=0, sigma=1.5, dims="segment")
+        if pooling == "no_pooling":
+            delta = pm.Normal("delta", mu=0, sigma=1.5, dims="segment")
+        elif pooling == "complete_pooling":
+            delta_shared = pm.Normal("delta_shared", mu=0, sigma=1.5)
+            delta = pm.Deterministic("delta", delta_shared * pm.math.ones(4), dims="segment")
+        else:
+            mu_delta = pm.Normal("mu_delta", mu=0, sigma=1)
+            sigma_delta = pm.HalfNormal("sigma_delta", sigma=1)
+            offset = pm.Normal("offset", mu=0, sigma=1, dims="segment")
+            delta = pm.Deterministic("delta", mu_delta + offset * sigma_delta, dims="segment")
+        p_a = pm.math.invlogit(alpha)
+        p_b = pm.math.invlogit(alpha + delta)
+        pm.Binomial("obs_a", n=n_a, p=p_a, observed=k_a, dims="segment")
+        pm.Binomial("obs_b", n=n_b, p=p_b, observed=k_b, dims="segment")
+        idata = pm.sample(1000, tune=1000, idata_kwargs={"log_likelihood": True})
+    return idata
+
+comparison = az.compare({
+    "no_pooling": fit_segment_model(n_a, k_a, n_b, k_b, "no_pooling"),
+    "complete_pooling": fit_segment_model(n_a, k_a, n_b, k_b, "complete_pooling"),
+    "hierarchical": fit_segment_model(n_a, k_a, n_b, k_b, "hierarchical"),
+})
+```
+
+::: {.callout-tip}
+The hierarchical branch above uses the same non-centered parameterization, an offset drawn from
+a standard Normal and scaled afterward, that Chapter 9 introduced for the horseshoe prior.
+Sampling a segment's lift directly from `Normal(mu_delta, sigma_delta)` couples that segment's
+value to `sigma_delta` in a way that produces a narrow, hard-to-sample funnel whenever a
+segment's own data is too sparse to pin its lift down; the offset form breaks that coupling.
+:::
+
+Running the equivalent computation directly from posterior draws, the same reproducibility
+choice Chapter 10 made for its own figure, produces the table `az.compare()` would print:
+
+| Model | elpd_loo | SE | d_elpd | dSE |
+|---|---:|---:|---:|---:|
+| complete_pooling | -33.8 | 2.1 | 0.0 | 0.0 |
+| hierarchical | -34.0 | 2.0 | -0.2 | 0.35 |
+| no_pooling | -36.8 | 1.6 | -3.0 | 1.15 |
+
+::: {#fig-hierarchical-segments}
+```{=html}
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-hierarchical-segments.html" width="100%"
+        height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Left: the same elpd_loo comparison as the table, best model first. Right: each segment's true
+lift against what no pooling and partial pooling recovered from the data. Referral's near-zero
+no-pooling estimate, driven by a small sample landing close to even, moves toward the group
+pattern under partial pooling and lands close to its true 0.5-point lift; Email, the smallest
+segment, gets pulled the same direction even though its own true lift ran the other way.
+:::
+
+Read the table the way Chapter 10 recommended: against `d_elpd` and `dSE`, not the plain `SE`
+column. The hierarchical model's gap from complete pooling, -0.2, sits well inside its own
+0.35-point standard error, so this dataset cannot distinguish the two on predictive accuracy
+alone. No pooling's gap, -3.0 against a 1.15-point standard error, is a clearer, roughly
+three-standard-error loss: estimating four segments from scratch, with no sharing of
+information, costs more than it buys here.
+
+That leaves an honest, unglamorous answer to Chapter 10's question: adding the segment-level
+effect does not measurably improve this model's predictions over ignoring segments entirely.
+`az.compare()` is not refusing to reward the segment structure out of excess caution; with only
+eight aggregated observations, four segments times two arms, several of them carry a Pareto
+$\hat{k}$ diagnostic above 0.70, the same warning sign Chapter 10's own diagnostic flags, so
+this particular elpd comparison is closer to suggestive than decisive.
+
+What the elpd table cannot show, and the right-hand panel of @fig-hierarchical-segments does, is
+what partial pooling buys at the level of a single segment's estimate instead of the model's
+aggregate fit. Referral's no-pooling lift came out to essentially zero, an artifact of a small
+sample happening to split nearly even; partial pooling pulled it toward the other segments'
+generally positive pattern and closer to its true 0.5-point lift. Email tells the harder
+version of the same story: partial pooling pulled its estimate toward that same shared pattern
+too, but Email's own underlying lift ran negative, so here the shared pattern pulled a small,
+noisy segment further from the truth, not closer to it.
+
+::: {.callout-warning}
+Partial pooling borrows strength from segments that resemble each other, and most of the time
+that borrowing helps a noisy, small segment more than it hurts. It is not free. A segment whose
+underlying effect truly differs from its peers, combined with too little data of its own to
+prove that difference, can still end up pulled the wrong direction. Treat hierarchical
+structure as a default worth reaching for, and still check what each segment's own estimate
+says on its own.
+:::
 
 ## The limits of Bayesian inference
 

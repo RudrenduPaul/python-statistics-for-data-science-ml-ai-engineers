@@ -220,6 +220,153 @@ cross-validated error, generalizes far past $\lambda$: choosing a polynomial's d
 smoothing parameter, or the number of trees in a forest are all the same search, applied to a
 different knob.
 
+## Building k-fold cross-validation from scratch: tuning two knobs at once
+
+::: {#fig-knn-grid-search}
+```{=html}
+<iframe src="../_generated/chapter-cv-fig-knn-grid-search.html" width="100%" height="520"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Average five-fold cross-validated error for every combination of neighbor count and weighting
+scheme. The darkest cell, 25 neighbors with distance weighting, sits at a value neither
+hyperparameter reaches on its own.
+:::
+
+@fig-knn-grid-search comes from a mobile app team's crash telemetry, a new dataset for this
+section, separate from the latency model used earlier in this chapter. For 240 fifteen-minute
+device-session windows, two features are logged: heap memory pressure as a percentage, and hours
+since the app process last restarted. The target is crashes observed per 1,000 sessions in that
+window. The team wants to predict expected crash rate for a new window from its two features
+using k-nearest-neighbor regression, averaging the crash rate of the $k$ most similar historical
+windows.
+
+That model carries two knobs: $k$, how many neighboring windows to average, and how each
+neighbor's vote counts, an unweighted average of all $k$ neighbors or a weighted average that
+lets nearer neighbors count for more. The lambda search earlier in this chapter swept one knob
+against cross-validated error. Two knobs at once turns that same search from a line into a grid:
+every combination of $k$ and weighting scheme gets its own k-fold cross-validated error, and the
+results land in a table, one hyperparameter along the rows, the other along the columns. A
+*grid search* cross-validates every candidate combination this way and reads the single winning
+cell off the resulting table.
+
+A one-at-a-time search, tuning one hyperparameter while holding the other fixed, can settle on a
+combination a full grid search would have improved on. Fixing the weighting scheme at its
+default, an unweighted average, and searching only over $k$ against this data lands on $k=5$,
+the lowest error in that column, at 10.57. Checking whether distance weighting helps at that
+same $k=5$ makes things slightly worse, 10.62, so the one-at-a-time search stops there and ships
+$k=5$ with an unweighted average.
+
+The full grid tells a different story. $k=25$ with distance weighting reaches 10.05, roughly 5
+percent lower error than the one-at-a-time search found, and that combination was never tested,
+because the one-at-a-time search had locked in $k=5$ before it touched the weighting knob at
+all. Distance weighting only pays off once $k$ is large enough that some included neighbors sit
+meaningfully farther away than others: at $k=5$, every neighbor sits close by, so weighting them
+unevenly barely changes the prediction, while at $k=25$ an unweighted average starts diluting
+the prediction with neighbors that are considerably less similar. That interaction between the
+two knobs stays invisible to a one-at-a-time search.
+
+::: {.callout-important}
+Hyperparameters can interact. A one-at-a-time search, tuning each one while holding others at a
+default, can land on a locally reasonable answer that a joint search over all combinations would
+beat. Scoring the full grid is the only way to catch this.
+:::
+
+Building that grid from raw folds needs two loops layered on top of each other. The first
+assigns every observation a fold, the same fold-assignment step k-fold CV has used all chapter,
+written here as an explicit loop over every observation:
+
+```python
+fold_id = np.empty(n, dtype=int)
+shuffled = rng.permutation(n)
+for position, row in enumerate(shuffled):
+    fold_id[row] = position % k_folds
+```
+
+The second loop walks the hyperparameter grid, scoring every combination across all of the
+folds the first loop just assigned:
+
+```python
+cv_error = np.empty((len(neighbor_grid), len(weight_grid)))
+for i, k in enumerate(neighbor_grid):
+    for j, weighting in enumerate(weight_grid):
+        fold_errors = []
+        for fold in range(k_folds):
+            train_mask, val_mask = fold_id != fold, fold_id == fold
+            preds = knn_predict(X[train_mask], y[train_mask], X[val_mask], k, weighting)
+            fold_errors.append(np.mean((preds - y[val_mask]) ** 2))
+        cv_error[i, j] = np.mean(fold_errors)
+```
+
+The two outer loops walk the hyperparameter grid; the innermost loop is the same k-fold
+procedure defined earlier in this chapter, called once per grid cell instead of once overall.
+The resulting `cv_error` array is the pivot table @fig-knn-grid-search renders as a heatmap:
+
+| $k$ neighbors | uniform weighting | distance weighting |
+|---:|---:|---:|
+| 1  | 16.46 | 16.46 |
+| 3  | 10.92 | 11.26 |
+| 5  | 10.57 | 10.62 |
+| 10 | 10.73 | 10.33 |
+| 15 | 10.67 | 10.08 |
+| 25 | 11.00 | **10.05** |
+| 40 | 11.45 | 10.26 |
+
+Formally, a grid search minimizes cross-validated error over the Cartesian product of every
+hyperparameter's candidate values:
+
+$$
+(\hat{k}, \hat{w}) = \underset{(k,\, w) \,\in\, \mathcal{K} \times \mathcal{W}}{\arg\min}
+\; \frac{1}{K}\sum_{f=1}^{K} \text{MSE}_f(k, w)
+$$
+
+where $\mathcal{K}$ and $\mathcal{W}$ are the candidate grids for each hyperparameter, $K$ is the
+number of folds, and $\text{MSE}_f(k, w)$ is the validation error on fold $f$ for that
+combination. Nothing about the formula changes when a third or fourth hyperparameter joins the
+search; the grid gains another dimension, and the loop nests one level deeper.
+
+::: {.callout-tip}
+A two-hyperparameter grid with $g_1$ and $g_2$ candidate values, scored by $k$-fold CV, fits the
+model $g_1 \times g_2 \times k$ times. That cost grows fast: the modest $7 \times 2$ grid above,
+at 5 folds, means 70 separate fits. Coarsen the grid, or narrow it around a promising region,
+before adding a third hyperparameter to the search.
+:::
+
+Every line of the two loops above is what scikit-learn's `GridSearchCV` and `cross_val_score`
+automate:
+
+```python
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+pipeline = make_pipeline(StandardScaler(), KNeighborsRegressor())
+grid = GridSearchCV(
+    pipeline,
+    param_grid={
+        "kneighborsregressor__n_neighbors": [1, 3, 5, 10, 15, 25, 40],
+        "kneighborsregressor__weights": ["uniform", "distance"],
+    },
+    cv=5,
+    scoring="neg_mean_squared_error",
+)
+grid.fit(X, y)
+```
+
+::: {.callout-warning}
+`scoring="neg_mean_squared_error"` comes back negative by convention: scikit-learn's search
+tools always maximize a score, and mean squared error is something to minimize instead. Flip the
+sign on `grid.best_score_` before comparing it against a table of plain MSE values like the one
+above.
+:::
+
+`GridSearchCV` builds its own folds internally, so its numbers will not match the table cell for
+cell, even though it searches the identical grid with the same cross-validation idea underneath.
+Reaching for it once the mechanism above makes sense trades a few lines of bookkeeping for a
+one-line call. Reaching for it before that mechanism makes sense trades away the only view into
+what the winning cell cost to find.
+
 ## What cross-validation does not fix
 
 Cross-validation estimates test error under one working assumption: that the data is

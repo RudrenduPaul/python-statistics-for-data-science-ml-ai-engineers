@@ -525,6 +525,129 @@ deployment touching many downstream services is meaningfully riskier at a given 
 a deployment with few dependencies. That is the kind of interaction a human reviewer skimming a
 dashboard of raw error rates would likely miss.
 
+## Permutation importance, and where Gini and entropy importance mislead {#sec-importance-comparison}
+
+::: {#fig-importance-comparison}
+```{=html}
+<iframe src="../_generated/chapter-trees-fig-importance-comparison.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Permutation, Gini, and entropy importance for the rollback forest, with a fifth feature added
+on purpose: a deployment batch ID with no relationship to rollback risk. Gini and entropy rank
+it third of five, ahead of dependency count and hour of day. Permutation importance ranks it
+last of the five, behind every other feature including the two it just outranked.
+:::
+
+@fig-importance-comparison adds one feature to the rollback dataset that never appeared in the
+worked examples above: a deployment batch ID, a number assigned in sequence to every deployment
+and otherwise unconnected to whether that deployment needed a rollback. The forest still reports
+a Gini importance score for it, 0.141, ahead of both dependency count (0.074) and hour of day
+(0.089). Entropy importance tells the same story: 0.150, again ahead of both. Permutation
+importance disagrees outright. It scores the batch ID at -0.006, the lowest score of all five
+features, trailing dependency count, hour of day, and even payload size: shuffling the batch ID
+costs the forest nothing, which is the tell that the forest never depended on it to predict well
+in the first place.
+
+That disagreement is the point of the figure, and it is worth understanding before trusting
+either kind of importance score on a dataset with predictors of differing cardinality.
+
+Permutation importance measures how much a fitted model's accuracy drops when one feature's
+column is shuffled at random on a held-out validation split, breaking that feature's link to
+the outcome while leaving the fitted model and every other column untouched
+[@breiman2001randomforests]. A feature whose shuffled version costs the model nothing was
+carrying no predictive weight inside the model.
+
+Gini and entropy importance measure something different: how much a predictor decreased
+impurity, summed across every split that used it, while the forest was being built. A predictor
+gets credit each time it wins a split, whether or not that split turns out to matter on data the
+forest has never seen.
+
+The batch ID wins splits for a mechanical reason that has nothing to do with rollback risk: it
+has roughly 2,000 distinct values in a dataset with only a few thousand rows, so a tree searching
+for the best threshold on that column has thousands of candidate cut points to try, each one a
+fresh chance to carve out a small region that happens to look purer than it should by chance.
+Canary error rate is also continuous, but the split search finds its strongest signal early and
+keeps reusing it; dependency count and hour of day are lower-cardinality integers with far fewer
+candidate thresholds to search in the first place. Cardinality, not predictive value, is driving
+the gap.
+
+::: {.callout-warning}
+Gini and entropy importance are biased toward high-cardinality and continuous predictors, a
+result formalized by the same source cited above for the correlated-predictor bias
+[@strobl2007bias]. A field like a request ID, a timestamp cast to an integer, or a
+high-cardinality categorical code (zip code, SKU, session ID) can rank as an important predictor
+by Gini or entropy importance for no reason beyond how many places it gives the tree to search,
+not because it carries a signal that will hold up on new data.
+:::
+
+Computing permutation importance takes more work than reading `feature_importances_` off a
+fitted forest: it needs a held-out split the forest never trained on, and enough repeats of the
+shuffle-and-rescore loop (twenty, in the figure above) to average out the noise a single random
+shuffle introduces. `sklearn.inspection.permutation_importance` runs that loop directly and hands
+back both the mean importance and its spread across repeats.
+
+The practical rule this figure earns: when predictors differ a lot in cardinality, which is
+common the moment a dataset includes anything like an ID field, a date broken into components,
+or a mix of binary flags and continuous measurements, reach for permutation importance before
+trusting a Gini or entropy ranking. Treat Gini and entropy importance as a first look, since the
+forest is computing them for free during training anyway, then confirm anything that ranking
+suggests is worth acting on against a permutation-based check before removing a feature or
+building a monitoring dashboard around it.
+
+## Decision boundaries: a tree, a forest, and logistic regression compared {#sec-decision-boundaries}
+
+::: {#fig-decision-boundaries}
+```{=html}
+<iframe src="../_generated/chapter-trees-fig-decision-boundaries.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+A single tree, a random forest, and logistic regression, each fit on the same two features
+(canary error rate and service dependency count) and shaded by predicted rollback probability.
+The tree's boundary is a set of rectangles; the forest's is a smoother version of the same shape;
+logistic regression's is a single straight line.
+:::
+
+@fig-decision-boundaries answers a question the earlier sections in this chapter answered only
+in prose: what shape does the boundary between "rollback" and "no rollback" take, on the same
+data, once a tree, a forest, and a linear classifier each draw their own version of it?
+
+A decision boundary is the line, or in a tree's case the set of rectangular edges, separating the
+region of feature space where a classifier predicts one class from the region where it predicts
+the other. The single tree's boundary is visibly blocky: a handful of straight, axis-aligned
+edges, each one a leftover from a single split on canary error rate or dependency count. The
+forest's boundary traces roughly the same shape but with the corners softened, since it is an
+average over hundreds of slightly different trees, each with its own slightly different split
+thresholds. Logistic regression's boundary is a single straight line, tilted, because it can only
+ever draw one line through two-dimensional feature space no matter how the data curves.
+
+The gap between these boundaries matters for a concrete reason beyond aesthetics. If the
+relationship between error rate, dependency count, and rollback risk bends the way the tree
+and forest panels suggest, for instance if risk rises sharply once both error rate and
+dependency count cross their own
+thresholds together, a straight decision boundary will misclassify a describable band of
+deployments sitting on the wrong side of that line: the ones where a single linear combination of
+the two features cannot capture the joint effect. If the underlying relationship were close to
+linear instead, logistic regression would need far less training data to estimate that one line
+than a forest needs to approximate the same line out of many small rectangles stacked together,
+since the forest is not told the boundary is a line and has to discover its shape from splits.
+
+::: {.callout-note}
+Each boundary here is one plausible read of this simulated dataset: any of the three could sit
+closest to the rule that generated it. The value of the comparison is in seeing how differently
+each model class carves up the same feature space, not in picking a winner from the picture
+alone.
+:::
+
+Building this figure only takes a fitted model and a grid: fit each of the three classifiers on
+the same two-column feature matrix, predict the probability of rollback across a fine grid
+spanning the observed range of both features, reshape those predictions back into the grid's
+two-dimensional shape, and shade each cell by the predicted probability. Overlaying the
+deployments on top of each shaded panel shows how each boundary relates to where the data sits,
+rather than leaving the boundary as an abstract shape with no anchor to the observations that
+produced it.
+
 ## When to reach for a single tree, a forest, or boosting
 
 Four different tree-based tools have appeared across this chapter, and it is worth being
@@ -535,7 +658,8 @@ A single pruned tree is the right choice when the audience for the model needs t
 reasoning behind a prediction, not just trust a number. A compliance reviewer asking why a
 particular deployment was auto-rolled-back wants an answer like "canary error rate exceeded 2%
 and the deployment touched more than 6 downstream services," which only a small, interpretable
-tree delivers directly. A 400-tree forest cannot be read that way at all.
+tree delivers directly. A 400-tree forest cannot be read that way at all, even though
+@fig-decision-boundaries shows its predictions land close to the same shape a single tree draws.
 
 A random forest is the right default for most production prediction problems where accuracy
 matters more than a fully traceable explanation. It trains fast, tunes with almost no effort

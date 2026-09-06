@@ -288,12 +288,214 @@ def fig_anova_between_within() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 6: permutation null distribution for the unpaired two-sample test,
+# shown at increasing shuffle counts, before the closed-form t-test is named.
+# ---------------------------------------------------------------------------
+def fig_permutation_null() -> go.Figure:
+    rng_data = np.random.default_rng(2019)
+    n1, n2 = 60, 60
+    control = rng_data.lognormal(mean=np.log(50), sigma=0.38, size=n1)
+    treatment = rng_data.lognormal(mean=np.log(41), sigma=0.38, size=n2)
+    obs_diff = control.mean() - treatment.mean()
+    _, welch_p = stats.ttest_ind(control, treatment, equal_var=False)
+
+    pooled = np.concatenate([control, treatment])
+    rng_perm = np.random.default_rng(2024)
+    max_shuffles = 20000
+    diffs = np.empty(max_shuffles)
+    for i in range(max_shuffles):
+        shuffled = rng_perm.permutation(pooled)
+        diffs[i] = shuffled[:n1].mean() - shuffled[n1:].mean()
+
+    shuffle_counts = [100, 500, 1000, 5000, 20000]
+    frames = []
+    for m in shuffle_counts:
+        subset = diffs[:m]
+        perm_p = np.mean(np.abs(subset) >= np.abs(obs_diff))
+        hist = np.histogram(subset, bins=40)
+        frames.append(
+            go.Frame(
+                name=str(m),
+                data=[
+                    go.Bar(x=hist[1][:-1], y=hist[0], marker_color="#4C78A8",
+                           name="Permuted mean differences"),
+                ],
+                layout=go.Layout(
+                    shapes=[dict(type="line", x0=obs_diff, x1=obs_diff, y0=0, y1=1,
+                                 yref="paper", line=dict(color="#E45756", width=2, dash="dash"))],
+                    annotations=[dict(
+                        x=0.98, y=0.95, xref="paper", yref="paper", showarrow=False,
+                        xanchor="right",
+                        text=(f"observed diff = {obs_diff:.1f} ms<br>"
+                              f"permutation p = {perm_p:.4f}<br>"
+                              f"Welch t-test p = {welch_p:.4f}"),
+                        font=dict(size=13, color="#333"),
+                    )],
+                ),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Shuffling the group labels builds a null distribution before any formula",
+        xaxis_title="permuted difference in mean latency (ms)",
+        yaxis_title="count",
+        showlegend=False,
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "shuffles so far: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 7: bootstrap distribution of a small-sample mean, with confidence
+# bounds that widen as the confidence level rises.
+# ---------------------------------------------------------------------------
+def fig_ci_bootstrap() -> go.Figure:
+    rng_ci = np.random.default_rng(31)
+    n_small = 25
+    small_sample = rng_ci.lognormal(mean=np.log(43), sigma=0.35, size=n_small)
+
+    n_boot = 10000
+    boot_means = np.empty(n_boot)
+    for i in range(n_boot):
+        resample = rng_ci.choice(small_sample, size=n_small, replace=True)
+        boot_means[i] = resample.mean()
+
+    hist = np.histogram(boot_means, bins=50)
+    confidence_levels = [80, 90, 95, 99]
+    frames = []
+    for conf in confidence_levels:
+        lo_pct = (100 - conf) / 2
+        hi_pct = 100 - lo_pct
+        lo, hi = np.percentile(boot_means, [lo_pct, hi_pct])
+        frames.append(
+            go.Frame(
+                name=f"{conf}",
+                data=[go.Bar(x=hist[1][:-1], y=hist[0], marker_color="#4C78A8",
+                              name="Bootstrap resample means")],
+                layout=go.Layout(
+                    shapes=[
+                        dict(type="line", x0=lo, x1=lo, y0=0, y1=1, yref="paper",
+                             line=dict(color="#E45756", width=2, dash="dash")),
+                        dict(type="line", x0=hi, x1=hi, y0=0, y1=1, yref="paper",
+                             line=dict(color="#E45756", width=2, dash="dash")),
+                    ],
+                    annotations=[dict(
+                        x=0.98, y=0.95, xref="paper", yref="paper", showarrow=False,
+                        xanchor="right",
+                        text=f"{conf}% CI: [{lo:.1f}, {hi:.1f}] ms<br>width = {hi - lo:.1f} ms",
+                        font=dict(size=13, color="#333"),
+                    )],
+                ),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="A wider confidence interval buys more certainty, at the cost of precision",
+        xaxis_title="bootstrap resample mean latency (ms)",
+        yaxis_title="count",
+        showlegend=False,
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "confidence level: "},
+            "steps": [
+                {"label": f.name + "%", "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 8: cumulative false-positive rate from checking a null-true A/B test
+# every 100 requests per group, versus a single planned look at the end.
+# ---------------------------------------------------------------------------
+def fig_peeking() -> go.Figure:
+    rng_peek = np.random.default_rng(2026)
+    n_experiments = 2000
+    max_n_per_group = 2000
+    check_every = 100
+    checkpoints = np.arange(check_every, max_n_per_group + 1, check_every)
+
+    first_cross_day = np.full(n_experiments, np.nan)
+    for e in range(n_experiments):
+        a_full = rng_peek.normal(loc=45, scale=15, size=max_n_per_group)
+        b_full = rng_peek.normal(loc=45, scale=15, size=max_n_per_group)
+        for cp in checkpoints:
+            _, p = stats.ttest_ind(a_full[:cp], b_full[:cp], equal_var=False)
+            if p < 0.05:
+                first_cross_day[e] = cp
+                break
+
+    experiment_counts = [200, 500, 1000, 2000]
+    frames = []
+    for m in experiment_counts:
+        subset = first_cross_day[:m]
+        cumulative_rate = [np.mean(subset <= cp) for cp in checkpoints]
+        frames.append(
+            go.Frame(
+                name=str(m),
+                data=[
+                    go.Scatter(x=checkpoints, y=cumulative_rate, mode="lines+markers",
+                               name="Checked every 100 requests (peeking)",
+                               line=dict(color="#E45756", width=3)),
+                    go.Scatter(x=checkpoints, y=[0.05] * len(checkpoints), mode="lines",
+                               name="Single planned look (nominal alpha)",
+                               line=dict(color="#4C78A8", width=2, dash="dash")),
+                ],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False,
+                    xanchor="left",
+                    text=f"based on {m} simulated null-true experiments<br>"
+                         f"cumulative false-positive rate so far = {cumulative_rate[-1]:.3f}",
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Checking a dashboard after every batch inflates the false-positive rate",
+        xaxis_title="requests per group collected so far",
+        yaxis_title="share of null-true experiments flagged significant so far",
+        yaxis_range=[0, 0.3],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "simulated experiments: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-02-fig-t-vs-normal": fig_t_vs_normal,
     "chapter-02-fig-type1-type2": fig_type1_type2,
     "chapter-02-fig-power-curve": fig_power_curve,
     "chapter-02-fig-parametric-vs-nonparametric": fig_parametric_vs_nonparametric,
     "chapter-02-fig-anova-between-within": fig_anova_between_within,
+    "chapter-02-fig-permutation-null": fig_permutation_null,
+    "chapter-02-fig-ci-bootstrap": fig_ci_bootstrap,
+    "chapter-02-fig-peeking": fig_peeking,
 }
 
 

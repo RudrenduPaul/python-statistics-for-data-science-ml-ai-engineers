@@ -285,6 +285,195 @@ It does not tell you how much the fitted ensemble itself might have looked diffe
 different random training run. That second question is closer to what BART's tree-to-tree
 posterior variation captures.
 
+NGBoost asks the ensemble to output an entire distribution's parameters at once. A narrower,
+older, and in practice more commonly deployed answer asks it to output a single number instead:
+one specific quantile of that distribution, trained directly against that target.
+
+## Quantile regression: predicting the tail of the distribution
+
+::: {#fig-quantile-regression}
+```{=html}
+<iframe src="../_generated/chapter-bayes-boosting-fig-quantile-regression.html" width="100%"
+        height="580" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Checkout latency against request load, with a fixed mean-regression line (dashed red) and a
+quantile-regression line (solid blue) that climbs as the target quantile rises. At 1,500
+requests per second the mean line sits at 216 ms, comfortably under a 400 ms SLA; the 95th-
+percentile line sits at 434 ms, over it. Move the slider.
+:::
+
+Picture a checkout service with a 400 millisecond latency SLA, on-call rotation included. At
+1,500 requests per second, a model trained to predict mean latency reports 216 ms. An engineer
+reading that number, and nothing else, would call the service healthy with room to spare.
+
+The 95th-percentile latency measured directly from held-out traffic near that same load is
+452 ms, past the SLA. A quantile-regression model trained to target the 95th percentile predicts
+434 ms at that load, close to the measured figure and on the correct side of the threshold the
+mean model missed by 184 ms.
+
+That gap comes from the shape of a right-skewed distribution: the mean and the 95th percentile
+are different numbers by construction, and @fig-quantile-regression shows both lines drawn from
+the same data. A well-fit mean model optimizes for the center of the distribution; catching the
+tail was never its target.
+
+Quantile regression fits a model to a chosen quantile $\tau$ of the conditional distribution of
+$Y$ given $X$, rather than to its conditional mean [@koenkerbassett1978]. Setting $\tau = 0.5$
+targets the median; setting $\tau = 0.95$ targets a value only 5% of outcomes are expected to
+exceed, which is the number an SLA or a capacity-planning budget is usually written against.
+
+::: {.callout-note}
+An SLA defined on P95 or P99 latency is a statement about a tail quantile. A model trained to
+minimize squared error targets the mean, which is the wrong target whenever the number feeding
+a paging threshold or a capacity plan is that tail quantile.
+:::
+
+Provisioning a fleet off the mean-regression forecast in the scenario above would leave the
+service under capacity until the SLA breach shows up in a monitoring dashboard, well after the
+load that caused it has arrived. Sizing off the quantile-regression forecast catches the same
+breach at 1,500 requests per second, while load is still a planning question, before it turns
+into an incident.
+
+The mechanism behind this is the same gradient-boosted tree ensemble Chapter 8 built, with one
+change: the loss function. Ordinary boosting minimizes squared error, which is minimized by the
+conditional mean. Quantile regression instead minimizes the *pinball loss* (also called the
+check function), which is minimized by the conditional $\tau$-quantile instead:
+
+$$
+L_\tau(y, \hat{y}) =
+\begin{cases}
+\tau (y - \hat{y}) & \text{if } y \geq \hat{y} \\
+(1 - \tau)(\hat{y} - y) & \text{if } y < \hat{y}
+\end{cases}
+$$
+
+For $\tau = 0.95$, underpredicting a high observed value costs 19 times as much as overpredicting
+it by the same amount ($\tau / (1 - \tau) = 0.95 / 0.05$). That asymmetry is what pulls the
+fitted curve up toward the tail of the distribution.
+
+```python
+from sklearn.ensemble import GradientBoostingRegressor
+
+p95_model = GradientBoostingRegressor(
+    loss="quantile", alpha=0.95, n_estimators=200, max_depth=3, learning_rate=0.05,
+)
+p95_model.fit(load_train.reshape(-1, 1), latency_train)
+p95_model.predict([[1500]])
+```
+
+Swapping `loss="squared_error"` for `loss="quantile"` and setting `alpha` to the desired $\tau$
+is the entire change; everything else about fitting, tuning, and reading a `GradientBoostingRegressor`
+carries over unchanged from Chapter 8. `sklearn.linear_model.QuantileRegressor` offers the same
+idea for a linear model when the relationship does not need trees.
+
+::: {.callout-warning}
+Two quantile models fit independently, one per $\tau$, carry no constraint that keeps them
+ordered. A model fit for $\tau = 0.50$ can predict a higher value than a model fit for
+$\tau = 0.95$ at some point in the input space, a problem known as quantile crossing. Fitting
+every quantile of interest from the same ensemble (as most boosting libraries allow) or sorting
+the predictions after the fact are the two common fixes.
+:::
+
+## Conformal prediction: a coverage guarantee without a posterior
+
+::: {#fig-conformal-coverage}
+```{=html}
+<iframe src="../_generated/chapter-bayes-boosting-fig-conformal-coverage.html" width="100%"
+        height="620" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+A fixed-width interval built from calibration residuals (dashed red) against a conformalized
+quantile-regression interval (shaded blue) at a 90% target. The fixed-width interval covers 92%
+of held-out points overall but only 74% in the busiest quarter of the load range; the
+conformalized interval holds close to 90% in both the busiest and the quietest quarter. Move the
+slider.
+:::
+
+The same checkout-latency setup can also be asked for a 90% prediction interval, a natural
+follow-up question once a single P95 number is in hand. A naive approach takes the mean model's
+calibration-set residuals, computes their spread, and adds a fixed multiple of that spread above
+and below every future prediction. Measured against held-out data, that interval covers 92% of
+points overall, comfortably past the 90% target, which is the number a dashboard checking only
+the aggregate would report.
+
+Restricted to the busiest quarter of the load range (above roughly 1,300 requests per second),
+the same fixed-width interval's coverage drops to 74%, well short of the 90% it was built for,
+in the traffic band closest to the provisioned ceiling. In the quietest quarter it swings the
+other way and covers 100% of points, spending width the calibration set never needed there. A
+single aggregate coverage number hid both problems.
+
+@fig-conformal-coverage builds the interval differently: fit two quantile-regression models from
+the previous section, one for a low quantile and one for a high quantile bracketing the target
+coverage, then calibrate the gap between them against a held-out calibration set the models never
+trained on. The result is *conformalized quantile regression*, or CQR [@romanopattersoncandes2019],
+one member of the conformal-prediction family Vovk, Gammerman, and Shafer built into a general
+framework for distribution-free prediction [@vovkgammermanshafer2005].
+
+At the same 90% target, the conformalized interval covers 90% of points in the busiest quarter
+and 89% in the quietest, against the fixed-width interval's 74% and 100%. The quantile-regression
+models stretch the raw interval with load on their own; calibration only nudges that width by an
+amount small enough to state directly here: 0.3 ms on each side, in this run, because the
+underlying quantile models started close to the right size before calibration touched them.
+
+::: {.callout-note}
+Conformal prediction's coverage guarantee rests on one condition: the calibration data and the
+future data it is applied to must be exchangeable, a weaker requirement than picking the right
+likelihood or the right prior. The underlying model can be misspecified and the guarantee still
+holds.
+:::
+
+The calibration step itself: hold out a set the model never trained on, score how far each
+calibration point fell outside the raw interval $[\text{lo}(x), \text{hi}(x)]$ produced by the
+low- and high-quantile models,
+
+$$
+E_i = \max\bigl(\text{lo}(x_i) - y_i,\; y_i - \text{hi}(x_i)\bigr),
+$$
+
+and take $\hat{q}$ as the $\lceil (n+1)(1-\alpha) \rceil / n$ empirical quantile of those scores
+across the $n$ calibration points. That slightly inflated fraction is what keeps the guarantee
+correct at finite $n$; a plain $1 - \alpha$ quantile only reaches that guarantee in the limit as
+$n \to \infty$. The interval reported for a new point is
+$[\text{lo}(x) - \hat{q},\; \text{hi}(x) + \hat{q}]$.
+
+```python
+import numpy as np
+
+lo_cal, hi_cal = lo_model.predict(X_cal), hi_model.predict(X_cal)
+scores = np.maximum(lo_cal - y_cal, y_cal - hi_cal)
+n = len(scores)
+q_hat = np.quantile(scores, np.ceil((n + 1) * (1 - alpha)) / n)
+
+lo_new = lo_model.predict(X_new) - q_hat
+hi_new = hi_model.predict(X_new) + q_hat
+```
+
+Under only the assumption that the calibration and test points are exchangeable, this interval
+covers the true value at least $1 - \alpha$ of the time, no matter how badly `lo_model` and
+`hi_model` are misspecified. That guarantee holds without requiring the model to be correct,
+which is a different promise than the credible intervals Chapters 9 and 12 built.
+
+A Bayesian credible interval states the range containing $1 - \alpha$ of the posterior
+probability mass, under the prior and likelihood chosen for that model. When the model is a good
+description of the data, a credible interval and a conformal interval ask close to the same
+question and tend to agree. When the model is wrong, such as a linear-Gaussian assumption applied
+to the right-skewed latency data used throughout this section, only the conformal interval's
+coverage promise still holds.
+
+::: {.callout-important}
+What conformal prediction gives up for that guarantee is the same thing NGBoost's predictive
+interval gives up: it says nothing about how the fitted model itself would have looked under a
+different training sample. A credible interval, when the model is right, answers that broader
+question; a conformal interval answers only "will this specific interval contain the next point."
+:::
+
+Bayesian hyperparameter optimization, NGBoost, quantile regression, and conformal prediction
+solve four separate problems that surface when boosting a model without a posterior: tuning it
+efficiently, getting a calibrated predictive spread out of it, targeting a specific tail quantile
+directly, and wrapping any of the above in an interval with a coverage guarantee that does not
+depend on the model being right. None of the four requires the ensemble to have a posterior over
+it in the first place.
+
 ## Where the field stands, honestly
 
 A thinner, research-stage thread frames boosting itself as an approximate form of Bayesian

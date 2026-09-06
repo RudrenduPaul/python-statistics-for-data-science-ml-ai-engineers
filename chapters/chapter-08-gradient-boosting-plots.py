@@ -57,6 +57,27 @@ def rollback_risk_data(n=1200):
     return X, risk
 
 
+def api_latency_data(n=1500):
+    """Simulated production API records: queue_depth, cache_miss_rate, retry_count,
+    payload_kb -> response latency in milliseconds, with nonlinear structure and noise.
+    Kept separate from rollback_risk_data above so the overfitting-curve figure below
+    compares two boosting configurations on its own dataset, not one reused from
+    earlier in this chapter."""
+    queue_depth = RNG.integers(0, 200, n)
+    cache_miss = RNG.beta(2, 6, n)
+    retries = RNG.poisson(0.4, n)
+    payload_kb = RNG.uniform(1, 60, n)
+    latency_ms = (
+        0.8 * queue_depth
+        + 140 * cache_miss ** 1.5
+        + 22 * retries
+        + 0.3 * np.maximum(payload_kb - 30, 0) ** 1.2
+        + RNG.normal(0, 12, n)
+    )
+    X = np.column_stack([queue_depth, cache_miss, retries, payload_kb])
+    return X, latency_ms
+
+
 # ---------------------------------------------------------------------------
 # Figure 1: training/validation loss vs. boosting rounds, at three learning rates
 # ---------------------------------------------------------------------------
@@ -367,6 +388,65 @@ def fig_xgboost_regularization() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 7: unregularized vs. regularized boosting, train/validation error by round
+# ---------------------------------------------------------------------------
+def fig_overfitting_curve() -> go.Figure:
+    # A smaller sample than the other figures in this chapter use (500 rows, not
+    # 1500): overfitting is a small-data problem more than a boosting-specific one,
+    # and a smaller training set makes the unregularized run's validation error
+    # turn upward clearly instead of only creeping up by a few percent.
+    X, y = api_latency_data(n=500)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=21)
+
+    n_rounds = 400
+    configs = {
+        "Unregularized (lr=0.4, depth=10)": dict(learning_rate=0.4, max_depth=10),
+        "Regularized (lr=0.03, depth=2)": dict(learning_rate=0.03, max_depth=2),
+    }
+    # (validation color, training color) per configuration
+    colors = {
+        "Unregularized (lr=0.4, depth=10)": ("#E45756", "#F5B5B3"),
+        "Regularized (lr=0.03, depth=2)": ("#4C78A8", "#A8C4E0"),
+    }
+
+    fig = go.Figure()
+    early_stop_round = None
+    for label, params in configs.items():
+        model = GradientBoostingRegressor(n_estimators=n_rounds, random_state=21, **params)
+        model.fit(X_train, y_train)
+        train_err = np.array(
+            [np.mean((p - y_train) ** 2) for p in model.staged_predict(X_train)]
+        )
+        val_err = np.array([np.mean((p - y_val) ** 2) for p in model.staged_predict(X_val)])
+        rounds = np.arange(1, n_rounds + 1)
+        val_color, train_color = colors[label]
+        fig.add_trace(go.Scatter(
+            x=rounds, y=train_err, mode="lines", name=f"{label}: training error",
+            line=dict(color=train_color, dash="dot"),
+        ))
+        fig.add_trace(go.Scatter(
+            x=rounds, y=val_err, mode="lines", name=f"{label}: validation error",
+            line=dict(color=val_color),
+        ))
+        if label.startswith("Regularized"):
+            early_stop_round = int(np.argmin(val_err)) + 1
+
+    fig.add_vline(
+        x=early_stop_round, line=dict(color="#54A24B", width=2, dash="dash"),
+        annotation_text=f"regularized run's best round: {early_stop_round}",
+        annotation_position="top left",
+    )
+    fig.update_layout(
+        title="Train vs. validation error by boosting round: the unregularized run "
+              "overfits, the regularized run does not",
+        xaxis_title="Boosting round",
+        yaxis_title="Mean squared error (API latency, ms²)",
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-boosting-fig-shrinkage-early-stopping": fig_shrinkage_early_stopping,
     "chapter-boosting-fig-leafwise-vs-levelwise": fig_leafwise_vs_levelwise,
@@ -374,6 +454,7 @@ FIGURES = {
     "chapter-boosting-fig-model-comparison-size": fig_model_comparison_by_dataset_size,
     "chapter-boosting-fig-boosting-rounds": fig_boosting_rounds,
     "chapter-boosting-fig-xgboost-regularization": fig_xgboost_regularization,
+    "chapter-boosting-fig-overfitting-curve": fig_overfitting_curve,
 }
 
 

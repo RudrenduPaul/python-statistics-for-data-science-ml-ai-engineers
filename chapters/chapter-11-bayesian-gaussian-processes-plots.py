@@ -15,7 +15,7 @@ import re
 import numpy as np
 import plotly.graph_objects as go
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, Matern, WhiteKernel
+from sklearn.gaussian_process.kernels import RBF, ExpSineSquared, Matern, WhiteKernel
 
 RNG = np.random.default_rng(7)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_generated")
@@ -335,6 +335,79 @@ def fig_ard_length_scales() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 7: RBF-only vs. RBF+periodic composite kernel forecasting an
+# unobserved daily cycle
+# ---------------------------------------------------------------------------
+def hourly_latency_with_daily_cycle(n_hours: int = 96, noise_scale: float = 2.5):
+    """Four days of hourly latency: a slow upward drift (growing baseline load)
+    plus a daily business-hours peak around 2pm, matching the kind of metric
+    Chapter 7/8's rollback classifier treats "hour of day" as a feature for."""
+    hours = np.arange(n_hours)
+    hour_of_day = hours % 24
+    daily_peak = 18.0 * np.exp(-0.5 * ((hour_of_day - 14.0) / 3.5) ** 2)
+    drift = 25.0 + 0.25 * hours
+    mean_latency = drift + daily_peak
+    latency = mean_latency + RNG.normal(0, noise_scale, size=n_hours)
+    return hours, latency, mean_latency
+
+
+def fig_periodic_kernel() -> go.Figure:
+    hours, latency, true_mean = hourly_latency_with_daily_cycle()
+    n_obs = 72  # first three days observed; the fourth day is held out
+    X_obs = hours[:n_obs].reshape(-1, 1).astype(float)
+    y_obs = latency[:n_obs]
+    X_grid = hours.reshape(-1, 1).astype(float)
+
+    kernel_trend = RBF(length_scale=24.0, length_scale_bounds=(5.0, 100.0)) + \
+        WhiteKernel(1.0, noise_level_bounds=(1e-3, 50.0))
+    gp_trend = GaussianProcessRegressor(kernel=kernel_trend, normalize_y=True,
+                                         n_restarts_optimizer=6, random_state=0)
+    gp_trend.fit(X_obs, y_obs)
+    mean_trend, std_trend = gp_trend.predict(X_grid, return_std=True)
+
+    kernel_composite = (
+        RBF(length_scale=48.0, length_scale_bounds=(10.0, 200.0))
+        + ExpSineSquared(length_scale=1.0, length_scale_bounds=(0.5, 10.0),
+                          periodicity=24.0, periodicity_bounds="fixed")
+        + WhiteKernel(1.0, noise_level_bounds=(1e-3, 50.0))
+    )
+    gp_composite = GaussianProcessRegressor(kernel=kernel_composite, normalize_y=True,
+                                             n_restarts_optimizer=6, random_state=0)
+    gp_composite.fit(X_obs, y_obs)
+    mean_composite, std_composite = gp_composite.predict(X_grid, return_std=True)
+
+    fig = go.Figure()
+    fig.add_vrect(x0=n_obs, x1=hours[-1], fillcolor="#F58518", opacity=0.10, line_width=0,
+                   annotation_text="unobserved fourth day", annotation_position="top left")
+    fig.add_trace(go.Scatter(x=hours, y=true_mean, mode="lines", name="true mean latency",
+                              line=dict(color="#999", dash="dot")))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([hours, hours[::-1]]),
+        y=np.concatenate([mean_trend + 1.96 * std_trend, (mean_trend - 1.96 * std_trend)[::-1]]),
+        fill="toself", fillcolor="rgba(245,133,24,0.18)", line=dict(color="rgba(0,0,0,0)"),
+        name="RBF-only 95% band"))
+    fig.add_trace(go.Scatter(x=hours, y=mean_trend, mode="lines", name="RBF-only mean",
+                              line=dict(color="#F58518", width=2, dash="dash")))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([hours, hours[::-1]]),
+        y=np.concatenate([mean_composite + 1.96 * std_composite,
+                           (mean_composite - 1.96 * std_composite)[::-1]]),
+        fill="toself", fillcolor="rgba(76,120,168,0.22)", line=dict(color="rgba(0,0,0,0)"),
+        name="RBF+periodic 95% band"))
+    fig.add_trace(go.Scatter(x=hours, y=mean_composite, mode="lines",
+                              name="RBF+periodic mean", line=dict(color="#4C78A8", width=2.5)))
+    fig.add_trace(go.Scatter(x=hours[:n_obs], y=y_obs, mode="markers", name="observed",
+                              marker=dict(color="#333", size=5)))
+    fig.update_layout(
+        title="A periodic kernel forecasts the next daily peak; RBF alone does not",
+        xaxis_title="Hour (three observed days, one held out)",
+        yaxis_title="Latency (ms)",
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-gp-fig-prior-samples": fig_prior_samples,
     "chapter-bayes-gp-fig-kernel-comparison": fig_kernel_comparison,
@@ -342,6 +415,7 @@ FIGURES = {
     "chapter-bayes-gp-fig-extrapolation": fig_extrapolation,
     "chapter-bayes-gp-fig-length-scale-fit": fig_length_scale_fit,
     "chapter-bayes-gp-fig-ard-length-scales": fig_ard_length_scales,
+    "chapter-bayes-gp-fig-periodic-kernel": fig_periodic_kernel,
 }
 
 

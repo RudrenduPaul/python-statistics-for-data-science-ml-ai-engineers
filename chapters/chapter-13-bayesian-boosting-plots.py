@@ -309,10 +309,246 @@ def fig_ngboost_predictive_width() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Shared data: a checkout-latency capacity scenario for quantile regression and
+# conformal prediction. Independent RNG (seed 47) so it never touches the draw
+# sequence the three figures above depend on. Request load drives latency
+# through a queueing-style mechanism: as load approaches the service's
+# provisioned ceiling, both the spread and the right skew of the latency
+# distribution grow, which is the setting where a mean prediction and a tail
+# prediction pull apart.
+# ---------------------------------------------------------------------------
+LATENCY_RNG = np.random.default_rng(47)
+CAPACITY_RPS = 1800.0
+
+
+def simulate_checkout_latency(n, rng):
+    load = rng.uniform(50, 1700, n)
+    utilization = load / CAPACITY_RPS
+    mean_ms = 40 + 55 * utilization / (1 - 0.92 * utilization)
+    # Gamma shape shrinks as utilization climbs, which fattens the right tail
+    # and widens the spread precisely where queueing makes latency least
+    # predictable, while scale is set so the mean always equals mean_ms.
+    shape = np.clip(6.5 - 4.0 * utilization, 1.5, 6.5)
+    scale = mean_ms / shape
+    latency = rng.gamma(shape, scale, n)
+    return load, latency
+
+
+def _latency_splits():
+    load, latency = simulate_checkout_latency(3000, LATENCY_RNG)
+    idx = LATENCY_RNG.permutation(len(load))
+    n_train, n_cal = 1200, 900
+    train_idx = idx[:n_train]
+    cal_idx = idx[n_train:n_train + n_cal]
+    test_idx = idx[n_train + n_cal:]
+    return (
+        load[train_idx].reshape(-1, 1), latency[train_idx],
+        load[cal_idx].reshape(-1, 1), latency[cal_idx],
+        load[test_idx].reshape(-1, 1), latency[test_idx],
+        load, latency,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Figure 4: quantile regression vs. mean regression on the checkout-latency data
+# ---------------------------------------------------------------------------
+def fig_quantile_regression() -> go.Figure:
+    from sklearn.ensemble import GradientBoostingRegressor
+
+    X_train, y_train, _, _, _, _, load_all, latency_all = _latency_splits()
+
+    mean_model = GradientBoostingRegressor(
+        loss="squared_error", n_estimators=200, max_depth=3, learning_rate=0.05,
+        random_state=0,
+    )
+    mean_model.fit(X_train, y_train)
+
+    grid = np.linspace(60, 1690, 200)
+    mean_curve = mean_model.predict(grid.reshape(-1, 1))
+
+    sla_ms = 400.0
+    quantile_levels = [0.50, 0.75, 0.90, 0.95, 0.99]
+    frames = []
+    for tau in quantile_levels:
+        q_model = GradientBoostingRegressor(
+            loss="quantile", alpha=tau, n_estimators=200, max_depth=3,
+            learning_rate=0.05, random_state=0,
+        )
+        q_model.fit(X_train, y_train)
+        q_curve = q_model.predict(grid.reshape(-1, 1))
+        frames.append(
+            go.Frame(
+                name=f"{tau:.2f}",
+                data=[
+                    go.Scatter(
+                        x=load_all, y=latency_all, mode="markers",
+                        marker=dict(size=4, color="rgba(120,120,120,0.25)"),
+                        name="observed (load, latency)", showlegend=False,
+                    ),
+                    go.Scatter(x=grid, y=mean_curve, mode="lines",
+                               line=dict(color="#E45756", width=2, dash="dash"),
+                               name="mean regression"),
+                    go.Scatter(x=grid, y=q_curve, mode="lines",
+                               line=dict(color="#4C78A8", width=3),
+                               name=f"quantile regression (tau={tau:.2f})"),
+                ],
+            )
+        )
+
+    default_idx = 3  # tau = 0.95, the level the SLA story below is built on
+    fig = go.Figure(data=frames[default_idx].data, frames=frames)
+    fig.update_layout(
+        title="Quantile regression tracks the tail; mean regression tracks the average",
+        xaxis_title="request load (requests per second)",
+        yaxis_title="checkout latency (ms)",
+        shapes=[
+            dict(type="line", x0=60, x1=1690, y0=sla_ms, y1=sla_ms,
+                 line=dict(color="#54A24B", width=1.5, dash="dot")),
+        ],
+        annotations=[
+            dict(x=120, y=sla_ms + 25, showarrow=False, text="400 ms SLA",
+                 font=dict(size=11, color="#54A24B")),
+        ],
+        sliders=[{
+            "active": default_idx,
+            "currentvalue": {"prefix": "Quantile (tau): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 5: conformalized quantile regression vs. a naive fixed-width interval
+# ---------------------------------------------------------------------------
+def fig_conformal_coverage() -> go.Figure:
+    from sklearn.ensemble import GradientBoostingRegressor
+    from scipy.stats import norm as scipy_norm
+
+    X_train, y_train, X_cal, y_cal, X_test, y_test, _, _ = _latency_splits()
+
+    mean_model = GradientBoostingRegressor(
+        loss="squared_error", n_estimators=200, max_depth=3, learning_rate=0.05,
+        random_state=0,
+    )
+    mean_model.fit(X_train, y_train)
+    resid_cal = y_cal - mean_model.predict(X_cal)
+    sigma = resid_cal.std()
+
+    grid = np.linspace(60, 1690, 150)
+    mean_grid = mean_model.predict(grid.reshape(-1, 1))
+    top_q75 = float(np.percentile(X_test.ravel(), 75))
+    bottom_q25 = float(np.percentile(X_test.ravel(), 25))
+
+    coverage_targets = [0.80, 0.90, 0.95, 0.99]
+    frames = []
+    for target in coverage_targets:
+        alpha = 1 - target
+        lo_tau, hi_tau = alpha / 2, 1 - alpha / 2
+        lo_model = GradientBoostingRegressor(
+            loss="quantile", alpha=lo_tau, n_estimators=200, max_depth=3,
+            learning_rate=0.05, random_state=0,
+        )
+        hi_model = GradientBoostingRegressor(
+            loss="quantile", alpha=hi_tau, n_estimators=200, max_depth=3,
+            learning_rate=0.05, random_state=0,
+        )
+        lo_model.fit(X_train, y_train)
+        hi_model.fit(X_train, y_train)
+
+        lo_cal, hi_cal = lo_model.predict(X_cal), hi_model.predict(X_cal)
+        scores = np.maximum(lo_cal - y_cal, y_cal - hi_cal)
+        n_cal = len(scores)
+        q_level = np.clip(np.ceil((n_cal + 1) * (1 - alpha)) / n_cal, 0, 1)
+        q_hat = float(np.quantile(scores, q_level))
+
+        lo_grid = lo_model.predict(grid.reshape(-1, 1)) - q_hat
+        hi_grid = hi_model.predict(grid.reshape(-1, 1)) + q_hat
+
+        lo_test, hi_test = lo_model.predict(X_test) - q_hat, hi_model.predict(X_test) + q_hat
+        cqr_cover = (y_test >= lo_test) & (y_test <= hi_test)
+
+        z = scipy_norm.ppf(1 - alpha / 2)
+        half_width = z * sigma
+        naive_lo_test = mean_model.predict(X_test) - half_width
+        naive_hi_test = mean_model.predict(X_test) + half_width
+        naive_cover = (y_test >= naive_lo_test) & (y_test <= naive_hi_test)
+
+        top_mask = X_test.ravel() > top_q75
+        bottom_mask = X_test.ravel() < bottom_q25
+
+        caption = (
+            f"target {target:.0%} | CQR coverage: overall {cqr_cover.mean():.0%}, "
+            f"busiest quarter {cqr_cover[top_mask].mean():.0%}, "
+            f"quietest quarter {cqr_cover[bottom_mask].mean():.0%} &nbsp;|&nbsp; "
+            f"naive coverage: overall {naive_cover.mean():.0%}, "
+            f"busiest quarter {naive_cover[top_mask].mean():.0%}, "
+            f"quietest quarter {naive_cover[bottom_mask].mean():.0%}"
+        )
+
+        frames.append(
+            go.Frame(
+                name=f"{target:.2f}",
+                data=[
+                    go.Scatter(x=X_test.ravel(), y=y_test, mode="markers",
+                               marker=dict(size=4, color="rgba(120,120,120,0.35)"),
+                               name="held-out points", showlegend=False),
+                    go.Scatter(x=np.concatenate([grid, grid[::-1]]),
+                               y=np.concatenate([hi_grid, lo_grid[::-1]]),
+                               fill="toself", fillcolor="rgba(76,120,168,0.25)",
+                               line=dict(color="rgba(255,255,255,0)"),
+                               name="conformalized quantile regression (CQR)"),
+                    go.Scatter(x=grid, y=mean_grid + half_width, mode="lines",
+                               line=dict(color="#E45756", width=1.5, dash="dash"),
+                               name="naive fixed-width interval"),
+                    go.Scatter(x=grid, y=mean_grid - half_width, mode="lines",
+                               line=dict(color="#E45756", width=1.5, dash="dash"),
+                               showlegend=False),
+                ],
+                layout=go.Layout(annotations=[
+                    dict(x=0.5, y=1.10, xref="paper", yref="paper", showarrow=False,
+                         text=caption, font=dict(size=11)),
+                ]),
+            )
+        )
+
+    default_idx = 1  # target 0.90, the level the prose below is built on
+    fig = go.Figure(data=frames[default_idx].data, frames=frames,
+                     layout=go.Layout(annotations=frames[default_idx].layout.annotations))
+    fig.update_layout(
+        title="A fixed-width interval looks fine on average and fails where load is highest",
+        xaxis_title="request load (requests per second)",
+        yaxis_title="checkout latency (ms)",
+        margin=dict(t=100, l=60, r=30, b=50),
+        sliders=[{
+            "active": default_idx,
+            "currentvalue": {"prefix": "Target coverage: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate",
+                                      "frame": {"duration": 300, "redraw": True},
+                                      "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-boosting-fig-search-trajectory": fig_bo_search_trajectory,
     "chapter-bayes-boosting-fig-expected-improvement": fig_expected_improvement,
     "chapter-bayes-boosting-fig-ngboost-width": fig_ngboost_predictive_width,
+    "chapter-bayes-boosting-fig-quantile-regression": fig_quantile_regression,
+    "chapter-bayes-boosting-fig-conformal-coverage": fig_conformal_coverage,
 }
 
 

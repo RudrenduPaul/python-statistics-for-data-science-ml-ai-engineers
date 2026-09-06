@@ -34,6 +34,57 @@ def payload_latency_sample(n: int, noise_sd: float, seed_offset: int = 0):
     return payload_kb, latency_ms
 
 
+def multi_predictor_latency_sample(n: int, seed_offset: int = 0):
+    """Latency driven by payload size, concurrent load, and deployment region.
+
+    Concurrent load is deliberately correlated with payload size (larger
+    payloads tend to arrive during high-load batch windows), so a
+    payload-only model absorbs part of load's effect. Region shifts the
+    intercept: us-east is the reference level, us-west adds 9 ms, eu-west
+    adds 17 ms, standing in for hardware or network differences across a
+    fleet. The true payload effect (9 ms/KB) matches payload_latency_sample
+    above on purpose, so the two sections can be read side by side.
+    """
+    rng = np.random.default_rng(23 + seed_offset)
+    payload_kb = rng.uniform(2, 20, size=n)
+    concurrent_load = 20 + 3.0 * payload_kb + rng.normal(0, 12, size=n)
+    concurrent_load = np.clip(concurrent_load, 5, 95)
+    region = rng.choice(["us-east", "us-west", "eu-west"], size=n, p=[0.5, 0.3, 0.2])
+    shift_map = {"us-east": 0.0, "us-west": 9.0, "eu-west": 17.0}
+    region_shift = np.array([shift_map[r] for r in region])
+    latency_ms = 25 + 9.0 * payload_kb + 0.35 * concurrent_load + region_shift + rng.normal(0, 12, size=n)
+    return payload_kb, concurrent_load, region, latency_ms
+
+
+def fit_ols(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+    return beta
+
+
+def compute_vif(predictors: dict) -> dict:
+    """Regress each predictor on every other predictor and return 1/(1-R^2)
+    for each, the variance inflation factor. Hand-rolled rather than
+    imported, matching this file's existing practice of computing its own
+    small numerical methods (see soft_threshold and ridge_closed_form below)
+    instead of reaching for a modeling library.
+    """
+    names = list(predictors.keys())
+    X = np.column_stack([predictors[k] for k in names])
+    n, p = X.shape
+    vifs = {}
+    for j, name in enumerate(names):
+        y_j = X[:, j]
+        other_cols = [k for k in range(p) if k != j]
+        X_others = np.column_stack([np.ones(n)] + [X[:, k] for k in other_cols])
+        beta = fit_ols(X_others, y_j)
+        y_hat = X_others @ beta
+        ss_res = np.sum((y_j - y_hat) ** 2)
+        ss_tot = np.sum((y_j - y_j.mean()) ** 2)
+        r2 = 1 - ss_res / ss_tot
+        vifs[name] = 1.0 / (1.0 - r2) if r2 < 0.9999 else float("inf")
+    return vifs
+
+
 # ---------------------------------------------------------------------------
 # Figure 1: OLS fit as noise level changes
 # ---------------------------------------------------------------------------
@@ -67,6 +118,397 @@ def fig_ols_fit() -> go.Figure:
         sliders=[{
             "active": 0,
             "currentvalue": {"prefix": "noise standard deviation (ms): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: building up a multiple regression one predictor at a time
+# ---------------------------------------------------------------------------
+def fig_multiple_regression_coefficients() -> go.Figure:
+    n = 300
+    payload, load, region, latency = multi_predictor_latency_sample(n)
+    is_us_west = (region == "us-west").astype(float)
+    is_eu_west = (region == "eu-west").astype(float)
+
+    steps = [
+        ("payload only", np.column_stack([np.ones(n), payload]), [True, False, False, False]),
+        ("+ concurrent load", np.column_stack([np.ones(n), payload, load]), [True, True, False, False]),
+        ("+ region (dummies)", np.column_stack([np.ones(n), payload, load, is_us_west, is_eu_west]),
+         [True, True, True, True]),
+    ]
+    predictor_names = ["payload size", "concurrent load", "region: us-west", "region: eu-west"]
+
+    frames = []
+    for label, X, included in steps:
+        beta = fit_ols(X, latency)
+        # beta[0] is the intercept; pad the remaining predictor slots with 0
+        # so every frame plots the same four bars (a fixed x-axis, per this
+        # book's own documented gotcha about animating categorical axes),
+        # coloring a predictor not yet in the model gray instead of dropping
+        # its bar.
+        values = [0.0, 0.0, 0.0, 0.0]
+        for i, is_in in enumerate(included):
+            if is_in:
+                values[i] = beta[i + 1]
+        colors = ["#4C78A8" if is_in else "#D9D9D9" for is_in in included]
+        frames.append(
+            go.Frame(
+                name=label,
+                data=[go.Bar(x=predictor_names, y=values, marker_color=colors)],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False,
+                    text=f"payload coefficient = {values[0]:.2f} ms/KB (true effect: 9.00)",
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Adding predictors moves the payload coefficient toward its true effect",
+        yaxis_title="estimated coefficient (ms)",
+        shapes=[dict(type="line", x0=-0.5, x1=3.5, y0=9.0, y1=9.0, xref="x", yref="y",
+                     line=dict(color="#999", width=1, dash="dot"))],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "model: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: a categorical predictor's raw group gap versus its dummy coefficient
+# ---------------------------------------------------------------------------
+def fig_region_dummy_effect() -> go.Figure:
+    n = 300
+    payload, load, region, latency = multi_predictor_latency_sample(n)
+    is_us_west = (region == "us-west").astype(float)
+    is_eu_west = (region == "eu-west").astype(float)
+    X = np.column_stack([np.ones(n), payload, load, is_us_west, is_eu_west])
+    beta = fit_ols(X, latency)
+
+    regions = ["us-east", "us-west", "eu-west"]
+    raw_means = [latency[region == r].mean() for r in regions]
+    # adjusted mean: hold payload and load at their overall averages and read
+    # off each region's dummy coefficient (0 for us-east, the reference level)
+    payload_bar, load_bar = payload.mean(), load.mean()
+    dummy_at_avg = [
+        beta[0] + beta[1] * payload_bar + beta[2] * load_bar,
+        beta[0] + beta[1] * payload_bar + beta[2] * load_bar + beta[3],
+        beta[0] + beta[1] * payload_bar + beta[2] * load_bar + beta[4],
+    ]
+
+    fig = go.Figure(data=[
+        go.Bar(x=regions, y=raw_means, name="raw group mean latency", marker_color="#B0B0B0"),
+        go.Bar(x=regions, y=dummy_at_avg, name="model estimate at average payload and load",
+               marker_color="#4C78A8"),
+    ])
+    fig.update_layout(
+        barmode="group",
+        title="A region's raw latency gap and its dummy-coefficient estimate need not agree",
+        yaxis_title="latency (ms)",
+        legend=dict(orientation="h", y=-0.2),
+        margin=dict(t=60, l=60, r=30, b=70),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: binning a high-cardinality categorical predictor by residual
+# (API endpoint path, not gedeck's zip code)
+# ---------------------------------------------------------------------------
+def endpoint_latency_sample(n: int, seed_offset: int = 0):
+    rng = np.random.default_rng(83 + seed_offset)
+    endpoint_ids = [f"/api/v1/{name}" for name in [
+        "checkout", "cart", "cart/items", "payments", "payments/verify", "shipping/rates",
+        "shipping/label", "inventory/lookup", "inventory/reserve", "pricing/quote",
+        "pricing/discount", "auth/token", "auth/refresh", "profile", "profile/address",
+        "orders", "orders/status", "orders/cancel", "recommendations", "search",
+        "search/suggest", "reviews", "reviews/submit", "wishlist", "notifications",
+        "notifications/subscribe", "support/ticket", "fraud/score",
+    ]]
+    n_endpoints = len(endpoint_ids)
+    # a handful of endpoints call slow external services (fraud checks, auth
+    # refresh, notification delivery); most just touch local, cached data
+    endpoint_latency_offset = rng.normal(0, 22, size=n_endpoints)
+    endpoint_weights = rng.dirichlet(np.ones(n_endpoints) * 0.6)  # traffic is uneven across endpoints
+    endpoint_idx = rng.choice(n_endpoints, size=n, p=endpoint_weights)
+    payload_kb = rng.uniform(1, 15, size=n)
+    latency_ms = 20 + 6 * payload_kb + endpoint_latency_offset[endpoint_idx] + rng.normal(0, 10, size=n)
+    return endpoint_ids, endpoint_idx, payload_kb, latency_ms
+
+
+def bin_by_residual(endpoint_ids, endpoint_idx, resid, k_bins):
+    n_endpoints = len(endpoint_ids)
+    med_resid, counts = {}, {}
+    for i in range(n_endpoints):
+        mask = endpoint_idx == i
+        if mask.sum() > 0:
+            med_resid[endpoint_ids[i]] = float(np.median(resid[mask]))
+            counts[endpoint_ids[i]] = int(mask.sum())
+    sorted_eps = sorted(med_resid.keys(), key=lambda name: med_resid[name])
+    total = sum(counts.values())
+    target = total / k_bins
+    bins = [[] for _ in range(k_bins)]
+    cum, bin_i = 0, 0
+    for ep in sorted_eps:
+        bins[bin_i].append(ep)
+        cum += counts[ep]
+        if cum >= target * (bin_i + 1) and bin_i < k_bins - 1:
+            bin_i += 1
+    return sorted_eps, med_resid, counts, bins
+
+
+def fig_endpoint_residual_binning() -> go.Figure:
+    endpoint_ids, endpoint_idx, payload_kb, latency_ms = endpoint_latency_sample(350)
+    n = len(payload_kb)
+    X_control = np.column_stack([np.ones(n), payload_kb])
+    beta_control = fit_ols(X_control, latency_ms)
+    resid = latency_ms - X_control @ beta_control
+
+    bin_counts = [2, 3, 4, 5, 6]
+    palette = ["#4C78A8", "#E45756", "#54A24B", "#F58518", "#B279A2", "#72B7B2"]
+
+    frames = []
+    for k in bin_counts:
+        sorted_eps, med_resid, counts, bins = bin_by_residual(endpoint_ids, endpoint_idx, resid, k)
+        bin_of = {ep: i for i, group in enumerate(bins) for ep in group}
+        colors = [palette[bin_of[ep] % len(palette)] for ep in sorted_eps]
+        y_vals = [med_resid[ep] for ep in sorted_eps]
+        short_labels = [ep.replace("/api/v1/", "") for ep in sorted_eps]
+        frames.append(
+            go.Frame(
+                name=str(k),
+                data=[go.Bar(x=short_labels, y=y_vals, marker_color=colors)],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False,
+                    text=f"{k} bins, sorted by each endpoint's median residual",
+                    font=dict(size=12, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Sorting endpoints by residual before binning groups the slow ones together",
+        yaxis_title="median residual after a payload-only model (ms)",
+        xaxis=dict(tickangle=45, tickfont=dict(size=9)),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "number of bins: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=140),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: an interaction term lets load's slope differ by region
+# ---------------------------------------------------------------------------
+def interaction_latency_sample(n: int, slope_multiplier: float, seed_offset: int = 0):
+    rng = np.random.default_rng(26 + seed_offset)
+    concurrent_load = rng.uniform(10, 90, size=n)
+    region = rng.choice(["us-east", "eu-west"], size=n, p=[0.55, 0.45])
+    base_slope = 0.35
+    load_slope = np.where(region == "us-east", base_slope, base_slope * slope_multiplier)
+    latency_ms = 30 + load_slope * concurrent_load + rng.normal(0, 9, size=n)
+    return concurrent_load, region, latency_ms
+
+
+def fig_interaction_slopes() -> go.Figure:
+    multipliers = [1.0, 1.4375, 1.875, 2.3125, 2.75]
+    load_grid = np.linspace(10, 90, 40)
+    frames = []
+    for mult in multipliers:
+        load, region, latency = interaction_latency_sample(400, mult, seed_offset=3)
+        is_eu = (region == "eu-west").astype(float)
+
+        X_no_int = np.column_stack([np.ones(len(load)), load, is_eu])
+        beta_no_int = fit_ols(X_no_int, latency)
+        resid_no_int = latency - X_no_int @ beta_no_int
+        sse_no_int = float(np.sum(resid_no_int ** 2))
+
+        X_int = np.column_stack([np.ones(len(load)), load, is_eu, load * is_eu])
+        beta_int = fit_ols(X_int, latency)
+        resid_int = latency - X_int @ beta_int
+        sse_int = float(np.sum(resid_int ** 2))
+
+        us_east_line = beta_int[0] + beta_int[1] * load_grid
+        eu_west_line = beta_int[0] + beta_int[2] + (beta_int[1] + beta_int[3]) * load_grid
+        common_line = beta_no_int[0] + beta_no_int[1] * load_grid  # ignores region entirely
+
+        frames.append(
+            go.Frame(
+                name=f"{mult:.2f}",
+                data=[
+                    go.Scatter(x=load[~is_eu.astype(bool)], y=latency[~is_eu.astype(bool)], mode="markers",
+                               marker=dict(color="#4C78A8", size=5, opacity=0.45), name="us-east"),
+                    go.Scatter(x=load[is_eu.astype(bool)], y=latency[is_eu.astype(bool)], mode="markers",
+                               marker=dict(color="#E45756", size=5, opacity=0.45), name="eu-west"),
+                    go.Scatter(x=load_grid, y=common_line, mode="lines",
+                               line=dict(color="#999", width=2, dash="dash"), name="no interaction (one slope)"),
+                    go.Scatter(x=load_grid, y=us_east_line, mode="lines",
+                               line=dict(color="#4C78A8", width=3), name="us-east slope (interaction model)"),
+                    go.Scatter(x=load_grid, y=eu_west_line, mode="lines",
+                               line=dict(color="#E45756", width=3), name="eu-west slope (interaction model)"),
+                ],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=0.97, xref="paper", yref="paper", showarrow=False, align="left",
+                    text=(f"no-interaction SSE = {sse_no_int:,.0f}<br>"
+                          f"interaction SSE = {sse_int:,.0f}<br>"
+                          f"interaction coefficient = {beta_int[3]:.3f}"),
+                    font=dict(size=12, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="As the two regions' load sensitivity diverges, one common slope fits worse",
+        xaxis_title="concurrent load (%)",
+        yaxis_title="latency (ms)",
+        legend=dict(orientation="h", y=-0.2),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "eu-west load-slope multiplier: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=100),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: variance inflation factor as two predictors grow more correlated
+# ---------------------------------------------------------------------------
+def vif_predictor_sample(n: int, corr_strength: float, seed_offset: int = 0):
+    rng = np.random.default_rng(23 + seed_offset)
+    payload_kb = rng.uniform(2, 20, size=n)
+    concurrent_load = rng.uniform(10, 90, size=n)
+    noise = rng.normal(0, payload_kb.std(), size=n)
+    response_kb = corr_strength * (payload_kb - payload_kb.mean()) * 3.0 + (1 - corr_strength) * noise
+    response_kb = response_kb + 40
+    return payload_kb, concurrent_load, response_kb
+
+
+def fig_vif_bars() -> go.Figure:
+    corr_strengths = [0.1, 0.4, 0.7, 0.85, 0.92]
+    predictor_names = ["payload size", "concurrent load", "response size"]
+    frames = []
+    for cs in corr_strengths:
+        payload_kb, load_kb, response_kb = vif_predictor_sample(250, cs, seed_offset=13)
+        vifs = compute_vif({"payload size": payload_kb, "concurrent load": load_kb,
+                             "response size": response_kb})
+        r = float(np.corrcoef(payload_kb, response_kb)[0, 1])
+        values = [vifs[name] for name in predictor_names]
+        frames.append(
+            go.Frame(
+                name=f"{cs:.2f}",
+                data=[go.Bar(x=predictor_names, y=values,
+                              marker_color=["#E45756", "#4C78A8", "#E45756"])],
+                layout=go.Layout(
+                    yaxis=dict(type="log", range=[0, np.log10(max(values) * 1.5 + 1)]),
+                    annotations=[dict(
+                        x=0.02, y=0.95, xref="paper", yref="paper", showarrow=False,
+                        text=f"corr(payload, response size) = {r:.3f}",
+                        font=dict(size=13, color="#333"),
+                    )],
+                ),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="VIF stays near 1 for an unrelated predictor and explodes for a correlated pair",
+        yaxis_title="variance inflation factor (log scale)",
+        shapes=[
+            dict(type="line", x0=-0.5, x1=2.5, y0=5, y1=5, xref="x", yref="y",
+                 line=dict(color="#999", width=1, dash="dot")),
+            dict(type="line", x0=-0.5, x1=2.5, y0=10, y1=10, xref="x", yref="y",
+                 line=dict(color="#666", width=1, dash="dash")),
+        ],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "correlation strength dial: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure: accuracy, precision, and recall as the timeout threshold moves
+# ---------------------------------------------------------------------------
+def fig_confusion_threshold() -> go.Figure:
+    rng = np.random.default_rng(71)
+    load = rng.uniform(0, 100, 400)
+    k, midpoint = 0.12, 60
+    p_fit = 1 / (1 + np.exp(-k * (load - midpoint)))
+    observed_timeout = (rng.uniform(size=len(load)) < p_fit).astype(int)
+
+    thresholds = [0.2, 0.35, 0.5, 0.65, 0.8]
+    labels = ["true positive", "false positive", "true negative", "false negative"]
+    colors = ["#4C78A8", "#E45756", "#72B7B2", "#F58518"]
+    frames = []
+    for t in thresholds:
+        predicted_timeout = (p_fit >= t).astype(int)
+        tp = int(np.sum((predicted_timeout == 1) & (observed_timeout == 1)))
+        fp = int(np.sum((predicted_timeout == 1) & (observed_timeout == 0)))
+        tn = int(np.sum((predicted_timeout == 0) & (observed_timeout == 0)))
+        fn = int(np.sum((predicted_timeout == 0) & (observed_timeout == 1)))
+        accuracy = (tp + tn) / len(observed_timeout)
+        precision = tp / (tp + fp) if (tp + fp) else float("nan")
+        recall = tp / (tp + fn) if (tp + fn) else float("nan")
+
+        frames.append(
+            go.Frame(
+                name=f"{t:.2f}",
+                data=[go.Bar(x=labels, y=[tp, fp, tn, fn], marker_color=colors)],
+                layout=go.Layout(annotations=[dict(
+                    x=0.98, y=0.95, xref="paper", yref="paper", showarrow=False, align="right",
+                    text=(f"accuracy = {accuracy:.2f}<br>precision = {precision:.2f}<br>"
+                          f"recall = {recall:.2f}"),
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Raising the timeout-prediction threshold trades recall for precision",
+        yaxis_title="count of requests",
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "predict-timeout threshold: "},
             "steps": [
                 {"label": f.name, "method": "animate",
                  "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
@@ -582,8 +1024,14 @@ def fig_significance_vs_sample_size() -> go.Figure:
 
 FIGURES = {
     "chapter-04-fig-ols-fit": fig_ols_fit,
+    "chapter-04-fig-multiple-regression": fig_multiple_regression_coefficients,
+    "chapter-04-fig-region-dummy-effect": fig_region_dummy_effect,
+    "chapter-04-fig-endpoint-residual-binning": fig_endpoint_residual_binning,
+    "chapter-04-fig-interaction-slopes": fig_interaction_slopes,
+    "chapter-04-fig-vif": fig_vif_bars,
     "chapter-04-fig-ci-vs-pi": fig_ci_vs_pi,
     "chapter-04-fig-logistic-timeout": fig_logistic_timeout,
+    "chapter-04-fig-confusion-threshold": fig_confusion_threshold,
     "chapter-04-fig-r2-vs-adjusted": fig_r2_vs_adjusted,
     "chapter-04-fig-aic-bic": fig_aic_bic,
     "chapter-04-fig-significance-vs-sample-size": fig_significance_vs_sample_size,

@@ -446,6 +446,106 @@ def fig_literary_digest_predicted_vs_actual() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 8: correlation among cluster health metrics, by traffic regime
+#
+# Structurally inspired by the classic grayscale-safe correlation-ellipse
+# device (encode correlation strength and sign as an ellipse's eccentricity
+# and tilt instead of only a heatmap color, so the plot still reads on a
+# black-and-white printout). Different domain (multi-metric cluster health
+# monitoring instead of a two-variable payload/latency scatter), different
+# dataset (a one-factor "shared load" simulation instead of any prior figure
+# in this file), and a different implementation: each ellipse is drawn as a
+# rotated parametric Plotly Scatter trace filled with `fill="toself"`, not a
+# matplotlib EllipseCollection. The rotation angle is fixed at 45 degrees
+# because the covariance matrix [[1, r], [r, 1]] always has eigenvectors at
+# 45/135 degrees; only the semi-axis lengths sqrt(1+r) and sqrt(1-r) change
+# with r, which is what draws the eccentricity.
+# ---------------------------------------------------------------------------
+METRIC_NAMES = [
+    "CPU utilization", "Memory utilization", "Queue depth", "Error rate", "p99 latency",
+]
+METRIC_PAIRS = [
+    (i, j) for i in range(len(METRIC_NAMES)) for j in range(i + 1, len(METRIC_NAMES))
+]
+# One shared "load" factor drives all five metrics; the loading on each
+# metric controls how tightly it tracks that shared factor. Normal traffic
+# uses weak loadings (metrics barely related); incident-level overload uses
+# strong loadings (a single cause, resource saturation, driving every
+# metric at once).
+TRAFFIC_REGIMES = {
+    "Normal traffic": [0.15, 0.10, 0.05, 0.05, 0.20],
+    "Approaching saturation": [0.55, 0.45, 0.60, 0.35, 0.70],
+    "Incident-level overload": [0.85, 0.75, 0.90, 0.70, 0.95],
+}
+
+
+def _regime_correlation_matrix(loadings: list, n: int = 400) -> np.ndarray:
+    z_common = RNG.normal(size=n)
+    columns = []
+    for loading in loadings:
+        idiosyncratic = RNG.normal(size=n)
+        columns.append(loading * z_common + np.sqrt(1 - loading ** 2) * idiosyncratic)
+    return np.corrcoef(np.column_stack(columns), rowvar=False)
+
+
+def _correlation_ellipse_xy(r: float, n_pts: int = 48, cell_scale: float = 0.42):
+    theta = np.pi / 4
+    a = np.sqrt(max(1 + r, 0.0))
+    b = np.sqrt(max(1 - r, 0.0))
+    t = np.linspace(0, 2 * np.pi, n_pts)
+    ex, ey = a * np.cos(t), b * np.sin(t)
+    scale = cell_scale / np.sqrt(2)
+    rx = (ex * np.cos(theta) - ey * np.sin(theta)) * scale
+    ry = (ex * np.sin(theta) + ey * np.cos(theta)) * scale
+    return rx, ry
+
+
+def fig_metric_correlation_ellipses() -> go.Figure:
+    n_var = len(METRIC_NAMES)
+    frames = []
+    for regime_name, loadings in TRAFFIC_REGIMES.items():
+        corr = _regime_correlation_matrix(loadings)
+        traces, annotations = [], []
+        for (i, j) in METRIC_PAIRS:
+            r = float(corr[i, j])
+            rx, ry = _correlation_ellipse_xy(r)
+            gray = 0.75 - 0.55 * abs(r)
+            fill = f"rgba({int(gray * 255)},{int(gray * 255)},{int(gray * 255)},0.85)"
+            traces.append(go.Scatter(
+                x=j + rx, y=i + ry, mode="lines", fill="toself",
+                line=dict(color="#333333", width=1), fillcolor=fill,
+                hoverinfo="skip", showlegend=False,
+            ))
+            annotations.append(dict(
+                x=j, y=i, text=f"{r:+.2f}", showarrow=False,
+                font=dict(size=9, color="#222222" if abs(r) < 0.5 else "#ffffff"),
+            ))
+        frames.append(go.Frame(name=regime_name, data=traces,
+                                layout=go.Layout(annotations=annotations)))
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Cluster health metrics: correlation structure by traffic regime",
+        xaxis=dict(tickvals=list(range(n_var)), ticktext=METRIC_NAMES,
+                   range=[-0.6, n_var - 0.4], side="top"),
+        yaxis=dict(tickvals=list(range(n_var)), ticktext=METRIC_NAMES,
+                   range=[-0.6, n_var - 0.4], autorange="reversed"),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Regime: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=150, l=150, r=30, b=30),
+        height=580,
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-01-fig-mean-vs-median": fig_mean_vs_median,
     "chapter-01-fig-std-vs-percentile": fig_std_vs_percentile,
@@ -454,6 +554,7 @@ FIGURES = {
     "chapter-01-fig-simpsons-paradox": fig_simpsons_paradox_kidney_stones,
     "chapter-01-fig-mean-imputation": fig_mean_imputation,
     "chapter-01-fig-literary-digest": fig_literary_digest_predicted_vs_actual,
+    "chapter-01-fig-metric-correlation-ellipses": fig_metric_correlation_ellipses,
 }
 
 

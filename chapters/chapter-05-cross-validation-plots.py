@@ -224,11 +224,115 @@ def fig_elpd_by_complexity() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 5: from-scratch k-fold grid search over two KNN hyperparameters
+# (app-crash telemetry: predicting crashes per 1,000 sessions from heap
+# pressure and hours since the app process last restarted)
+# ---------------------------------------------------------------------------
+def true_crash_rate(heap_pressure, hours_since_restart):
+    base = 1.2 + 0.0018 * heap_pressure ** 2
+    uptime_effect = 0.028 * hours_since_restart
+    interaction = 0.00045 * heap_pressure * hours_since_restart
+    return base + uptime_effect + interaction
+
+
+def make_crash_dataset(n=240, seed=39):
+    rng = np.random.default_rng(seed)
+    heap_pressure = rng.uniform(15, 90, n)
+    hours_since_restart = rng.uniform(0, 96, n)
+    true_rate = true_crash_rate(heap_pressure, hours_since_restart)
+    observed = true_rate + rng.normal(0, 3.0, n)
+    observed = np.clip(observed, 0, None)
+    X = np.column_stack([heap_pressure, hours_since_restart])
+    return X, observed
+
+
+def standardize_train_other(X_train, X_other):
+    mean = X_train.mean(axis=0)
+    std = X_train.std(axis=0)
+    std[std == 0] = 1.0
+    return (X_train - mean) / std, (X_other - mean) / std
+
+
+def knn_predict(X_train, y_train, X_query, n_neighbors, weighting):
+    preds = np.empty(len(X_query))
+    for i, q in enumerate(X_query):
+        dists = np.sqrt(((X_train - q) ** 2).sum(axis=1))
+        nearest = np.argsort(dists)[:n_neighbors]
+        if weighting == "uniform":
+            preds[i] = y_train[nearest].mean()
+        else:
+            w = 1.0 / np.maximum(dists[nearest], 1e-6)
+            preds[i] = np.average(y_train[nearest], weights=w)
+    return preds
+
+
+def knn_grid_search_cv(k_folds=5, fold_seed=19):
+    """Manual fold assignment, nested hyperparameter grid search, and a
+    pivot-table summary, mirroring what GridSearchCV/cross_val_score
+    automate. Returns (neighbor_grid, weight_grid, cv_error matrix).
+
+    Uses its own seeded generator (independent of the shared module-level
+    RNG) so the fold assignment, and therefore every number in this
+    section's figure and prose, stays fixed regardless of which other
+    figures ran first.
+    """
+    X, y = make_crash_dataset()
+    n = len(y)
+    neighbor_grid = [1, 3, 5, 10, 15, 25, 40]
+    weight_grid = ["uniform", "distance"]
+    fold_rng = np.random.default_rng(fold_seed)
+
+    # manual fold-assignment loop: every observation gets a fold id 0..k_folds-1
+    fold_id = np.empty(n, dtype=int)
+    shuffled_positions = fold_rng.permutation(n)
+    for position, row in enumerate(shuffled_positions):
+        fold_id[row] = position % k_folds
+
+    # nested grid-search loop: score every (n_neighbors, weighting)
+    # combination by hand across all k_folds folds
+    cv_error = np.empty((len(neighbor_grid), len(weight_grid)))
+    for i, n_neighbors in enumerate(neighbor_grid):
+        for j, weighting in enumerate(weight_grid):
+            fold_errors = []
+            for fold in range(k_folds):
+                train_mask = fold_id != fold
+                val_mask = fold_id == fold
+                X_train_std, X_val_std = standardize_train_other(X[train_mask], X[val_mask])
+                preds = knn_predict(X_train_std, y[train_mask], X_val_std, n_neighbors, weighting)
+                fold_errors.append(np.mean((preds - y[val_mask]) ** 2))
+            cv_error[i, j] = np.mean(fold_errors)
+
+    return neighbor_grid, weight_grid, cv_error
+
+
+def fig_knn_grid_search() -> go.Figure:
+    neighbor_grid, weight_grid, cv_error = knn_grid_search_cv()
+
+    fig = go.Figure(data=go.Heatmap(
+        z=cv_error,
+        x=weight_grid,
+        y=[str(k) for k in neighbor_grid],
+        colorscale="Blues_r",
+        text=np.round(cv_error, 2),
+        texttemplate="%{text}",
+        colorbar=dict(title="CV MSE"),
+    ))
+    fig.update_layout(
+        title="Cross-validated error across neighbor count and weighting scheme",
+        xaxis_title="Weighting scheme",
+        yaxis_title="Number of neighbors (k)",
+        margin=dict(t=60, l=70, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-cv-fig-train-vs-test-error": fig_train_vs_test_error,
     "chapter-cv-fig-validation-strategy-variance": fig_validation_strategy_variance,
     "chapter-cv-fig-lambda-selection": fig_lambda_selection,
     "chapter-cv-fig-elpd-by-complexity": fig_elpd_by_complexity,
+    "chapter-cv-fig-knn-grid-search": fig_knn_grid_search,
 }
 
 

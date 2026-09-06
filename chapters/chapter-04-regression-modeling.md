@@ -7,7 +7,7 @@ correlation, and that correlation alone could not say how much of the relationsh
 summarizing how two variables move together, it produces a formula that predicts one variable
 from another, and a set of diagnostics that say how much to trust that formula.
 
-This chapter works through six questions that come up whenever a prediction needs to be backed
+This chapter works through eight questions that come up whenever a prediction needs to be backed
 by more than intuition:
 
 1. *How do I fit a line through the data, and what does "best" mean?*
@@ -16,13 +16,20 @@ by more than intuition:
 2. *How uncertain is a prediction, and does that uncertainty shrink with more data?*
    Confidence intervals and prediction intervals answer two different versions of that
    question.
-3. *What happens when the outcome is a category instead of a number?*
+3. *What changes once more than one predictor, or a category instead of a number, joins the
+   model?*
+   Multiple regression, dummy encoding, and interaction terms turn one straight line into
+   something that can represent a fleet of servers and a workload at once, and the variance
+   inflation factor flags when two of those predictors have started saying the same thing.
+4. *What happens when the outcome is a category instead of a number?*
    Logistic regression extends the same machinery to binary outcomes.
-4. *How do I know if a model is a good fit, and not just a complicated one?*
+5. *Once a model predicts a category, how is it graded?*
+   Accuracy, precision, and recall turn a fitted threshold into a scorecard.
+6. *How do I know if a model is a good fit, and not just a complicated one?*
    R-squared, adjusted R-squared, AIC, and BIC each answer a version of that question.
-5. *What does a coefficient mean, and when does a significant one not matter?*
+7. *What does a coefficient mean, and when does a significant one not matter?*
    Statistical significance and practical significance are not the same thing.
-6. *What happens when there are more predictors than the data can support?*
+8. *What happens when there are more predictors than the data can support?*
    Regularization techniques trade a small amount of bias for a model that generalizes.
 
 ## Ordinary least squares regression
@@ -73,6 +80,9 @@ errors, so an individual predictor's coefficient can look statistically insignif
 the group of correlated predictors together explains a meaningful share of the variance. Ridge
 regression, covered later in this chapter, addresses that instability directly by shrinking
 correlated coefficients together instead of letting one absorb an unstable share of the effect.
+The variance inflation factor section further down this chapter gives a direct way to measure
+how much multicollinearity is inflating a given predictor's standard error, before deciding
+whether Ridge, or simply dropping a redundant predictor, is the fix a given model needs.
 :::
 
 ::: {.callout-tip}
@@ -126,6 +136,264 @@ that mean, a spread that does not shrink no matter how much data the model has s
 A capacity-planning question about typical load calls for a confidence interval. A question
 about the worst latency any single request might see calls for a prediction interval. Reporting
 the narrower one for the wrong question understates the true range of outcomes.
+:::
+
+## Multiple regression: more than one predictor at a time
+
+The OLS section above ties latency to a single suspect, payload size. An on-call engineer
+diagnosing a slow endpoint rarely gets that luxury: payload size, concurrent load, and
+deployment region all move at once, and blaming the one variable a single-predictor model can
+see risks pointing at the wrong knob to turn.
+
+::: {#fig-multiple-regression}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-multiple-regression.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The estimated coefficient on payload size across three models fit to the same 300 requests, with
+a dotted reference line at the 9 ms/KB effect this chapter's simulation was built to produce. A
+payload-only model overstates that effect; adding concurrent load and then region pulls the
+estimate back toward the reference line.
+:::
+
+@fig-multiple-regression fits three models to the same 300 simulated requests, adding one
+predictor at a time. A model that sees only payload size estimates its effect at 9.95 ms per
+additional kilobyte. Adding concurrent load to the model pulls that estimate down to 9.26 ms.
+Adding the two region indicators on top moves it to 9.20 ms, close to the 9 ms per kilobyte
+relationship this chapter's simulation was built to produce.
+
+*Multiple regression* extends ordinary least squares from one predictor to several, fitting a
+single equation that estimates each predictor's own contribution to the outcome while holding
+the others fixed:
+
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p + \varepsilon$$
+
+Each $\beta_j$ answers a narrower question than the simple-regression slope did: not "how does
+$Y$ change as $X_j$ changes," but "how does $Y$ change as $X_j$ changes, with every other
+predictor in the equation held at a fixed value." Fitting proceeds the same way OLS always does,
+minimizing the sum of squared residuals, just over more coefficients at once.
+
+Concurrent load and payload size move together in this simulation, with a correlation of 0.78,
+since heavier payloads tend to arrive during the same high-load batch windows. A payload-only
+model has no predictor to credit for load's own share of the slowdown, so it folds that share
+into payload's coefficient instead. A chunk of the 9.95 ms the single-predictor model reports is
+load's own effect, showing up under payload's name because the two move together in this sample.
+A capacity-planning decision that trims payload size expecting the full 9.95 ms per kilobyte in
+savings would come up short, closer to the 9.20 ms the fuller model estimates.
+
+::: {.callout-note}
+Recall Chapter 2's treatment of confounding variables: a coefficient's value can shift once the
+right control joins the model. Payload's coefficient shifting from 9.95 to 9.20 ms as concurrent
+load and region enter the equation above is the same phenomenon, now inside a regression instead
+of a group comparison.
+:::
+
+## Categorical predictors and dummy encoding
+
+Deployment region is not a number a regression can multiply by a coefficient. There is no
+meaningful sense in which "eu-west" is twice "us-east," so a categorical predictor needs a
+different encoding before it can enter the equation above at all.
+
+::: {#fig-region-dummy-effect}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-region-dummy-effect.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Gray bars show each region's raw average latency; blue bars show what the full model from the
+section above predicts for that region once payload size and concurrent load are held at their
+sample averages. The two views mostly agree for eu-west but diverge for us-west, where the raw
+gap overstates region's own contribution.
+:::
+
+@fig-region-dummy-effect compares two views of the same three regions. For us-east, both bars
+read about 142 ms, since us-east serves as the reference level and contributes nothing beyond the
+intercept. For us-west, the raw group average runs 16.3 ms above us-east's, but the model's own
+coefficient on the us-west indicator is only 8.3 ms. For eu-west, the raw gap (18.6 ms) and the
+model's coefficient (17.9 ms) land close together.
+
+The gap between us-west's two bars traces back to the sample itself: the us-west requests in this
+draw happen to carry a slightly higher average payload (11.8 KB against us-east's 11.0 KB) and
+slightly higher average load (55.4 against 53.4), so part of us-west's raw latency gap comes from
+payload and load, not region. Once the model holds those two predictors fixed, only 8.3 ms of the
+16.3 ms raw gap is left for the region indicator to explain.
+
+A *dummy variable* recodes a $k$-level categorical predictor into $k-1$ binary indicator columns,
+each equal to 1 when an observation belongs to that level and 0 otherwise, with one level chosen
+as the reference against which every other level is compared:
+
+$$Y = \beta_0 + \beta_1 X_1 + \gamma_1 D_{\text{us-west}} + \gamma_2 D_{\text{eu-west}} +
+\varepsilon$$
+
+Here $D_{\text{us-west}}$ equals 1 for a request served from us-west and 0 otherwise, and
+$D_{\text{eu-west}}$ works the same way for eu-west; us-east, with no indicator of its own, is the
+reference level baked into the intercept $\beta_0$. In other words, $\gamma_1$ and $\gamma_2$
+state how much higher or lower latency runs for each named region compared to us-east, holding
+payload size and load fixed, the same reading the figure above puts numbers to.
+
+::: {.callout-warning}
+Encoding a $k$-level category with all $k$ indicator columns, instead of $k-1$, creates a new
+column fully determined by the others: every request's set of indicators sums to 1. Paired with
+an intercept, that is a perfect multicollinearity problem the fitting routine cannot resolve,
+sometimes called the dummy variable trap. Dropping one level as the reference avoids it.
+:::
+
+## Binning high-cardinality categorical predictors by residual
+
+Deployment region only has three levels. A checkout API's endpoint path is a different kind of
+categorical predictor: dozens of distinct routes, from `/api/v1/checkout` to
+`/api/v1/fraud/score`, each called a different number of times. Dummy-encoding every one of them
+means one coefficient per endpoint, several estimated from a handful of requests or fewer.
+
+::: {#fig-endpoint-residual-binning}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-endpoint-residual-binning.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Endpoints sorted left to right by their median residual from a payload-only model, colored by the
+bin they fall into. Slide the bin count and the same sorted bars regroup into more or fewer
+color-coded clusters, without changing any endpoint's underlying position.
+:::
+
+@fig-endpoint-residual-binning sorts 24 endpoints that appear in a sample of 350 requests by
+their median residual from a payload-only latency model, then groups them into four color-coded
+bins by cumulative request count. The endpoints that run fastest for their payload size,
+`/api/v1/inventory/reserve` and `/api/v1/checkout` among them, land in the leftmost bin, roughly
+20 ms below the payload-only model's prediction. The ones that run slowest, including
+`/api/v1/fraud/score`, `/api/v1/notifications/subscribe`, and `/api/v1/auth/refresh`, land in the
+rightmost bin, roughly 18 ms above it.
+
+The technique behind that figure fits a control model without the endpoint predictor at all,
+extracts each request's residual, computes the median residual for every endpoint that shows up
+in the sample, sorts endpoints by that median from most negative to most positive, then bins the
+sorted list into a small number of groups by cumulative row count rather than by an arbitrary
+cutoff:
+
+$$e_i = y_i - \hat{y}_i, \qquad \tilde{e}_g = \text{median}\{e_i : \text{endpoint}(i) = g\}$$
+
+where $e_i$ is request $i$'s residual from the control model and $\tilde{e}_g$ is endpoint $g$'s
+median residual. In other words, an endpoint's median residual measures how much slower or
+faster that endpoint runs than a request's payload size alone would predict, and sorting by that
+number before binning groups endpoints that behave alike, whatever each route happens to be
+called.
+
+Some endpoints in this sample of 350 requests show up only once or twice, `/api/v1/payments/verify`
+and `/api/v1/pricing/quote` each appear a single time, and four of the catalog's 28 endpoints do
+not appear at all. A coefficient estimated from one observation would move wildly from one
+sample to the next; refitting with the four-bin grouping instead of 27 individual endpoint dummies
+raises this model's R-squared from 0.66 to 0.83, with the slowest bin's coefficient landing at
+31.6 ms above the fastest bin's baseline, a stable, interpretable summary a single rare endpoint's
+own noisy coefficient could not offer on its own.
+
+::: {.callout-tip}
+The same residual-then-bin technique applies to any high-cardinality categorical predictor with
+uneven traffic across levels, product SKU codes, device model IDs, or sensor IDs, not only
+endpoint paths. The predictor does not need to be about location for the method to work; it needs
+only a control model to compute residuals against and a category with more levels than the data
+can support one coefficient each for.
+:::
+
+## Interaction terms
+
+Suppose eu-west runs on a leaner fleet than us-east, fewer machines behind a comparable amount of
+client traffic, so a given rise in concurrent load costs eu-west more latency than it costs
+us-east. A model with one common load coefficient for every region has no way to represent "load
+matters more in one region than another."
+
+::: {#fig-interaction-slopes}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-interaction-slopes.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Observed latency by concurrent load, split by region, with a dashed common-slope line ignoring
+region entirely and two solid lines from a model that lets each region carry its own slope. As
+the slider raises eu-west's load sensitivity, the dashed line increasingly misses both regions
+while the two solid lines keep tracking each one.
+:::
+
+@fig-interaction-slopes fits four versions of this scenario, each drawing eu-west's servers as
+more load-sensitive than us-east's by a growing multiplier. At the smallest multiplier, where the
+two regions barely differ, a single common slope and two region-specific slopes fit almost
+identically: 29,039 against 29,038 in summed squared residuals. At the largest multiplier, the
+two regions' slopes have pulled apart to 0.35 ms per point of load in us-east against 0.97 ms per
+point in eu-west, and the common-slope model's fit has degraded to 47,537 against the
+interaction model's steady 29,038.
+
+An *interaction term* multiplies two predictors together, letting one predictor's slope depend on
+the level of another instead of forcing a single shared slope across every group:
+
+$$Y = \beta_0 + \beta_1 X_1 + \gamma D + \delta (X_1 \times D) + \varepsilon$$
+
+Here $D$ is 1 for a eu-west request and 0 for us-east, so the fitted slope on load works out to
+$\beta_1$ in us-east and $\beta_1 + \delta$ in eu-west. In other words, $\delta$ is not an
+adjustment to the intercept the way $\gamma$ is; it is an adjustment to the slope itself, active
+only for the group the indicator flags.
+
+A single shared load coefficient, fit without the interaction term, reports one average slope
+that under-predicts eu-west's load sensitivity and over-predicts us-east's once the two regions
+diverge enough, understating the risk a capacity-planning decision for eu-west's fleet would need
+to see.
+
+::: {.callout-note}
+An interaction term adds a parameter to the model the same way any predictor does, and the
+Measuring fit section later in this chapter's caution about noise predictors inflating R-squared
+applies to interaction terms just as much as to plain ones. Add an interaction because a
+mechanism explains why one predictor's effect should depend on another, not because trying one
+more term is easy.
+:::
+
+## Multicollinearity and the variance inflation factor
+
+Two rulers that always agree cannot tell a carpenter anything a single cut did not establish on
+its own. Two predictors that move together carry much of the same information, and separating
+their individual effects gets harder the more closely they agree, the same "no multicollinearity"
+assumption named earlier in this chapter, now with a way to check it.
+
+::: {#fig-vif}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-vif.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Variance inflation factor for three predictors on a log scale, as payload size and a stand-in
+response-size field are pushed to move together more tightly. Dotted and dashed reference lines
+mark the conventional VIF cutoffs of 5 and 10; concurrent load, unrelated to either one, barely
+moves off the floor.
+:::
+
+@fig-vif tracks the variance inflation factor for three predictors, payload size, concurrent
+load, and a response-size field, as payload size and response size are pushed to move together
+more tightly. At a correlation of 0.32, both hover at 1.12, indistinguishable from three unrelated
+predictors. At a correlation of 0.91, both climb past 5, the conventional threshold marked by the
+dotted line. By a correlation of 1.00, both predictors' VIF has climbed above 1,300. Concurrent
+load, uncorrelated with either one throughout, holds at 1.02 the entire time.
+
+The *variance inflation factor* for predictor $j$, a diagnostic introduced by Marquardt (1970)
+[@marquardt1970] alongside his work on ridge regression, is computed by regressing that predictor
+on every other predictor in the model and reading off the resulting R-squared:
+
+$$\text{VIF}_j = \frac{1}{1 - R_j^2}$$
+
+where $R_j^2$ is the R-squared from that auxiliary regression, not from the model predicting the
+outcome. In other words, a VIF of 5 for payload size means payload's coefficient carries a
+standard error five times larger than it would carry if payload size were completely uncorrelated
+with every other predictor in the model, the concrete cost of multicollinearity named earlier in
+this chapter's OLS assumptions.
+
+A high VIF does not mean a predictor lacks a meaningful relationship with the outcome; it means
+the data cannot cleanly separate that predictor's effect from a correlated one's, so the
+coefficient on either could shift substantially with a different sample. Shipping a model that
+reports payload's effect as reliable, when its VIF sits above 1,300, would overstate how
+confidently that coefficient's specific value can be trusted.
+
+::: {.callout-tip}
+VIF thresholds of 5 and 10 are conventions, not fixed rules, the same way Chapter 2 treats alpha
+of 0.05 and power of 0.8 as defaults rather than requirements. A VIF just above 5 on a predictor
+central to the question a model exists to answer deserves more scrutiny than the same VIF on a
+predictor headed for removal regardless.
 :::
 
 ## Logistic regression
@@ -183,7 +451,63 @@ point near the tails or by ten or more percentage points near the midpoint.
 A single coefficient cannot report "the" change in probability without saying where on the
 curve the service currently sits. Recall Chapter 2's Type I and Type II error framework:
 choosing where along this curve to draw the "predict timeout" threshold is the same trade-off
-between false positives and false negatives that any classification decision has to make.
+between false positives and false negatives that any classification decision has to make. The
+next section puts numbers on that trade-off directly.
+
+## Classification metrics: accuracy, precision, and recall
+
+Fitting the logistic curve above is only half the job. A fitted model still needs a threshold,
+a probability above which it predicts a timeout, and once that threshold is set, some way to
+grade how well its predictions matched what happened.
+
+::: {#fig-confusion-threshold}
+```{=html}
+<iframe src="../_generated/chapter-04-fig-confusion-threshold.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Counts of the four possible outcomes for 400 requests at a chosen threshold: correctly flagged
+timeouts, wrongly flagged healthy requests, correctly cleared healthy requests, and missed
+timeouts. Raising the threshold shrinks the false-positive bar and grows the false-negative bar,
+while accuracy, shown in the corner, barely moves.
+:::
+
+@fig-confusion-threshold counts those four outcomes for the same 400 requests at five different
+timeout-prediction thresholds. At a loose threshold of 0.20, the model catches 149 of 155
+timeouts (a recall of 0.961) but wrongly flags 61 healthy requests along the way (a precision of
+0.710). At a strict threshold of 0.80, precision climbs to 0.933, but recall falls to 0.626, now
+missing 58 timeouts to avoid raising 7 false alarms.
+
+A *confusion matrix* organizes every prediction into four counts: a true positive is a timeout
+the model predicted and the request confirmed, a false positive is a timeout the model predicted
+that the request did not confirm, a true negative is a healthy request the model correctly
+cleared, and a false negative is a timeout the model missed entirely. From those four counts,
+three summary metrics follow:
+
+$$\text{accuracy} = \frac{TP + TN}{TP + TN + FP + FN}, \qquad
+\text{precision} = \frac{TP}{TP + FP}, \qquad
+\text{recall} = \frac{TP}{TP + FN}$$
+
+In other words, accuracy is the share of every prediction that matched what happened; precision
+is, of every request the model flagged as a timeout, the share that confirmed; and recall is, of
+every request that confirmed as a timeout, the share the model caught. This use of "precision"
+names a share of correct positive predictions, a different sense from the estimation precision
+discussed earlier in this chapter, where the word described how tightly a confidence interval
+clustered around a parameter.
+
+A false positive here means paging an on-call engineer or triggering a failover for a request
+that would have completed on its own, wasted effort and, repeated often enough, alert fatigue
+that makes the next legitimate page easier to miss. A false negative means a timeout goes
+unflagged, so no fallback kicks in and a user-facing request hangs with nothing catching it. A
+team that only tracks accuracy, 0.833 at the loosest threshold in the figure above and 0.838 at
+the strictest, would conclude the threshold barely matters, missing that precision and recall
+each swing by more than twenty percentage points across that same range.
+
+::: {.callout-tip}
+This section covers only the introductory vocabulary a logistic regression's threshold needs.
+Chapter 7 builds the fuller classification-diagnostics toolkit, receiver operating
+characteristic curves and the area under them, on top of the confusion matrix defined here.
+:::
 
 ## Measuring fit: R-squared, adjusted R-squared, AIC, and BIC
 

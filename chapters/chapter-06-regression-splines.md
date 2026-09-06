@@ -24,6 +24,12 @@ regression altogether:
 5. *What does a smoothing spline buy that a hand-placed knot cannot?*
    A penalty term, the same idea Chapter 4 used for Lasso and Ridge, applied to curve
    roughness instead of coefficient size.
+6. *Is there a way to smooth a curve without choosing knots or a penalty at all?*
+   Local regression fits a small model at every point instead of one model for the whole range,
+   at a cost that shows up when it comes time to serve predictions.
+7. *What happens once a second predictor needs the same curve-fitting treatment as the first?*
+   A generalized additive model sums one function per predictor, and a partial residual plot
+   checks whether each function is earning its keep.
 
 ## Why a straight line breaks down: concurrent load and latency
 
@@ -253,7 +259,7 @@ conservative choice for the region beyond it.
 ::: {.callout-important}
 A model that swings unpredictably past the edge of its training data is a poor choice for the
 region an operator is most likely to page someone about. The natural boundary constraint exists
-specifically to prevent that failure mode.
+specifically to prevent that kind of swing.
 :::
 
 ## Smoothing splines: a penalty instead of a knot count
@@ -295,6 +301,199 @@ Recall from Chapter 5's discussion of cross-validation that a tuning parameter l
 should not be picked by eye. In practice, $\lambda$ is chosen the same way the regularization
 strength for Lasso or Ridge was chosen: by cross-validating over a range of candidate values and
 picking the one that minimizes estimated test error, not training error.
+
+## Local regression: smoothing without choosing knots
+
+::: {#fig-loess-span}
+```{=html}
+<iframe src="../_generated/chapter-splines-fig-loess-span.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+At a span of 0.08, the local fit reaches roughly 270 ms at the high-load edge, close behind the
+saturation curve; widen the span to 0.7 and the same edge tops out near 170 ms, more than 100 ms
+short, because the wider window is now borrowing points from the flatter middle of the range to
+compute the fit at the edge.
+:::
+
+Every technique so far in this chapter commits to something before the curve gets fit: a knot
+count, a set of knot locations, or a roughness penalty. Local regression, usually called LOESS,
+skips that commitment. Instead of fitting one curve to the whole range at once, it fits a small,
+disposable regression near every point where a prediction is wanted, using only the data closest
+to that point, then discards the small fit and moves on to the next point.
+
+Picture reading a street map by covering everything outside a two-block radius of wherever you
+stand: what sits ten blocks away does not help cross the next intersection, and it may not even
+belong to the same neighborhood. Local regression treats a scatter plot the same way. It answers
+"what does latency look like right here" using only the load values nearby, then answers the same
+question ten load-levels over with a different local neighborhood built from scratch.
+
+Local regression's cost in production runs opposite to every spline in this chapter. A regression
+spline's basis functions get evaluated once against a fixed set of coefficients, so the model that
+ships to a serving layer is a short list of numbers: cheap to store, cheap to evaluate at 2 a.m.
+Local regression has no such list to ship. Every prediction re-solves a small weighted regression
+against a slice of the training data, so the training data itself has to sit somewhere reachable
+at prediction time, in addition to sitting there during fitting. A spline can run on a device with
+no memory of the data that trained it. Local regression, by construction, keeps that data on hand
+for the life of the deployment.
+
+Fitting a local regression at a query point $x_0$ follows four steps:
+
+1. Pick a *span*: the fraction of the data that counts as nearby, for instance 0.3, meaning the
+   closest 30% of points by distance in $X$.
+2. Weight those nearby points with a kernel that falls to zero at the edge of the window, most
+   commonly the tricube weight $w_i = \left(1 - \left(\frac{|x_i - x_0|}{d}\right)^3\right)^3$,
+   where $d$ is the distance to the farthest point still inside the span.
+3. Fit a weighted least-squares regression, usually a straight line or a quadratic, using those
+   weights.
+4. Read the fitted value at $x_0$ off that local regression, then discard the fit and repeat for
+   the next $x_0$.
+
+Formally, the local fit at $x_0$ minimizes
+
+$$\sum_{i=1}^{n} w_i(x_0) \left(y_i - \beta_0 - \beta_1 x_i\right)^2,$$
+
+a weighted version of ordinary least squares where the weights shift with every query point
+[@cleveland1979].
+
+@fig-loess-span fits local regression to the load-latency data at four span values.
+
+::: {.callout-tip}
+A LOESS span plays the role a spline's knot count or a smoothing spline's $\lambda$ plays: a
+narrow span chases individual points the way too many knots do, and a wide span oversmooths the
+way too large a $\lambda$ does. Cross-validate the span the same way Chapter 5 cross-validated a
+knot count or a penalty, rather than picking one by eye.
+:::
+
+A narrow span stays close to the data near each query point and follows the saturation curve into
+the high-load region, since only nearby points get a vote there. A wide span borrows points from
+the flatter middle of the range to smooth the edge, and ends up cutting the top of the curve off,
+understating the load level where a false sense of headroom costs the most.
+
+::: {.callout-note}
+Local regression and a smoothing spline solve the same problem from opposite directions. A
+smoothing spline keeps every observation as a candidate knot and fits one global penalized
+function in a single pass. Local regression answers one query point at a time and keeps no global
+function at all. Both remove the knot-count decision, and both replace it with their own tuning
+knob: span for local regression, $\lambda$ for the smoothing spline.
+:::
+
+## Generalized additive models: splines with more than one predictor
+
+::: {#fig-gam-components}
+```{=html}
+<iframe src="../_generated/chapter-splines-fig-gam-components.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The payload term comes out as a straight line, matching Chapter 4's own finding that payload size
+and latency move together in close to a fixed ratio. The load term keeps the saturating bend every
+figure in this chapter has shown so far. One model, two predictors, and each keeps the shape that
+fits it.
+:::
+
+Every spline built in this chapter so far has depended on one predictor: load. Chapter 4's own
+regression model used two, payload size and concurrent load, fit together as a single straight-line
+surface. Neither chapter has shown how to give a second predictor the same curve-fitting treatment
+the first one just got.
+
+A *generalized additive model*, or GAM, is what happens when a regression sums a separate function
+per predictor instead of a separate coefficient per predictor:
+
+$$Y = \beta_0 + f_1(X_1) + f_2(X_2) + \dots + f_p(X_p) + \varepsilon,$$
+
+where each $f_j$ can be a straight line, a step function, or a spline, chosen on a
+predictor-by-predictor basis rather than forced to be the same shape for every column in the
+model.
+
+Chapter 4's regression had to pick one shape, a line, and apply it to both payload size and load
+at once, because ordinary least squares fits one global linear surface. That worked for payload
+size, since Chapter 4 found the two moved together in close to a fixed ratio, but it is the wrong
+shape for load, which this chapter has spent several sections showing bends sharply as utilization
+climbs. A GAM removes the requirement to pick one shape for every predictor: keep the cheap,
+interpretable line where a predictor earns it, and reserve a spline for the one predictor whose
+relationship needs the extra flexibility, instead of spending that flexibility everywhere by
+default.
+
+A GAM is fit by *backfitting*, an iterative procedure that estimates one term at a time against
+whatever the other terms have not yet explained:
+
+1. Start with every non-intercept term at zero.
+2. Pick one term, say the payload term. Compute the residual left over once every other term's
+   current estimate is subtracted from $y$, then fit that one term (a line, in this case) against
+   the residual.
+3. Center the newly fit term to a mean of zero across the training data, so the intercept alone
+   carries the overall average and the terms stay identifiable against each other.
+4. Move to the next term, say the load term. Compute the residual left over once the (now updated)
+   payload term is subtracted from $y$, then fit a regression spline against that residual, using
+   the same quantile-placed knots this chapter has used throughout.
+5. Repeat steps 2 through 4 until the term estimates stop moving.
+
+For the load-payload-latency data behind @fig-gam-components, ten backfitting passes recover a
+payload coefficient of 8.90 ms per kilobyte, within a tenth of a millisecond of the 9.0 ms/KB value
+built into the simulation, while the load term settles into the same saturating shape shown
+earlier in @fig-knot-count and @fig-smoothing-lambda. Two terms converge fast because each update
+is a short calculation, an OLS slope for the line and a spline fit for the curve; a GAM with more
+predictors needs correspondingly more passes.
+
+### The partial residual plot: reading a spline term's contribution
+
+::: {#fig-gam-partial-residual}
+```{=html}
+<iframe src="../_generated/chapter-splines-fig-gam-partial-residual.html" width="100%" height="480"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Subtract the payload term's straight-line contribution and the intercept from every observation,
+and what remains lines up with the load term's own fitted spline almost point for point, evidence
+that the leftover pattern is the saturating bend the load term is meant to capture, and not just
+whatever noise the payload term failed to absorb.
+:::
+
+A GAM's summary output reports one fitted curve per term, but a curve on its own does not say
+whether that curve tracks a pattern in the data or chases noise the rest of the model left behind.
+A *partial residual plot* answers that question for one term at a time, holding every other term
+fixed.
+
+The consequence of skipping this check shows up whenever a GAM's coefficient or curve shape
+changes after a new predictor gets added. Without a per-term diagnostic, there is no way to tell
+whether the change reflects a different relationship in the data or the new predictor simply
+absorbing variation the old term used to soak up on its own. A partial residual plot gives each
+term a way to defend its own shape, term by term, instead of trusting the model's overall fit
+statistic to vouch for every term at once.
+
+Computing a partial residual for one term, say the load spline term $f_{\text{load}}$, takes two
+steps once the full model is fit:
+
+1. Remove every other term's fitted contribution from each observation, but leave the term under
+   inspection out of the subtraction: $r_i = y_i - \hat\beta_0 - \hat{f}_{\text{payload}}(x_i)$.
+2. Plot $r_i$ against load, and overlay the fitted curve $\hat{f}_{\text{load}}(\text{load})$ on
+   the same axes. If the term is capturing something in the data, the scattered points should
+   track the curve; if the term is fitting noise the other terms left behind, the points scatter
+   around the curve without following its shape.
+
+@fig-gam-partial-residual runs this check on the load term from the model above. The partial
+residuals trace the same saturating bend the fitted spline term shows, evidence that the spline is
+earning its added flexibility rather than absorbing leftover noise the linear payload term could
+not explain.
+
+The partial residual plot is a paraphrase of a general diagnostic used across regression modeling
+wherever a model sums more than one predictor's effect together: isolate one term by removing the
+rest, then check whether what remains matches what that term claims to be doing. Applied to the
+load-payload-latency data here, the same check works for any spline term a GAM adds, not only the
+one worked through in this section.
+
+::: {.callout-important}
+A spline term with no partial residual check behind it is an unverified claim about the data. Run
+this plot on every spline term in a GAM before shipping it, especially a term added after an
+earlier version of the model passed review.
+:::
+
+The backfitting-plus-partial-residual pattern generalizes past two terms without changing shape:
+add a third predictor, give it its own $f_3$, and the same iterative procedure and the same
+per-term diagnostic apply unchanged. What does change is compute: each additional spline term adds
+another knot-selection and cross-validation decision, and a GAM with a dozen predictors needs a
+dozen of those decisions made and checked, one term at a time, per [@hastietibshirani1990].
 
 ## A Bayesian perspective
 

@@ -59,6 +59,19 @@ The tree is fit to how far off that predicted probability was, not just whether 
 prediction crossed a decision threshold. The mechanism stays the same across loss functions:
 each tree is a small step in the direction that most reduces the loss.
 
+A boosted classifier fit on that probability, such as a boosted version of Chapter 7's
+rollback classifier, is judged the same way Chapter 7 judges one: @fig-confusion-threshold
+works through the confusion matrix, precision, recall, F1, and the ROC curve on the same
+rollback classifier's held-out canary set, threshold by threshold. Gradient boosting changes
+how the underlying probability gets fit. What counts as a correct or costly prediction stays
+the same, so that whole toolkit carries over unchanged: the same confusion matrix, the same
+precision-recall trade-off as the threshold moves, the same ROC curve tracing true positive
+rate against false positive rate.
+
+There is no reason to rebuild any of it here. The rest of this chapter keeps measuring boosted
+models by prediction error on a continuous target, the way Part 2 has measured every model so
+far, and leaves the classification-metrics workout to Chapter 7's figure.
+
 ::: {#fig-boosting-rounds}
 ```{=html}
 <iframe src="../_generated/chapter-boosting-fig-boosting-rounds.html" width="100%" height="540"
@@ -139,6 +152,57 @@ instead.
 Depth means opposite things in the two families covered so far: grow forest trees deep and let
 averaging clean up the noise, but keep boosted trees shallow so no single tree overcorrects.
 Carrying a random forest's deep-tree habit into a boosted model is a common tuning mistake.
+:::
+
+## Regularized versus unregularized: an overfitting curve
+
+::: {#fig-overfitting-curve}
+```{=html}
+<iframe src="../_generated/chapter-boosting-fig-overfitting-curve.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Training and validation error by boosting round, on 500 API-latency records held out for this
+comparison, for an unregularized configuration (high learning rate, deep trees) against a
+regularized one (low learning rate, shallow trees). The unregularized run's validation error
+turns upward within the first several rounds and plateaus while training error falls to zero;
+the regularized run's validation error keeps declining through nearly the whole 400-round
+budget.
+:::
+
+@fig-overfitting-curve puts the chapter's last three levers, learning rate, tree depth, and
+early stopping, to work together at once, on a dataset built only for this comparison: 500
+simulated API records where queue depth, cache-miss rate, retry count, and payload size
+predict response latency in milliseconds. One gradient boosting model runs with a high
+learning rate and deep trees. The other runs with a low learning rate and shallow trees. Both
+are trained for the same 400-round budget, and every round's prediction is scored against both
+the training and validation sets, so the chart shows the whole trajectory, round by round.
+
+The unregularized run's validation error hits its lowest point within the first handful of
+rounds, then turns around and climbs to a plateau well above that minimum, while training
+error keeps falling until it reaches zero and stays there. Every round added past that early
+minimum fits noise specific to the 350 training rows, noise that will fail on requests the
+model has not seen yet. The training curve alone gives no hint of that.
+
+Regularization guards against a concrete production risk here. A retraining job that reports
+only the current round's training loss would show this model improving for the entire run,
+since training error never turns around, while validation performance stalled out dozens of
+rounds earlier and never recovers. The regularized run never opens that gap: its validation
+error keeps sliding down through nearly the full round budget, training error trails below it
+without collapsing to zero, and the marked best round sits near the end of the 400-round
+budget, evidence that a lower learning rate and shallower trees buy far more useful rounds
+before the same reversal would set in.
+
+Computing both curves needs nothing beyond what the shrinkage figure earlier in this chapter
+does: fit each configuration once with a large round budget, call `staged_predict` to recover
+the model's prediction after every individual round, and score each one against both the
+training and validation sets. The only new step is running that loop twice, once per
+configuration, on one shared axis, putting the two shapes side by side on the same chart.
+
+:::{.callout-warning}
+A boosting pipeline that logs only the current round's training loss cannot catch this
+reversal. Track validation error at the same cadence as training error throughout a run, or an
+unregularized configuration can look worse in production than the training log suggests.
 :::
 
 ## XGBoost: a regularized, second-order boosting system

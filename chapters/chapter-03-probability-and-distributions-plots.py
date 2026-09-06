@@ -10,6 +10,7 @@ import os
 
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from scipy import stats
 
 RNG = np.random.default_rng(11)
@@ -362,6 +363,61 @@ def fig_exponential_wait() -> go.Figure:
 
 
 # ---------------------------------------------------------------------------
+# Figure 3c: lognormal distribution, the book's own latency data-generating mechanism
+# ---------------------------------------------------------------------------
+def fig_lognormal_latency() -> go.Figure:
+    mu = np.log(45)  # matches Chapter 1's checkout-API latency mechanism
+    sigmas = [0.20, 0.35, 0.50, 0.70, 0.90]
+    x = np.linspace(0.1, 400, 800)
+    frames = []
+    for sigma in sigmas:
+        pdf = stats.lognorm.pdf(x, s=sigma, scale=np.exp(mu))
+        mean_val = np.exp(mu + sigma ** 2 / 2)
+        median_val = np.exp(mu)
+        frames.append(
+            go.Frame(
+                name=f"{sigma:.2f}",
+                data=[go.Scatter(x=x, y=pdf, mode="lines", fill="tozeroy",
+                                  line=dict(color="#E45756", width=2))],
+                layout=go.Layout(
+                    shapes=[
+                        dict(type="line", x0=median_val, x1=median_val, y0=0, y1=1, yref="paper",
+                             line=dict(color="#54A24B", width=1.5, dash="dot")),
+                        dict(type="line", x0=mean_val, x1=mean_val, y0=0, y1=1, yref="paper",
+                             line=dict(color="#333", width=1.5, dash="dash")),
+                    ],
+                    annotations=[dict(
+                        x=0.98, y=0.92, xref="paper", yref="paper", showarrow=False,
+                        xanchor="right", align="right",
+                        text=f"median = {median_val:.0f}ms<br>mean = {mean_val:.0f}ms",
+                        font=dict(size=13, color="#333"),
+                    )],
+                ),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="A lognormal latency distribution: the mean pulls further above the median "
+              "as spread grows",
+        xaxis_title="checkout-API response time (ms)",
+        yaxis_title="density",
+        xaxis_range=[0, 400],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "sigma (log-scale spread): "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Figure 3b: binomial distribution, conversions out of a fixed-size A/B bucket
 # ---------------------------------------------------------------------------
 def fig_binomial_conversions() -> go.Figure:
@@ -445,6 +501,176 @@ def fig_geometric_retries() -> go.Figure:
             ],
         }],
         margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 4a: Chebyshev's inequality, a distribution-free tail bound
+# ---------------------------------------------------------------------------
+def fig_chebyshev_bound() -> go.Figure:
+    k_values = np.linspace(1.01, 5, 200)
+    chebyshev_bound = 1 / k_values ** 2
+    normal_tail = 2 * (1 - stats.norm.cdf(k_values))  # two-sided tail, if the metric is normal
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=k_values, y=chebyshev_bound, mode="lines",
+        name="Chebyshev bound (no shape assumption)",
+        line=dict(color="#E45756", width=3),
+    ))
+    fig.add_trace(go.Scatter(
+        x=k_values, y=normal_tail, mode="lines",
+        name="tail if the metric is normal",
+        line=dict(color="#4C78A8", width=3, dash="dash"),
+    ))
+    fig.update_layout(
+        title="Chebyshev's bound holds for any metric, but is far looser than the "
+              "normal-distribution tail it brackets",
+        xaxis_title="k (standard deviations from the mean)",
+        yaxis_title="P(|X - mean| >= k * std)",
+        yaxis_type="log",
+        legend=dict(x=0.5, y=0.95),
+        margin=dict(t=70, l=70, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 4b: joint distribution of cache outcome and SLA outcome, same marginals
+# ---------------------------------------------------------------------------
+def fig_joint_cache_sla() -> go.Figure:
+    scenarios = {
+        "assumed independent": {
+            ("miss", "no SLA"): 0.12, ("miss", "SLA met"): 0.28,
+            ("hit", "no SLA"): 0.18, ("hit", "SLA met"): 0.42,
+        },
+        "observed (dependent)": {
+            ("miss", "no SLA"): 0.21, ("miss", "SLA met"): 0.19,
+            ("hit", "no SLA"): 0.09, ("hit", "SLA met"): 0.51,
+        },
+    }
+    cache_labels = ["miss", "hit"]
+    sla_labels = ["no SLA", "SLA met"]
+    frames = []
+    for name, table in scenarios.items():
+        z = [[table[(c, s)] for c in cache_labels] for s in sla_labels]
+        p_hit = table[("hit", "no SLA")] + table[("hit", "SLA met")]
+        p_sla = table[("miss", "SLA met")] + table[("hit", "SLA met")]
+        joint_hit_sla = table[("hit", "SLA met")]
+        independence_product = p_hit * p_sla
+        frames.append(
+            go.Frame(
+                name=name,
+                data=[go.Heatmap(
+                    z=z, x=cache_labels, y=sla_labels,
+                    colorscale="Blues", zmin=0, zmax=0.55,
+                    text=[[f"{v:.0%}" for v in row] for row in z],
+                    texttemplate="%{text}", showscale=False,
+                )],
+                layout=go.Layout(annotations=[dict(
+                    x=0.02, y=1.22, xref="paper", yref="paper", showarrow=False, align="left",
+                    text=(f"P(hit) x P(SLA met) = {independence_product:.0%}  vs.  "
+                          f"observed P(hit, SLA met) = {joint_hit_sla:.0%}"),
+                    font=dict(size=13, color="#333"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Same marginal cache-hit and SLA rates, two different joint distributions",
+        margin=dict(t=100, l=70, r=30, b=50),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "scenario: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 4c: Law of Large Numbers, a running conversion-rate average converging
+# ---------------------------------------------------------------------------
+def fig_lln_convergence() -> go.Figure:
+    true_probs = [0.30, 0.50, 0.62, 0.80]
+    n_max = 3000
+    n_paths = 4
+    x = np.arange(1, n_max + 1)
+    path_colors = ["#4C78A8", "#F58518", "#54A24B", "#B279A2"]
+    frames = []
+    for p in true_probs:
+        trials = RNG.binomial(1, p, size=(n_paths, n_max))
+        running_mean = np.cumsum(trials, axis=1) / x
+        traces = [
+            go.Scatter(x=x, y=running_mean[i], mode="lines",
+                       line=dict(width=1.5, color=path_colors[i]),
+                       opacity=0.8, showlegend=False)
+            for i in range(n_paths)
+        ]
+        frames.append(
+            go.Frame(
+                name=f"{p:.2f}",
+                data=traces,
+                layout=go.Layout(shapes=[dict(
+                    type="line", x0=0, x1=n_max, y0=p, y1=p,
+                    line=dict(color="#333", width=1.5, dash="dash"),
+                )]),
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames, layout=frames[0].layout)
+    fig.update_layout(
+        title="Four independent runs of a rolling conversion-rate average, each settling "
+              "on the true rate as sample size grows",
+        xaxis_title="requests observed so far",
+        yaxis_title="running average conversion rate",
+        yaxis_range=[0, 1],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "true conversion probability: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 300}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=70, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 4d: CLT diagram-first three-panel figure, GC pause durations
+# (original dataset: right-skewed gamma-distributed pause times, not gedeck's data)
+# ---------------------------------------------------------------------------
+def fig_clt_three_panel() -> go.Figure:
+    n_draws = 6000
+    shape_param, scale_param = 1.6, 35.0  # right-skewed GC pause durations, ms
+    raw = RNG.gamma(shape_param, scale_param, size=n_draws)
+    mean_of_5 = RNG.gamma(shape_param, scale_param, size=(n_draws, 5)).mean(axis=1)
+    mean_of_20 = RNG.gamma(shape_param, scale_param, size=(n_draws, 20)).mean(axis=1)
+
+    x_max = 260
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=("raw pause durations (n=1)", "mean of 5 pauses", "mean of 20 pauses"),
+    )
+    fig.add_trace(go.Histogram(x=raw, nbinsx=50, marker_color="#E45756"), row=1, col=1)
+    fig.add_trace(go.Histogram(x=mean_of_5, nbinsx=50, marker_color="#F58518"), row=1, col=2)
+    fig.add_trace(go.Histogram(x=mean_of_20, nbinsx=50, marker_color="#4C78A8"), row=1, col=3)
+    fig.update_xaxes(range=[0, x_max], title_text="pause duration (ms)")
+    fig.update_yaxes(title_text="count of samples", row=1, col=1)
+    fig.update_layout(
+        title=f"Garbage-collection pause durations across {n_draws:,} JVM instances, raw "
+              "versus averaged in groups of 5 and 20",
+        showlegend=False,
+        margin=dict(t=80, l=60, r=30, b=50),
     )
     return fig
 
@@ -544,10 +770,15 @@ FIGURES = {
     "chapter-03-fig-standard-normal-zscore": fig_standard_normal_zscore,
     "chapter-03-fig-uniform-rollout": fig_uniform_rollout,
     "chapter-03-fig-bernoulli-trial": fig_bernoulli_trial,
+    "chapter-03-fig-lognormal-latency": fig_lognormal_latency,
     "chapter-03-fig-binomial-conversions": fig_binomial_conversions,
     "chapter-03-fig-geometric-retries": fig_geometric_retries,
     "chapter-03-fig-poisson-shape": fig_poisson_shape,
     "chapter-03-fig-exponential-wait": fig_exponential_wait,
+    "chapter-03-fig-chebyshev-bound": fig_chebyshev_bound,
+    "chapter-03-fig-joint-cache-sla": fig_joint_cache_sla,
+    "chapter-03-fig-lln-convergence": fig_lln_convergence,
+    "chapter-03-fig-clt-three-panel": fig_clt_three_panel,
     "chapter-03-fig-clt-simulation": fig_clt_simulation,
     "chapter-03-fig-birthday-collision": fig_birthday_collision,
 }

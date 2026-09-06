@@ -496,6 +496,50 @@ def fig_posterior_predictive_check() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 8: prior predictive check, timeout curves implied by the prior alone
+# ---------------------------------------------------------------------------
+def fig_prior_predictive_check() -> go.Figure:
+    payload_grid = np.linspace(2, 20, 200)
+    payload_centered = payload_grid - 11.0  # matches the centering used in the timeout model
+    n_draws = 40
+    prior_sds = [3.0, 10.0]
+
+    frames = []
+    for prior_sd in prior_sds:
+        beta0_draws = RNG.normal(0, 10, size=n_draws)
+        beta1_draws = RNG.normal(0, prior_sd, size=n_draws)
+        traces = []
+        for b0, b1 in zip(beta0_draws, beta1_draws):
+            logit_p = b0 + b1 * payload_centered
+            p = 1 / (1 + np.exp(-logit_p))
+            traces.append(go.Scatter(
+                x=payload_grid, y=p, mode="lines",
+                line=dict(color="#B279A2", width=1), opacity=0.35,
+                showlegend=False, hoverinfo="skip",
+            ))
+        frames.append(go.Frame(name=f"prior sd={prior_sd}", data=traces))
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig.update_layout(
+        title="Prior predictive check: implied timeout-probability curves before seeing data",
+        xaxis_title="Payload size (KB)",
+        yaxis_title="Implied timeout probability",
+        yaxis_range=[0, 1],
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Prior std. dev. on the slope: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-regression-fig-posterior-narrowing": fig_posterior_narrowing,
     "chapter-bayes-regression-fig-ci-repeated-experiments": fig_ci_vs_credible,
@@ -505,6 +549,7 @@ FIGURES = {
     "chapter-bayes-regression-fig-bayesian-logistic": fig_bayesian_logistic,
     "chapter-bayes-regression-fig-rhat-diagnostic": fig_rhat_diagnostic,
     "chapter-bayes-regression-fig-posterior-predictive-check": fig_posterior_predictive_check,
+    "chapter-bayes-regression-fig-prior-predictive-check": fig_prior_predictive_check,
 }
 
 

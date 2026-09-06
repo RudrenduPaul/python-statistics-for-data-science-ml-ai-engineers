@@ -14,7 +14,7 @@ attached to it:
 1. *Given some new evidence, how should a prior belief update?*
    Bayes' theorem is the formal answer, and it is easy to get wrong by instinct alone.
 2. *Which named distribution matches the mechanism producing a number?*
-   Eight distributions cover most of what shows up in production systems, each tied to a
+   Nine distributions cover most of what shows up in production systems, each tied to a
    specific generating process rather than chosen by looks.
 3. *Why does the normal distribution show up everywhere, even when the underlying process
    is not normal at all?*
@@ -109,7 +109,7 @@ rests on this same conditioning logic, whether or not the formula is written out
 ## Matching a distribution to the mechanism
 
 A distribution is not a shape to pick because it looks right; it follows from the process
-that generated the data. Eight distributions cover most of what a production system produces.
+that generated the data. Nine distributions cover most of what a production system produces.
 
 ### Normal distribution
 
@@ -404,6 +404,61 @@ for many software failure modes that are triggered by external conditions rather
 accumulated wear.
 :::
 
+### Lognormal distribution
+
+::: {#fig-lognormal}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-lognormal-latency.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The checkout-API latency density from Chapter 1, redrawn as a lognormal curve at growing
+spread. As sigma rises, the mean (dashed line) pulls further above the median (dotted line);
+at sigma = 0.90 the two sit far apart, while at sigma = 0.20 they nearly coincide.
+:::
+
+@fig-lognormal is the same latency data Chapter 1 built its running example from
+(`RNG.lognormal(mean=np.log(45), sigma=0.35, ...)`), redrawn here as a density curve instead
+of a histogram. Every response-time figure in this book, and the payload and duration figures
+in several later chapters, is generated the same way, but this chapter never gave that
+generating mechanism its own name.
+
+A quantity behaves lognormally whenever its logarithm, not the quantity itself, follows a
+normal distribution. Response times are the standard example: a request's latency is the
+product of many independent multiplicative slowdowns (a slower disk read, a retry, a queueing
+delay), and multiplying many positive random factors together produces the same right-skewed
+hump this book's latency figures have shown since Chapter 1: a floor at zero, a peak near the
+typical case, and a long tail of rare, much slower requests.
+
+That shape carries a direct engineering consequence: the mean of a lognormal metric always
+sits above its median, and the gap between the two grows with the spread. A dashboard that
+reports only "average response time" over a lognormal metric will read higher than what most
+requests experienced, which is why Chapter 1 recommended the median or a trimmed statistic for
+latency reporting in the first place. @fig-lognormal makes that gap visible: dragging sigma
+from 0.20 to 0.90 pulls the mean further past the median while the median itself barely moves.
+
+Computing with a lognormal metric means working in log space first. Taking the natural log of
+every observed latency turns the right-skewed lognormal data back into ordinary normal data,
+at which point every tool built for the normal distribution (a z-score threshold, a confidence
+interval built with the CLT) becomes usable again. Chapter 9's regression diagnostics handle
+payload-size noise the same way: fit the model on the log scale, then convert the predictions
+back with an exponential.
+
+The *lognormal distribution* describes a random variable $X$ such that $\ln(X)$ follows a
+normal distribution with mean $\mu$ and standard deviation $\sigma$:
+
+$$f(x) = \frac{1}{x \sigma \sqrt{2\pi}} e^{-\frac{(\ln x - \mu)^2}{2\sigma^2}} \quad \text{for } x > 0$$
+
+In other words, $\mu$ and $\sigma$ describe the normal distribution of the logged values, not
+the mean and standard deviation of $X$ itself; the mean of $X$ works out to
+$e^{\mu + \sigma^2/2}$, which is why it always lands above the median, $e^\mu$.
+
+::: {.callout-note}
+A lognormal variable is never negative and has no upper bound, matching two facts about
+latency that a normal distribution would get wrong: a request cannot finish in negative time,
+and a rare request can take far longer than a typical one with no theoretical ceiling.
+:::
+
 ## Mean and variance of a distribution
 
 A distribution's mean is its long-run average value if the random process ran forever.
@@ -438,6 +493,162 @@ sample variance computed from data. Every distribution introduced in this chapte
 formula for both, which is part of what makes naming the right distribution useful in the
 first place.
 
+## Chebyshev's inequality: a bound that needs no assumptions
+
+::: {#fig-chebyshev}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-chebyshev-bound.html" width="100%" height="520"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Two ways to bound how far a metric can stray from its mean. The dashed line assumes the
+metric is normal; the solid line makes no assumption about its shape at all, and pays for that
+safety with a much looser bound.
+:::
+
+@fig-chebyshev compares two answers to the same question: how much of a metric's mass can sit
+more than $k$ standard deviations from its mean? At $k = 3$, a normal metric puts under 0.3%
+of its mass out that far, the three-sigma rule from earlier in this chapter. The bound that
+makes no assumption about the metric's shape only guarantees under 11.1%, a much weaker but
+far more widely applicable claim.
+
+Most metrics an on-call team watches, queue depth, retry counts, a newly added latency
+percentile with no history yet, have not been checked for normality, and some (the
+right-skewed latency metric this chapter has used throughout) are known not to be normal. An
+alerting threshold built on the normal-distribution three-sigma rule can be quietly wrong for a
+metric like that: it will either fire too often or miss the tail it was meant to catch, because
+the metric's tail is thicker than a normal distribution's. Chebyshev's inequality gives a
+threshold that holds regardless of the metric's shape, at the cost of being far more
+conservative.
+
+Computing a Chebyshev bound needs only the mean and standard deviation, quantities every
+monitoring system tracks. Divide 1 by $k^2$: a threshold of 2 standard deviations bounds the
+tail at 25%, a threshold of 3 standard deviations bounds it at about 11.1%, and a threshold of
+5 standard deviations bounds it at 4%. No histogram, percentile estimate, or distributional
+assumption is needed to compute any of those numbers.
+
+*Chebyshev's inequality* states that for any random variable $X$ with finite mean $\mu$ and
+variance $\sigma^2$, and any $k > 0$:
+
+$$P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}$$
+
+In other words, no matter what shape a distribution takes, so long as it has a finite mean and
+variance, the chance of landing more than $k$ standard deviations from the mean can never
+exceed $1/k^2$.
+
+::: {.callout-tip}
+Chebyshev's bound is loose enough that it should not replace a normal-distribution threshold
+once a metric is known to be close to normal. It earns its place for a metric whose shape has
+not been checked yet, or is known to be far from normal, where a distribution-free bound is
+worth more than a tight bound resting on the wrong assumption.
+:::
+
+## Joint distributions and independence
+
+::: {#fig-joint}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-joint-cache-sla.html" width="100%" height="520"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Two joint distributions over the same two variables, cache outcome and SLA outcome, sharing
+the same marginal rates (60% hit, 70% meets SLA) but distributing that probability across the
+four combinations in sharply different ways.
+:::
+
+@fig-joint tracks two variables at once for the same request: whether it hit the cache (hit or
+miss) and whether it met its latency SLA (met or missed). The "assumed independent" scenario
+multiplies the two marginal rates cell by cell, 60% hit times 70% met gives 42% of requests
+landing in the hit-and-met cell. The "observed" scenario keeps the same two marginal rates but
+concentrates far more of the probability in that same cell, 51% instead of 42%, because a
+cache hit and an SLA-met outcome are not happening independently of each other.
+
+A *joint distribution* over two random variables $X$ and $Y$ assigns a probability to every
+combination of their outcomes at once, capturing how the two move together, something each
+variable's own distribution cannot show on its own. Chapter 1's correlation coefficient is a
+single number summarizing how far a joint distribution's shape strays from what independence
+would predict; this section spells out that comparison directly, cell by cell.
+
+Knowing only that 60% of requests hit the cache and 70% meet their SLA answers a narrower
+question than "of the requests that hit the cache, what share met their SLA?" Two variables
+can share identical marginal rates while pointing to opposite engineering conclusions: in the
+independent scenario, caching has no bearing on whether a request meets its SLA, but in the
+observed scenario, a cache hit often comes packaged with an SLA success, evidence that the
+cache is helping reduce tail latency, a causal signal rather than a coincidence of two
+unrelated rates.
+
+Checking independence is a single multiplication: compute the product of the two marginal
+probabilities, $P(\text{hit}) \times P(\text{SLA met})$, and compare it to the joint
+probability, $P(\text{hit and SLA met})$, read directly off the joint table. When the two
+numbers match, as in the "assumed independent" scenario, the variables carry no information
+about each other. When they diverge, as in the "observed" scenario (42% predicted against 51%
+observed), that gap is the signal a correlation coefficient is built to detect.
+
+Formally, two events $A$ and $B$ are *independent* when their joint probability factors into
+the product of their individual probabilities:
+
+$$P(A \cap B) = P(A) \, P(B)$$
+
+In other words, knowing that $A$ happened changes nothing about how likely $B$ is, and vice
+versa; conditioning on one event leaves the other's probability unchanged.
+
+::: {.callout-warning}
+A joint distribution's two marginal distributions never reveal how the variables relate to
+each other; two sharply different joint tables, like the two shown in @fig-joint, can produce
+identical marginals. Reporting only marginal rates, "60% cache hit rate, 70% SLA compliance,"
+hides which of these two sharply different stories is playing out in production.
+:::
+
+## The Law of Large Numbers
+
+::: {#fig-lln}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-lln-convergence.html" width="100%" height="520"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Four independent simulated runs of a rolling conversion-rate average. Early on, the four lines
+scatter widely; by a few hundred requests, all four have settled close to the true rate marked
+by the dashed line.
+:::
+
+@fig-lln runs the same simulated experiment four times: 3,000 simulated requests, each
+converting at some fixed true probability, with a running average tracked after every request.
+The four runs start scattered (a run of a dozen lucky or unlucky requests can push an early
+average far from the true rate) and converge to the same dashed line as more requests
+accumulate, regardless of which run is being watched.
+
+The *Law of Large Numbers* (LLN) is the reason an observed rate gets trusted as an estimate of
+a true rate at all. Without it, there would be no basis for treating "42 conversions out of
+1,000 visitors" as evidence about the underlying conversion probability, since a small
+sample's average could sit anywhere.
+
+Every A/B test in this book, and every canary rollout in this chapter, leans on the LLN
+without naming it: watching a metric over a growing sample and trusting that the average
+settles down is the LLN in practice. A dashboard that reports a conversion rate from only 20
+visitors sits in the regime where the LLN has not yet done its work, the same small-sample
+instability @fig-lln shows in its first few hundred requests.
+
+Computing with the LLN needs nothing beyond tracking a running average as data accumulates:
+sum the outcomes seen so far and divide by the count. That arithmetic is trivial; the
+theorem's substance lies in the guarantee that the answer keeps getting closer to the true
+value as the count grows, with no upper limit on how close it can get given enough data.
+
+Formally, the LLN states that as the sample size $n$ grows, the sample mean $\bar{X}_n$
+converges to the true population mean $\mu$:
+
+$$\bar{X}_n \xrightarrow{n \to \infty} \mu$$
+
+In other words, no matter how volatile any single observation is, averaging enough of them
+washes out that volatility and leaves a number that settles on the truth.
+
+::: {.callout-note}
+The LLN and the Central Limit Theorem answer different questions about the same sample mean:
+the LLN says where the sample mean is heading (the true mean), and the CLT, covered next, says
+what shape its distribution takes on the way there (normal, regardless of the population's own
+shape).
+:::
+
 ## The Central Limit Theorem
 
 Roll one die and the result is unpredictable, spread evenly across six numbers.
@@ -445,6 +656,29 @@ Roll one die and the result is unpredictable, spread evenly across six numbers.
 But roll ten dice, average them, and repeat that experiment many times: those averages start
 clustering into a familiar bell shape. The Central Limit Theorem explains why averages behave
 this way.
+
+::: {#fig-clt-three-panel}
+```{=html}
+<iframe src="../_generated/chapter-03-fig-clt-three-panel.html" width="100%" height="420"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Garbage-collection pause durations across 6,000 simulated JVM instances: raw pauses on the
+left, means of 5 pauses in the middle, means of 20 pauses on the right. The right-skewed shape
+from the left panel is nearly gone by the right panel.
+:::
+
+@fig-clt-three-panel makes the same point three different ways side by side, using a new
+production scenario: garbage-collection pause durations sampled across a fleet of JVM
+instances. The left panel plots 6,000 raw pause durations, heavily right-skewed, most pauses
+short with a long tail of rare, much longer ones. The middle panel plots the mean of every
+group of 5 of those same pauses; the tail is shorter and the peak has shifted. The right panel
+plots the mean of every group of 20; the shape is close to a symmetric bell, even though not
+one of the 6,000 raw pauses that fed into it was drawn from a normal distribution.
+
+Nothing about the three panels required naming a formula first. Averaging 5 raw pause
+durations, then 20, and watching the histogram's shape change is the entire content of the
+theorem below, before any notation gets involved.
 
 The *Central Limit Theorem* (CLT) states that, given a large enough sample, the distribution
 of the sample mean approaches normal, regardless of the shape of the population the sample was
@@ -560,6 +794,25 @@ works out to about 92.6%. So a canary assembled by a documented random draw stil
 roughly a 7% chance that at least one heavy account slips in by chance alone, a number worth
 knowing before treating any single canary run as decisive.
 :::
+
+That calculation has a name: it is a *hypergeometric* one, 5 draws made without replacement
+from a finite pool of 200, where 3 of the 200 carry the outcome being tracked. The
+*hypergeometric distribution* formalizes this setup and gives the probability of drawing $k$
+successes:
+
+$$f(k) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}$$
+
+where $N$ is the pool size (200 accounts), $K$ is the number of successes in the pool (3 heavy
+accounts), $n$ is the number of draws (5 canary slots), and $k$ is the number of successes
+drawn. Setting $k = 0$ in this formula and working through the binomial coefficients reproduces
+the same 92.6% the callout above computed one draw at a time; the shrinking-odds multiplication
+and the formula are two routes to one number.
+
+The binomial distribution earlier in this chapter is the same idea with one assumption
+dropped: binomial trials draw with replacement, or from a pool so large that removing one item
+barely moves the odds, while the hypergeometric distribution tracks what happens when the pool
+is small enough that each draw meaningfully changes the odds for the next one, the situation
+the canary cohort above sits in.
 
 By contrast, choosing a canary cohort by hand, rather than through a documented random
 process, is a quiet source of selection bias, the same failure mode Chapter 1 introduced. A

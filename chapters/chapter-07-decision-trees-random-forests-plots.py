@@ -569,6 +569,155 @@ def fig_confusion_threshold() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 9: permutation importance vs. Gini importance vs. entropy importance,
+# with a planted high-cardinality nuisance feature
+# ---------------------------------------------------------------------------
+def fig_importance_comparison() -> go.Figure:
+    from plotly.subplots import make_subplots
+    from sklearn.inspection import permutation_importance
+    from sklearn.model_selection import train_test_split
+
+    err_rate, payload, hour, deps, rollback = simulate_deployments(n=2500)
+    # A deployment batch ID: a number assigned sequentially to every deployment,
+    # planted on purpose to carry no relationship to rollback risk. Its only notable
+    # property is cardinality: with 2,000 possible values in a 2,500-row dataset it
+    # offers a tree far more candidate split thresholds than any of the four
+    # predictors that drive the outcome, which is the condition that inflates Gini
+    # and entropy importance without inflating predictive value.
+    batch_id = RNG.integers(0, 2000, size=len(rollback))
+
+    X = np.column_stack([err_rate, deps, payload, hour, batch_id])
+    y = rollback.astype(int)
+    feature_names = ["Canary error rate", "Dependency count", "Payload size (KB)",
+                      "Hour of day", "Deployment batch ID (no signal)"]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=0.3, random_state=11, stratify=y
+    )
+
+    rf_gini = RandomForestClassifier(
+        n_estimators=400, max_depth=10, min_samples_leaf=2, criterion="gini",
+        random_state=11,
+    ).fit(X_train, y_train)
+    rf_entropy = RandomForestClassifier(
+        n_estimators=400, max_depth=10, min_samples_leaf=2, criterion="entropy",
+        random_state=11,
+    ).fit(X_train, y_train)
+
+    # Permutation importance is computed once, against the Gini forest, on the
+    # held-out validation split: shuffling a column and re-scoring only means
+    # something when the rows being scored were not used to fit the model.
+    perm = permutation_importance(
+        rf_gini, X_val, y_val, n_repeats=20, random_state=11, scoring="accuracy"
+    )
+
+    gini_imp = rf_gini.feature_importances_
+    entropy_imp = rf_entropy.feature_importances_
+    perm_imp = perm.importances_mean
+
+    # Order every panel by permutation importance, since that ranking is the one
+    # least distorted by a feature's cardinality, and hold that order fixed across
+    # all three bars so the disagreement is easy to read at a glance.
+    order = np.argsort(perm_imp)
+    names_sorted = [feature_names[i] for i in order]
+
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=("Permutation importance", "Gini importance", "Entropy importance"),
+        shared_yaxes=True,
+        horizontal_spacing=0.03,
+    )
+    fig.add_trace(
+        go.Bar(x=perm_imp[order], y=names_sorted, orientation="h", marker_color="#54A24B",
+               text=[f"{v:.3f}" for v in perm_imp[order]], textposition="outside"),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Bar(x=gini_imp[order], y=names_sorted, orientation="h", marker_color="#4C78A8",
+               text=[f"{v:.3f}" for v in gini_imp[order]], textposition="outside"),
+        row=1, col=2,
+    )
+    fig.add_trace(
+        go.Bar(x=entropy_imp[order], y=names_sorted, orientation="h", marker_color="#E45756",
+               text=[f"{v:.3f}" for v in entropy_imp[order]], textposition="outside"),
+        row=1, col=3,
+    )
+    fig.update_layout(
+        title="Permutation, Gini, and entropy importance rank the nuisance batch ID "
+              "differently",
+        showlegend=False,
+        margin=dict(t=90, l=220, r=40, b=50),
+    )
+    fig.update_xaxes(range=[min(0, perm_imp.min() * 1.3), None], row=1, col=1)
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 10: decision boundaries for a single tree, a random forest, and
+# logistic regression on the same two-feature slice
+# ---------------------------------------------------------------------------
+def fig_decision_boundaries() -> go.Figure:
+    from plotly.subplots import make_subplots
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.tree import DecisionTreeClassifier
+
+    # The two features @fig-variable-importance ranked highest: canary error rate
+    # and service dependency count.
+    err_rate, payload, hour, deps, rollback = simulate_deployments(n=800)
+    X = np.column_stack([err_rate, deps]).astype(float)
+    y = rollback.astype(int)
+
+    x_min, x_max = X[:, 0].min() - 0.3, X[:, 0].max() + 0.3
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 150), np.linspace(y_min, y_max, 150))
+    grid = np.column_stack([xx.ravel(), yy.ravel()])
+
+    models = {
+        "Single tree (depth 4)": DecisionTreeClassifier(max_depth=4, random_state=11),
+        "Random forest (400 trees)": RandomForestClassifier(
+            n_estimators=400, max_depth=4, min_samples_leaf=10, random_state=11
+        ),
+        "Logistic regression": LogisticRegression(),
+    }
+
+    fig = make_subplots(rows=1, cols=3, subplot_titles=list(models.keys()),
+                         horizontal_spacing=0.05)
+
+    point_colors = np.where(y == 1, "#B23A2E", "#2E5C8A")
+    for i, (name, model) in enumerate(models.items(), start=1):
+        model.fit(X, y)
+        proba = model.predict_proba(grid)[:, 1].reshape(xx.shape)
+        fig.add_trace(
+            go.Contour(
+                x=xx[0], y=yy[:, 0], z=proba,
+                colorscale=[[0, "#EAF0FA"], [0.5, "#F5F0E6"], [1, "#F7D9D6"]],
+                contours=dict(showlines=False), zmin=0, zmax=1,
+                showscale=(i == 3),
+                colorbar=dict(title="P(rollback)", len=0.7) if i == 3 else None,
+            ),
+            row=1, col=i,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=X[:, 0], y=X[:, 1], mode="markers",
+                marker=dict(color=point_colors, size=4, opacity=0.55, line=dict(width=0)),
+                showlegend=False,
+            ),
+            row=1, col=i,
+        )
+
+    fig.update_xaxes(title_text="Canary error rate")
+    fig.update_yaxes(title_text="Service dependency count", row=1, col=1)
+    fig.update_layout(
+        title="Decision boundaries for a single tree, a random forest, and logistic "
+              "regression on the same two features",
+        showlegend=False,
+        margin=dict(t=90, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-trees-fig-tree-overfitting": fig_tree_overfitting,
     "chapter-trees-fig-oob-error": fig_oob_error,
@@ -578,6 +727,8 @@ FIGURES = {
     "chapter-trees-fig-tree-instability": fig_tree_instability,
     "chapter-trees-fig-pruning-path": fig_pruning_path,
     "chapter-trees-fig-confusion-threshold": fig_confusion_threshold,
+    "chapter-trees-fig-importance-comparison": fig_importance_comparison,
+    "chapter-trees-fig-decision-boundaries": fig_decision_boundaries,
 }
 
 

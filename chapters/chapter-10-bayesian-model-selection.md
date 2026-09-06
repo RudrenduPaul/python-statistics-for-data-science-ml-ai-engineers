@@ -325,7 +325,7 @@ meaningful variance in the CV estimate itself, or when the $\hat{k}$ diagnostic'
 warning about influential points is worth having for its own sake.
 
 Chapter 5 ended by promising that Part 3 would need PSIS-LOO for this reason. Chapter 14's
-Bayesian A/B testing framework is where that promise gets collected, using `az.compare()` to
+"Hierarchical A/B testing" section is where that promise gets collected, using `az.compare()` to
 check whether adding a segment-level effect to an experiment's model improves its predictions or
 only makes it more elaborate.
 

@@ -364,6 +364,71 @@ posterior its step size could not navigate. More than a handful of divergences m
 or its priors need reworking, not a number to note and move past.
 :::
 
+## Prior predictive checks
+
+::: {#fig-prior-predictive-check}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-prior-predictive-check.html" width="100%" height="540"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Forty draws from the timeout model's priors alone, before any request data, at two prior widths
+for the payload-size coefficient. The narrower prior (standard deviation 3) keeps most curves
+gentle; the wider one (standard deviation 10) produces curves that swing from near 0% to near
+100% timeout probability within a couple of kilobytes.
+:::
+
+@fig-prior-predictive-check draws forty pairs of $(\beta_0, \beta_1)$ from the timeout model's
+priors, before the model has looked at a single request, and plots the timeout-probability curve
+each pair implies against payload size.
+
+A prior predictive check asks a question the posterior predictive check later in this chapter
+cannot: do the model's stated assumptions describe plausible outcomes before any data gets
+involved? A posterior predictive check compares simulated data to observed data after fitting; a
+prior predictive check compares simulated data to what an analyst would expect to see, using
+nothing but the priors, a routine step in the modern Bayesian workflow literature
+[@gabrysimpsonvehtaribetancourtgelman2019].
+
+The distinction matters because a prior that looks harmless written down as $\text{Normal}(0, 3^2)$ can
+imply something an analyst would reject on sight once it is drawn out as a curve. At standard
+deviation 3, most of the forty curves above stay in a believable range: a gradual rise in timeout
+probability as payload size grows. At standard deviation 10, several curves jump from
+near-certain success to near-certain timeout across a two- or three-kilobyte window, a claim no
+engineer running this checkout API would sign off on before seeing a single request.
+
+The earlier posterior-narrowing figure in this chapter showed that a prior still shapes the
+posterior meaningfully at n = 10. A prior that implies impossible curves does the same kind of
+shaping on a small dataset, and the model gives no warning that it happened. A posterior
+predictive check would eventually catch a resulting bad fit, but only after data collection and
+model fitting are both done. A prior predictive check catches it before either starts.
+
+Computing one takes the same PyMC model defined earlier for the timeout classifier, minus the
+`observed` argument:
+
+```python
+with timeout_model:
+    prior_checks = pm.sample_prior_predictive(draws=500, random_seed=11)
+
+az.plot_ppc(prior_checks, group="prior")
+```
+
+`pm.sample_prior_predictive` draws parameter values straight from the priors, the same way the
+figure above was built, and simulates timeout outcomes from those draws without touching
+`timeout_observed` at all. Nothing here depends on the request data existing yet; the check can
+run as soon as the priors are written down.
+
+Formally, a prior predictive check draws $\theta^{(s)} \sim p(\theta)$ for $s = 1, \dots, S$ sets
+of parameters directly from the prior, then draws simulated data $\tilde y^{(s)} \sim
+p(y \mid \theta^{(s)})$ from the model's likelihood conditioned on each draw. Checking the
+resulting $\tilde y^{(s)}$ against domain knowledge is what makes this a check of the prior. A
+check of the fit runs the same comparison against the data observed once fitting is done.
+
+::: {.callout-tip}
+Run a prior predictive check before fitting anything, and a posterior predictive check after.
+One asks whether the assumptions are reasonable before data arrives; the other asks whether the
+fitted model reproduces the data that did.
+:::
+
 ## Posterior predictive checks
 
 A weather model can be confident in its own numbers and still be wrong if it never checks
