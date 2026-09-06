@@ -63,6 +63,7 @@ format:
     twitter-card:
       image: assets/cover.png
     include-in-header: assets/schema.html
+    include-after-body: assets/sidebar-byline.html
 
 execute:
   freeze: auto
