@@ -22,8 +22,8 @@
    renders and styled here to match the sidebar's own muted, small text. */
 .sidebar-byline {
   margin-top: 0.35rem;
-  font-size: 0.7rem;
-  color: #6c757d;
+  font-size: 0.925rem;
+  color: #545555;
 }
 
 #quarto-sidebar .sidebar-byline a,
