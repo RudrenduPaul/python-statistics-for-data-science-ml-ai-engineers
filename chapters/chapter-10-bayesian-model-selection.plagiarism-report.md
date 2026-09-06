@@ -174,3 +174,79 @@ No new facts, statistics, or citations were introduced; both citations this chap
 No critical, warning, or note-level issues found in this pass. Verdict unchanged:
 **PUBLICATION-READY** (local review only, per the standing "do not publish" instruction on this
 project).
+
+---
+
+## Addendum: 2026-09-05 (focused audit of five new sections)
+
+Scoped re-check of five sections added since the last pass, not a full re-audit of the chapter:
+"When WAIC and PSIS-LOO disagree" (lines 212-262), "Posterior predictive checks: a different
+question" (357-422), "Bayesian model averaging" (423-483), "Bayes factors, and why this chapter
+did not lead with them" (484-559), and "What 'closer to the truth' means" (586-612).
+
+**Candidate phrases extracted**: the WAIC-vs-PSIS-LOO k-hat disagreement mechanism (Section 1,
+no new named framework), the Bayesian p-value definition and formula (Section 2), pseudo-BMA
+weighting and the softmax weight formula (Section 3), the Bayes factor definition, the closed-
+form conjugate-Gaussian marginal likelihood, and the binary-indicator "encompassing model"
+description (Section 4), and the Kullback-Leibler divergence definition plus the Akaike/Watanabe
+elpd-equals-negative-KL-divergence claim (Section 5).
+
+**Web searches run**: confirmed the KL divergence "information lost when one distribution stands
+in for another" framing against standard sources (DeepAI, GeeksforGeeks, general information
+theory literature). The chapter's wording is its own, with no word-for-word match found.
+Confirmed the Bayes factor "which model was more probable to have produced the data, integrating
+over parameters" framing against Kruschke's *Doing Bayesian Data Analysis*, standard course notes
+(Edinburgh, UMD), and ScienceDirect/bayestestR overviews. Again no word-for-word match, concept
+only. Confirmed the "encompassing model" binary-indicator description against Kruschke's
+indicator-variable MCMC approach and general SSVS literature. The chapter's z=0/z=1 notation and
+phrasing is its own; the general technique is textbook-standard, not traceable to one paper.
+Confirmed the Bayesian p-value definition and $p_B$ formula against Gelman's own posterior
+predictive p-value writeup and standard course material. This matches the concept covered earlier
+in the chapter by [@gelmanmengstern1996], and the wording here is the chapter's own. Searched for
+the pseudo-BMA softmax weight formula and confirmed it matches the `loo` R package's documented
+pseudo-BMA weighting (attributed there to Geisser and Eddy, 1979, and used in
+[@yaovehtarisimpsongelman2018]). Same formula; the chapter's prose around it is its own. Searched
+Osvaldo Martin's BAP GitHub repo and book excerpts directly for the `dummy.csv` coin-flip example
+and the Binomial(10,0.75) entropy demo: neither turns up anywhere in these five sections,
+confirming the chapter's checkout-API-latency, cold-start-PPC, and conjugate-Gaussian examples
+stand apart from BAP's worked examples.
+
+**Citation metadata verification**: cross-checked `references.bib` against live sources for all
+three new citations this chapter relies on.
+- `kassraftery1995` (Kass & Raftery, "Bayes Factors," *JASA* 90(430):773-795, 1995,
+  doi:10.1080/01621459.1995.10476572): confirmed, matches JASA's own record and multiple
+  independent citation databases.
+- `watanabe2010` (Watanabe, "Asymptotic Equivalence of Bayes Cross Validation and Widely
+  Applicable Information Criterion in Singular Learning Theory," *JMLR* 11:3571-3594, 2010):
+  confirmed via JMLR's own page (jmlr.org/papers/v11/watanabe10a.html); volume, pages, and year
+  match.
+- `yaovehtarisimpsongelman2018` (Yao, Vehtari, Simpson & Gelman, "Using Stacking to Average
+  Bayesian Predictive Distributions," *Bayesian Analysis* 13(3):917-1007, 2018,
+  doi:10.1214/17-BA1091): confirmed via Project Euclid's record; volume, issue, and pages match.
+- `gelmanmengstern1996` was verified in an earlier audit pass and is unchanged here.
+
+Also confirmed via `grep` on the chapter file that each citation sits at its expected location:
+`[@gelmanmengstern1996]` at line 380, `[@yaovehtarisimpsongelman2018]` at line 444,
+`[@kassraftery1995]` at line 557, `[@watanabe2010]` at line 602. All four required citations for
+this batch of new content are present, correctly placed, and metadata-correct.
+
+**Findings by severity**:
+- Critical: 0
+- Warning: 0
+- Note: 1. The binary-indicator "encompassing model" description in Section 4 (lines 515-521)
+  states a standard Bayesian model-selection technique (related to Carlin & Chib-style
+  indicator-variable approaches, and covered in general terms by Kruschke's textbook) without a
+  citation. No word-for-word match to any single source was found; the chapter uses its own
+  notation and presents the technique as a contrasting aside to its own conjugate-Gaussian
+  method, not as the chapter's main claim. Left as a monitor-only note rather than a required
+  fix: attributing a generic, multiply-sourced technique to one paper would misrepresent its
+  origin more than leaving it uncited does.
+- Clear: the remaining candidate phrases (KL divergence definition, Bayes factor definition,
+  Bayesian p-value definition and formula, pseudo-BMA weighting description, WAIC/PSIS-LOO
+  disagreement mechanism), all original wording, correctly cited where a citation applies, with
+  no BAP-specific data or examples present.
+
+**Fixes applied**: none required. No Critical or Warning findings in this batch.
+
+Verdict: **PUBLICATION-READY** (local review only, per the standing "do not publish" instruction
+on this project).

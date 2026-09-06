@@ -162,3 +162,58 @@ citation.
    correction) before this report was finalized. No outstanding action required.
 2. Carry the corrected `[@kohavitangxu2020]` and `[@fabijan2019]` entries through to
    `quarto-book/references.bib` when syncing this chapter.
+
+---
+
+## Addendum, 2026-09-05: latent-subgroup mixture section and divergences cross-reference
+
+Scope for this pass: the new "Latent subgroups: what a mixture model finds when the segment
+isn't logged" section, its `fig_latent_mixture` figure and PyMC mixture model, and the short
+divergence cross-reference passage inserted into the existing "Hierarchical A/B testing"
+section. Checked against BAP's mixture-model notebook (`code/Chp6/06_mixture_models.ipynb`,
+Osvaldo Martin, github.com/aloctavodia/BAP), which this book's own research notes
+(`task-todo/research-bap-ch6-8.md`) flagged as the closest prior treatment of label switching
+and finite mixture models.
+
+**Dataset and scenario**: original. BAP's mixture-model notebook fits every example to
+`chemical_shifts_theo_exp.csv` (NMR chemical-shift data grouped by amino acid). This chapter's
+new section fits a simulated checkout-time-change dataset (2,400 visitors, seed 505,
+returning-visitor and first-time-visitor latent groups), an unrelated domain with its own
+scenario, numbers, and variable names (`checkout_time_delta`, `true_weight_returning`,
+`true_mean_first_time`, and so on, none carried over from BAP's `theta`, `mu`, or chemical-
+shift naming).
+
+**Code pattern**: paraphrased, not copied. BAP demonstrates the label-switching fix two ways: a
+`pm.Potential` with a `-inf` penalty for unordered means, and, for its K = 3 through 6 models, an
+`ordered` transform. This chapter uses only the `ordered`-transform approach (matching modern
+PyMC's documented API, confirmed via a live search of PyMC's own discourse forum and API docs,
+not reproduced from BAP's specific code), with different variable names, a different prior
+(`Normal(0, 10)` versus BAP's setup), and a different `initval`. No BAP code was reproduced
+verbatim; the transform call itself is standard PyMC usage shared across many independent
+tutorials, not something a single source can claim.
+
+**Named methodology check**: "label switching" is a named, citable concept (Category C). BAP's
+notebook explains the problem but is a code companion, not the origin source, and citing BAP
+itself would misattribute a decades-old statistical result to a textbook's code repository.
+Live web search confirmed the canonical citation: Stephens, M. (2000), "Dealing with Label
+Switching in Mixture Models," *Journal of the Royal Statistical Society Series B*, 62(4),
+795-809, DOI 10.1111/1467-9868.00265. Added `stephens2000` to `references.bib` and cited it
+inline at first use of the term in the new section. This closes what would otherwise have been
+a 🟡 Warning (named methodology, no citation).
+
+**Distinctive-phrase sweep**: the section's opening analogy ("A restaurant's average four-star
+rating can hide two different dining rooms behind it...") returned no matches on live web
+search; reads as original. No other 8+ word phrase in the new section returned a match.
+
+**Divergences cross-reference passage**: verified against `chapter-09-bayesian-regression.md`'s
+own `{#sec-divergences-funnel}` section. The new passage in this chapter states no new claim
+about funnel geometry; it applies that section's existing, cited (`[@neal2003]`) material to
+this chapter's own `sigma_delta` / `delta_offset` parameters and points the reader back to
+Chapter 9 rather than re-deriving anything. No citation gap: this is an internal cross-
+reference, the same pattern the base report above verified as acceptable for this chapter's
+non-centered-parameterization callout.
+
+**Findings**: 0 Critical, 1 Warning (resolved: added `[@stephens2000]`), 0 Notes needing manual
+follow-up, remainder Clear.
+
+**Verdict**: PUBLICATION-READY.

@@ -319,6 +319,95 @@ Leave `n_restarts_optimizer` at zero only for a first pass. Once a fit is truste
 beyond exploration, rerun it with several restarts and confirm the length-scale does not move.
 :::
 
+## Full Bayesian hyperparameters: sampling the length-scale instead of optimizing it
+
+The chart below fits the same RBF-plus-noise kernel to eight concurrent-load observations
+twice: once the way every fit so far in this chapter has, by optimizing the length-scale to a
+single best value, and once by placing a prior on the length-scale, signal variance, and noise,
+then sampling their posterior with PyMC.
+
+::: {#fig-full-bayes-hyperparams}
+```{=html}
+<iframe src="../_generated/chapter-bayes-gp-fig-full-bayes-hyperparams.html" width="100%"
+        height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Left: both fits predict a similar posterior mean, but the full-Bayesian band (blue) runs about
+1.6 times wider than the point-estimate band (orange) near the observed points and close to
+twice as wide at the highest utilization shown. Right: the sampled length-scale posterior
+spreads from roughly 0.09 to 0.41, with a mean of 0.22, while the point estimate (dashed
+vertical line) lands at 0.15, near the lower edge of that spread rather than at its center.
+:::
+
+Picture two analysts handed the same eight readings. One reports the single trend line that
+best explains them and states a margin of error around that one line. The other is not sure the
+trend's steepness is the one number the first analyst found, so she carries several
+plausible steepnesses forward and reports a wider, more honest margin as a result. Both analysts
+have the same eight readings. The second is doing the job the PyMC fit below does for the
+length-scale.
+
+A prior on the length-scale, signal variance, and noise means none of the three collapses to a
+single number before the posterior is computed. `pm.gp.Marginal` still exploits the same
+closed-form conditioning this chapter opened with, since the observation likelihood is still
+Gaussian, but now that conditioning happens conditional on each sampled hyperparameter draw
+rather than on one optimized value, and NUTS explores the resulting three-dimensional
+hyperparameter posterior directly:
+
+```python
+import pymc as pm
+
+coords = {"obs_id": np.arange(len(rho))}
+with pm.Model(coords=coords) as full_bayes_model:
+    rho_data = pm.Data("rho_data", rho, dims="obs_id")
+    ell = pm.Gamma("ell", alpha=2.0, beta=8.0)
+    eta = pm.HalfNormal("eta", sigma=50.0)
+    sigma_n = pm.HalfNormal("sigma_n", sigma=10.0)
+    cov = eta ** 2 * pm.gp.cov.ExpQuad(1, ls=ell)
+    gp = pm.gp.Marginal(cov_func=cov)
+    gp.marginal_likelihood("latency_obs", X=rho_data[:, None], y=latency, sigma=sigma_n)
+    trace = pm.sample(1000, tune=1000, chains=4, target_accept=0.95)
+
+    f_pred = gp.conditional("f_pred", Xnew=grid[:, None])
+    pred = pm.sample_posterior_predictive(trace, var_names=["f_pred"])
+```
+
+`gp.marginal_likelihood` plays the same role here that `.fit()` played for `scikit-learn`
+earlier, except the length-scale, signal variance, and noise passed into it are now random
+variables with priors instead of numbers an optimizer chose. `gp.conditional`, together with
+`pm.sample_posterior_predictive`, then produces a predictive distribution that carries the
+hyperparameters' own uncertainty forward into every prediction, rather than conditioning on one
+fixed setting the way `.predict()` does.
+
+@fig-full-bayes-hyperparams shows what that costs and buys on this eight-point dataset. The
+length-scale posterior's 95% interval runs from about 0.09 to 0.41, comfortably containing the
+point estimate of 0.15 near its lower end but also reaching more than twice as far. The noise
+posterior tells the same story: its 95% interval, roughly 1.8 ms to 14.1 ms, comfortably
+contains the 3 ms noise this dataset was generated with, but says nothing sharper than that
+range with only eight points to work from.
+
+Eight points is a small-N situation, the case the previous section flagged as the one where the
+difference matters most. `scikit-learn`'s optimizer has to commit to a single
+length-scale even though the data barely constrains which one is right; PyMC's posterior instead
+reports that the data barely constrains it, and widens every downstream prediction to match.
+Neither fit is wrong. The point estimate is a reasonable summary of a distribution the full
+Bayesian fit makes visible in full.
+
+That visibility costs compute: sampling a three-parameter posterior with NUTS took several
+seconds on eight points in the run behind this figure, against a fraction of a second for the
+optimizer's single search. On the hundreds-to-low-thousands datasets this book has worked with
+throughout, where the marginal likelihood surface has enough data to pin the length-scale down
+tightly, that cost buys little the point estimate did not report on its own. It earns its keep
+specifically when the dataset is small enough, or the decision resting on the fit is high-stakes
+enough, that the gap between "here is one plausible length-scale" and "here is how much the data
+lets that length-scale vary" changes what a reader should conclude.
+
+::: {.callout-tip}
+Run the full Bayesian fit on a handful of representative small subsets before committing to it
+for an entire pipeline. If the point-estimate and full-posterior predictive bands stay close
+across those subsets, the extra sampling cost is not buying anything the optimizer did not
+provide on its own.
+:::
+
 ## What the credible band buys: honest extrapolation
 
 @fig-extrapolation, shown earlier in this chapter, is the situation Chapter 6 flagged as
@@ -476,15 +565,113 @@ observed cycles. Fix the period at its known value and let the optimizer fit the
 noise around it.
 :::
 
+## When the outcome is a label: Gaussian process classification
+
+The chart below fits a Gaussian process classifier to ninety synthetic request-payload
+observations, each labeled as flagged or not flagged by an anomaly filter, and compares it
+against a plain logistic regression fit to the same data.
+
+::: {#fig-gp-classification-boundary}
+```{=html}
+<iframe src="../_generated/chapter-bayes-gp-fig-classification-boundary.html" width="100%"
+        height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The x-axis is request payload size in kilobytes and the y-axis is the fitted probability of
+being flagged as anomalous; markers near the bottom and top show individual clear (0) and
+flagged (1) observations, jittered so overlapping points stay visible. The true flag rate
+(dotted) peaks near both edges of the range and drops close to zero in the middle. The GP
+posterior mean (blue) tracks that same shape, rising back above 0.65 at both edges after
+falling under 0.10 near the middle, with the credible band (shaded) widening wherever fewer
+observations sit nearby. The logistic regression fit (orange, dashed) stays close to flat across
+the whole range, moving only from about 0.26 to 0.38, since one coefficient cannot make the flag
+rate rise on both sides of a safe middle range at once.
+:::
+
+A lookout watching one corridor for trouble notices someone slipping in near the entrance and
+someone else causing a commotion near the far end, with a quiet stretch in between where nothing
+happens. A rule that only tracks how far along the corridor something is, and moves its alarm
+threshold one direction as that distance grows, cannot describe both trouble spots without also
+raising the alarm through the quiet stretch between them. A logistic regression's single
+coefficient is that kind of one-direction rule.
+
+A Gaussian process classifier keeps the same latent function this chapter has built up all
+along, a smooth curve drawn from a GP prior and reshaped by conditioning on data, but routes
+that curve through a link function before it reaches the observed outcome instead of reading it
+off directly. The sigmoid link squeezes the latent function's unbounded output into a valid
+probability between 0 and 1, and a Bernoulli likelihood then treats each observed flag as a coin
+flip weighted by that probability.
+
+The engineering consequence shows up directly in the fitted logistic regression coefficient
+behind the orange curve: 0.030, close enough to zero that the model barely distinguishes any
+payload size from any other. Averaged across two flagged regions pulling in opposite directions,
+a single-direction rule settles for a probability that hovers near the overall flag rate
+everywhere, useless for either clearing traffic with confidence or catching it. A filter built on
+that fit would let small and large payloads through at close to the same rate as the safe middle
+range, defeating the purpose of screening on payload size at all. The GP classifier's latent
+function is free to bend twice, so it recovers both flagged regions and the safe range between
+them from the same ninety labels.
+
+Fitting this model means giving up the closed form the rest of this chapter relied on. A
+Bernoulli likelihood is not Gaussian, so `pm.gp.Marginal`'s algebraic shortcut, integrating the
+latent function out in closed form, no longer applies. `pm.gp.Latent` samples the latent function
+directly instead, and NUTS explores its posterior jointly with the length-scale:
+
+```python
+import pymc as pm
+
+coords = {"obs_id": np.arange(len(payload_kb))}
+with pm.Model(coords=coords) as gp_classifier:
+    payload_data = pm.Data("payload_data", payload_scaled, dims="obs_id")
+    ell = pm.Gamma("ell", alpha=2.0, beta=3.0)
+    cov = pm.gp.cov.ExpQuad(1, ls=ell)
+    gp = pm.gp.Latent(cov_func=cov)
+    f = gp.prior("f", X=payload_data[:, None], dims="obs_id")
+    p = pm.Deterministic("p", pm.math.invlogit(f), dims="obs_id")
+    pm.Bernoulli("flagged_obs", p=p, observed=flagged, dims="obs_id")
+    trace = pm.sample(1000, tune=1000, chains=4, target_accept=0.9)
+
+    f_pred = gp.conditional("f_pred", Xnew=grid_scaled[:, None])
+    pred = pm.sample_posterior_predictive(trace, var_names=["f_pred"])
+```
+
+`pm.math.invlogit` is the sigmoid link, applied to the sampled latent function `f` rather than
+to a linear combination of coefficients the way ordinary logistic regression applies it. Once
+sampling finishes, `gp.conditional` extends that same latent function to new payload sizes, and
+`expit` on the resulting samples turns them back into probabilities for the curve in
+@fig-gp-classification-boundary.
+
+The length-scale posterior for this fit comes out short, a mean of about 0.40 on the
+standardized payload scale, short enough to let the fitted curve bend twice within the
+observed range instead of settling on one smooth trend. A longer length-scale prior would push
+the fit back toward something closer to the logistic regression curve, unable to represent both
+flagged regions at once. Formally, the model places a GP prior on a latent function and a
+Bernoulli likelihood on top of a sigmoid-transformed draw from it:
+
+$$f \sim \mathcal{GP}(0, k(x, x')), \qquad p(x) = \sigma(f(x)), \qquad y_i \sim
+\text{Bernoulli}(p(x_i)).$$
+
+Every kernel this chapter has covered, RBF, Matern, or a periodic-plus-trend composite, plugs
+into $k(x, x')$ here the same way it plugged into the regression posterior earlier; only the
+likelihood on top of the latent function changes.
+
+::: {.callout-note}
+If the credible band around a fitted classification boundary looks too narrow in a region far
+from any observation, adding a linear kernel term the way this chapter composes RBF and
+periodic kernels earlier is a standard fix: it lets the model's uncertainty grow honestly with
+distance from the data instead of collapsing back toward the prior mean too quickly on the
+probability scale.
+:::
+
 ## When the closed form runs out
 
 Everything in this chapter relied on a Gaussian process with Gaussian observation noise, which
 is the one case with a closed-form posterior.
 
 Two situations break that closed form and push toward the tools Chapter 9 introduces for other
-models: a non-Gaussian likelihood (for instance, modeling a binary success/failure outcome with
-a GP-based classifier instead of a continuous latency value) and a dataset too large for the
-$O(n^3)$ matrix inversion to finish in reasonable time.
+models: a non-Gaussian likelihood, the classification case the previous section just walked
+through in full, and a dataset too large for the $O(n^3)$ matrix inversion to finish in
+reasonable time.
 
 Both push toward approximate inference: variational methods that summarize the posterior with a
 simpler distribution, or sparse GP approximations that summarize the training data itself with a
@@ -495,6 +682,25 @@ Both implement sparse and variational GP methods that scale well past the point 
 `scikit-learn`'s closed-form implementation becomes impractical, typically somewhere in the
 range of several thousand to tens of thousands of training points, depending on available
 memory.
+
+::: {.callout-note}
+A GP can earn its keep as a covariance structure buried inside a larger model, not only as the
+direct regression surface. A smoothly time-varying incident rate, for instance, can ride inside
+a Poisson GLM as a latent log-rate:
+`rate_gp = pm.gp.Latent(cov_func=...)`, `log_rate = rate_gp.prior("log_rate", X=time_bins)`, then
+`pm.Poisson("incidents", mu=pm.math.exp(log_rate), observed=incident_counts)`. The GP supplies a
+covariance structure over the latent quantity being modeled, a changepoint-free alternative to
+hand-coding a step change in the rate, and still needs `pm.gp.Latent` rather than
+`pm.gp.Marginal`, since a Poisson likelihood is as non-Gaussian as a Bernoulli one.
+:::
+
+::: {.callout-note}
+When inputs sit on a regular multi-dimensional grid, such as latency broken out by region and
+hour of day, a Kronecker-structured GP (`pm.gp.LatentKron`, built from one covariance function
+per axis) scales past the plain $O(n^3)$ cost flagged earlier in this chapter without falling
+back to sparse or variational approximation. It exploits the grid's separability directly, at
+the cost of applying only when every combination of axis values is observed.
+:::
 
 For a dataset in the hundreds or low thousands, which covers most of the tabular, single-service
 metrics this book has worked with, the closed-form fit this chapter walked through is enough.

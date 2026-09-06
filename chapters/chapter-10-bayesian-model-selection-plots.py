@@ -18,6 +18,7 @@ import os
 
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from scipy import stats
 
 RNG = np.random.default_rng(11)
@@ -299,11 +300,260 @@ def fig_elpd_compare() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Shared setup for the new sections: a latency dataset with an occasional
+# cold-start penalty (a lazily-initialized connection pool, say), and a
+# closed-form marginal likelihood for the same conjugate Gaussian model used
+# everywhere above.
+# ---------------------------------------------------------------------------
+def simulate_coldstart_latency(n=70, seed=23, coldstart_p=0.09):
+    """Most requests behave like the rest of the chapter's latency data. A small
+    fraction hit a cold-start path that adds a large, separate delay on top of the
+    usual payload/concurrency-driven latency, so the average request looks ordinary
+    while the tail does not."""
+    rng = np.random.default_rng(seed)
+    payload_kb = rng.uniform(2, 20, size=n)
+    concurrent = rng.uniform(1, 30, size=n)
+    noise_sigma = 8.0
+    base_latency = 40 + 3.2 * payload_kb + 1.1 * concurrent + rng.normal(0, noise_sigma, size=n)
+    is_coldstart = rng.uniform(size=n) < coldstart_p
+    coldstart_penalty = rng.uniform(45, 85, size=n)
+    latency = base_latency + is_coldstart * coldstart_penalty
+    return payload_kb, concurrent, latency, noise_sigma
+
+
+def log_marginal_likelihood(X, y, sigma, prior_var):
+    """Closed-form log marginal likelihood (model evidence) for y = X @ beta + eps,
+    eps ~ N(0, sigma^2 I), beta ~ N(0, prior_var * I). Integrating beta out of the
+    joint density leaves y ~ N(0, prior_var * X @ X.T + sigma^2 * I), so no MCMC or
+    SMC sampler is needed the way BAP's Bayes-factor chapter uses one: this chapter's
+    models are conjugate Gaussian by construction, and the evidence has a closed
+    form."""
+    n = len(y)
+    cov = prior_var * (X @ X.T) + (sigma**2) * np.eye(n)
+    return stats.multivariate_normal.logpdf(y, mean=np.zeros(n), cov=cov)
+
+
+# ---------------------------------------------------------------------------
+# Figure 5: posterior predictive check, visual overlay + Bayesian p-value
+# ---------------------------------------------------------------------------
+def fig_ppc_latency_check() -> go.Figure:
+    payload_kb, concurrent, latency, sigma = simulate_coldstart_latency()
+    X = design_matrix(payload_kb, concurrent)
+    mean, cov = fit_conjugate_posterior(X, latency, sigma)
+
+    n_draws = 5000
+    draws = posterior_draws(mean, cov, n_draws=n_draws, seed=5)
+    rng = np.random.default_rng(6)
+
+    threshold = 150.0
+    t_obs = float(np.sum(latency > threshold))
+    t_sim = np.empty(n_draws)
+    sim_for_overlay = []
+    for s in range(n_draws):
+        mu = X @ draws[s]
+        y_sim = rng.normal(mu, sigma)
+        t_sim[s] = np.sum(y_sim > threshold)
+        if s < 25:
+            sim_for_overlay.append(y_sim)
+    bayes_p = float(np.mean(t_sim >= t_obs))
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Observed vs. simulated latency", f"Bayesian p-value = {bayes_p:.3f}"),
+    )
+
+    x_grid = np.linspace(20, 220, 300)
+    for y_sim in sim_for_overlay:
+        kde = stats.gaussian_kde(y_sim)
+        fig.add_trace(
+            go.Scatter(x=x_grid, y=kde(x_grid), mode="lines",
+                       line=dict(color="#B7C7DB", width=1), opacity=0.5,
+                       showlegend=False, hoverinfo="skip"),
+            row=1, col=1,
+        )
+    obs_kde = stats.gaussian_kde(latency)
+    fig.add_trace(
+        go.Scatter(x=x_grid, y=obs_kde(x_grid), mode="lines",
+                   line=dict(color="#141413", width=3), name="Observed latency"),
+        row=1, col=1,
+    )
+
+    fig.add_trace(
+        go.Histogram(x=t_sim, histnorm="probability density", marker_color="#4C78A8",
+                     name="Simulated count > 150ms", showlegend=False),
+        row=1, col=2,
+    )
+    fig.add_vline(x=t_obs, line_dash="dash", line_color="#E45756",
+                   annotation_text=f"observed = {int(t_obs)}", row=1, col=2)
+
+    fig.update_xaxes(title_text="Latency (ms)", row=1, col=1)
+    fig.update_yaxes(title_text="Density", row=1, col=1)
+    fig.update_xaxes(title_text="Requests over 150ms per dataset", row=1, col=2)
+    fig.update_yaxes(title_text="Density", row=1, col=2)
+    fig.update_layout(
+        title="Posterior predictive check: observed data vs. the model's own simulated data",
+        margin=dict(t=110, l=60, r=30, b=50),
+        legend=dict(orientation="h", yanchor="bottom", y=1.1, x=0),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 6: Bayesian model averaging vs. picking a single best model
+# ---------------------------------------------------------------------------
+def fig_model_averaging() -> go.Figure:
+    payload_kb, concurrent, latency, sigma = simulate_data(n=80, seed=21)
+    rng = np.random.default_rng(9)
+    noise_feature = rng.normal(0, 1, size=len(payload_kb))
+
+    variants = {
+        "payload_only": design_matrix(payload_kb),
+        "payload_concurrent": design_matrix(payload_kb, concurrent),
+        "payload_concurrent_noise": np.column_stack(
+            [design_matrix(payload_kb, concurrent), noise_feature]
+        ),
+    }
+
+    elpds, means, covs = {}, {}, {}
+    for label, X in variants.items():
+        mean, cov = fit_conjugate_posterior(X, latency, sigma)
+        draws = posterior_draws(mean, cov, seed=4, n_draws=3000)
+        loglik = pointwise_loglik(draws, X, latency, sigma)
+        loo, _ = psis_loo_pointwise(loglik)
+        elpds[label] = float(np.sum(loo))
+        means[label] = mean
+        covs[label] = cov
+
+    labels = list(elpds.keys())
+    elpd_arr = np.array(list(elpds.values()))
+    weights = np.exp(elpd_arr - elpd_arr.max())
+    weights = weights / weights.sum()
+    weight_by_label = dict(zip(labels, weights))
+
+    # A new request unlike the training mix: low payload, near-peak concurrency,
+    # the combination where the three models disagree the most with each other.
+    new_payload, new_concurrent = 4.0, 28.0
+    x_rows = {
+        "payload_only": np.array([1.0, new_payload]),
+        "payload_concurrent": np.array([1.0, new_payload, new_concurrent]),
+        "payload_concurrent_noise": np.array([1.0, new_payload, new_concurrent, 0.0]),
+    }
+
+    rng2 = np.random.default_rng(77)
+    n_draws_pp = 20000
+    per_model_samples = {}
+    for label in labels:
+        x0 = x_rows[label]
+        pred_mean = x0 @ means[label]
+        pred_sd = np.sqrt(x0 @ covs[label] @ x0 + sigma**2)
+        per_model_samples[label] = rng2.normal(pred_mean, pred_sd, size=n_draws_pp)
+
+    membership = rng2.choice(len(labels), size=n_draws_pp, p=weights)
+    blend = np.zeros(n_draws_pp)
+    for i, label in enumerate(labels):
+        mask = membership == i
+        blend[mask] = per_model_samples[label][mask]
+
+    fig = go.Figure()
+    x_grid = np.linspace(30, 130, 300)
+    colors = {"payload_only": "#F58518", "payload_concurrent": "#54A24B",
+              "payload_concurrent_noise": "#B279A2"}
+    for label in labels:
+        kde = stats.gaussian_kde(per_model_samples[label])
+        fig.add_trace(go.Scatter(
+            x=x_grid, y=kde(x_grid), mode="lines", line=dict(color=colors[label], width=2, dash="dot"),
+            name=f"{label} (weight {weight_by_label[label]:.2f})",
+        ))
+    blend_kde = stats.gaussian_kde(blend)
+    fig.add_trace(go.Scatter(
+        x=x_grid, y=blend_kde(x_grid), mode="lines", line=dict(color="#141413", width=3),
+        name="Weighted blend (model-averaged)",
+    ))
+    fig.update_layout(
+        title="Weighted blend vs. each candidate model, for one new request",
+        xaxis_title="Predicted latency (ms)",
+        yaxis_title="Density",
+        margin=dict(t=60, l=60, r=200, b=50),
+        legend=dict(yanchor="top", y=0.99, x=1.02, xanchor="left"),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 7: a case where WAIC and PSIS-LOO rank two models differently
+# ---------------------------------------------------------------------------
+def fig_waic_loo_disagreement() -> go.Figure:
+    payload_kb, concurrent, latency, sigma = simulate_data(n=60, seed=11)
+    X_a = design_matrix(payload_kb, concurrent)
+    n_draws = 5000
+
+    mean_a, cov_a = fit_conjugate_posterior(X_a, latency, sigma)
+    draws_a = posterior_draws(mean_a, cov_a, n_draws=n_draws, seed=3)
+    loglik_a = pointwise_loglik(draws_a, X_a, latency, sigma)
+    lpd_a, p_waic_a = lpd_and_pwaic(loglik_a)
+    elpd_waic_a = float(np.sum(lpd_a - p_waic_a))
+    loo_a, khat_a = psis_loo_pointwise(loglik_a)
+    elpd_loo_a = float(np.sum(loo_a))
+
+    rng = np.random.default_rng(41)
+    noise_feature = rng.normal(0, 1, size=len(payload_kb))
+    X_b = np.column_stack([X_a, noise_feature])
+    mean_b, cov_b = fit_conjugate_posterior(X_b, latency, sigma)
+    draws_b = posterior_draws(mean_b, cov_b, n_draws=n_draws, seed=3)
+    loglik_b = pointwise_loglik(draws_b, X_b, latency, sigma)
+
+    # One observation gets the same small-probability, Pareto-tailed contamination
+    # used in fig_khat_diagnostic above: a stand-in for the heavy-tailed importance
+    # ratios a badly-fit point produces under a full MCMC posterior. WAIC's penalty
+    # is a plain sample variance of the log-likelihood, which a rare, extreme miss
+    # barely moves; PSIS-LOO's Pareto tail fit is built to catch this kind of miss.
+    idx = 33
+    contam_rng = np.random.default_rng(555)
+    n_bad = 10
+    bad_draws = contam_rng.choice(n_draws, size=n_bad, replace=False)
+    miss = stats.pareto.rvs(1.02, scale=6.0, size=n_bad, random_state=1)
+    loglik_b[bad_draws, idx] -= miss
+
+    lpd_b, p_waic_b = lpd_and_pwaic(loglik_b)
+    elpd_waic_b = float(np.sum(lpd_b - p_waic_b))
+    loo_b, khat_b = psis_loo_pointwise(loglik_b)
+    elpd_loo_b = float(np.sum(loo_b))
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("elpd_waic vs. elpd_loo, by model", "Pareto k-hat, payload_concurrent_noise"),
+    )
+    fig.add_trace(go.Bar(name="payload_concurrent", x=["elpd_waic", "elpd_loo"],
+                          y=[elpd_waic_a, elpd_loo_a], marker_color="#54A24B"), row=1, col=1)
+    fig.add_trace(go.Bar(name="payload_concurrent_noise", x=["elpd_waic", "elpd_loo"],
+                          y=[elpd_waic_b, elpd_loo_b], marker_color="#B279A2"), row=1, col=1)
+    fig.update_yaxes(title_text="Value (higher is better)", row=1, col=1)
+
+    colors = ["#E45756" if k > 0.7 else ("#F58518" if k > 0.5 else "#54A24B") for k in khat_b]
+    fig.add_trace(go.Scatter(x=list(range(len(khat_b))), y=khat_b, mode="markers",
+                              marker=dict(color=colors, size=8), showlegend=False), row=1, col=2)
+    fig.add_hline(y=0.7, line_dash="dash", line_color="#E45756", row=1, col=2)
+    fig.update_xaxes(title_text="Observation", row=1, col=2)
+    fig.update_yaxes(title_text="k-hat", row=1, col=2)
+
+    fig.update_layout(
+        title="WAIC and PSIS-LOO disagree once one observation's ratios turn heavy-tailed",
+        barmode="group",
+        margin=dict(t=110, l=60, r=30, b=50),
+        legend=dict(orientation="h", yanchor="bottom", y=1.12, x=0),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-model-selection-fig-lpd-per-point": fig_lpd_per_point,
     "chapter-bayes-model-selection-fig-waic-ploo-complexity": fig_waic_ploo_by_complexity,
     "chapter-bayes-model-selection-fig-khat-diagnostic": fig_khat_diagnostic,
     "chapter-bayes-model-selection-fig-elpd-compare": fig_elpd_compare,
+    "chapter-bayes-model-selection-fig-ppc-check": fig_ppc_latency_check,
+    "chapter-bayes-model-selection-fig-model-averaging": fig_model_averaging,
+    "chapter-bayes-model-selection-fig-waic-loo-disagreement": fig_waic_loo_disagreement,
 }
 
 

@@ -298,3 +298,63 @@ Risk classification:
 No Critical, Warning, or Note flags from this pass. Updated word count: ~3,080. Verdict
 unchanged: **PUBLICATION-READY** (local review only, per the standing "do not publish"
 instruction on this project).
+
+## Addendum: light-touch gap pass, MCMC divergences added (2026-09-05)
+
+A fresh audit (`task-todo/audit-my-bayesian-chapters-current.md`) flagged one specific,
+unaddressed gap: "How BART is fit: Bayesian backfitting" and "The rollback classifier in
+pymc-bart" both discuss R-hat but never discuss MCMC divergences, unlike Chapter 9 and Chapter
+14, which both raise divergences by name for their own MCMC fits. Added roughly 340 words in
+"The rollback classifier in pymc-bart," right after the existing "Run the R-hat and
+effective-sample-size checks through `arviz`" callout-note and before the "two models' point
+predictions are close" paragraph: a code-output-first passage showing
+`idata.sample_stats["diverging"].sum().item()` returning `0`, followed by what that number does
+and does not mean for a BART fit (PyMC assigns `pymc-bart`'s own PGBART particle-Gibbs step to
+the BART term and NUTS only to any other continuous parameter in the model), why that matters for
+this chapter's Bernoulli rollback model specifically (no NUTS step exists in that model, so the
+zero reflects an absent check, not a passed one), and how to check what divergences would
+otherwise catch (effective sample size alongside R-hat, with a worked illustrative ESS-versus-R-hat
+mismatch and a closing callout naming `pmb.PGBART`'s `num_particles` argument as the lever to
+raise).
+
+Verification performed for this addition:
+
+- **PGBART step method and its relationship to NUTS**: confirmed via WebFetch against the
+  `pymc-bart` API reference (https://www.pymc.io/projects/bart/en/latest/api_reference.html) and
+  corroborated via WebSearch against the PyMC-BART paper (Quiroga et al., "Bayesian Additive
+  Regression Trees for Probabilistic Programming," arXiv:2206.03619) and the `pymc-devs/pymc-bart`
+  GitHub repository on 2026-09-05: PGBART is described as a sampler "inspired by the Particle
+  Gibbs method introduced by Lakshminarayanan et al. [2015]," assigned automatically to the BART
+  random variable; PyMC's compound-step mechanism assigns NUTS automatically to any other
+  continuous parameter present in the same model. This is restated in the chapter as general
+  library-behavior fact, not a direct quote, and needs no new citation beyond describing what the
+  software does, consistent with how this chapter describes `pymc-bart`'s API elsewhere
+  without a per-sentence citation.
+- **`num_particles` default of 10**: confirmed via two independent WebSearch results (the
+  `pymc-bart` API reference and a GitHub issue thread on `pymc-devs/pymc`) on 2026-09-05: the
+  `PGBART` step's `num_particles` argument defaults to 10. Restated as a software fact, not
+  attributed to a named individual's original work requiring a citation.
+- **Illustrative ESS/R-hat numbers (min ESS approximately 340 of 4,000 draws, R-hat 1.01)**:
+  authored for this chapter's own simulated canary-rollback scenario, explicitly framed as an
+  illustrative worked example rather than a measured benchmark, consistent with how every other
+  numeric example in this chapter (the eight held-out deployments, the credible-interval widths,
+  the MCMC trace figure) is handled.
+- No direct quote, uncited statistic, or externally attributed organizational claim appears in
+  the new text. The one named methodology (PGBART, and the particle Gibbs method it is built on)
+  is described generically enough, and the specific implementation fact it is checked against
+  (pymc-bart's own compound-step behavior) is confirmed live, so no new `.bib` entry is required;
+  the passage sits alongside this chapter's existing library-behavior descriptions rather than
+  introducing a new academic claim needing its own reference.
+
+Risk classification:
+
+| Passage | Risk |
+|---------|------|
+| `idata.sample_stats["diverging"].sum().item()` code output and surrounding explanation | Clear (restates confirmed `pymc-bart`/PyMC compound-step behavior, no external claim beyond verified library facts) |
+| PGBART/particle-Gibbs description and its contrast with NUTS | Clear (confirmed via WebFetch/WebSearch against the `pymc-bart` API reference, the PyMC-BART paper, and the library's own GitHub repository) |
+| Illustrative ESS-versus-R-hat worked numbers | Clear (authored for this chapter's own simulated scenario, explicitly illustrative, consistent with the rest of the chapter's numeric examples) |
+| Closing callout naming `num_particles` and its default of 10 | Clear (confirmed software fact, restated as practical guidance, no external quote) |
+
+No Critical, Warning, or Note flags from this pass. Updated word count: ~3,420. Verdict
+unchanged: **PUBLICATION-READY** (local review only, per the standing "do not publish"
+instruction on this project).

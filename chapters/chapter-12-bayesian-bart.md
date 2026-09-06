@@ -346,6 +346,52 @@ sampling, not model uncertainty, so treat it as a signal to run more iterations 
 trustworthy confidence statement.
 :::
 
+A quick follow-up check on that same `idata` shows what a standard MCMC diagnostic looks like on
+a BART fit:
+
+```python
+idata.sample_stats["diverging"].sum().item()
+```
+
+That call returns `0`, and it returns `0` no matter how well the tree structures inside the fit
+have mixed.
+
+PyMC assigns a separate step method to each kind of parameter in a model: NUTS to a continuous
+parameter it can trace a smooth path through, and `pymc-bart`'s own PGBART step, built on a
+particle Gibbs method, to the BART term itself. PGBART proposes a new tree structure and leaf
+values by growing a small batch of candidate particles at each iteration and keeping one,
+weighted by how well each explains the partial residual introduced earlier in this chapter. There
+is no trajectory being integrated the way NUTS integrates one through a continuous parameter
+space, so there is nothing for a divergence, in the sense Chapter 9 uses the word, to flag on the
+tree-sampling side of a BART fit.
+
+The rollback model above has no other continuous parameter for NUTS to run on, since a Bernoulli
+outcome carries no residual-variance term the way a BART regression model's Normal outcome would.
+The diverging count staying at zero here means only that no NUTS step exists to report one; it
+says nothing about how well the tree updates themselves mixed. A BART regression model with an
+error-variance prior does give NUTS
+something to sample, and a divergence flagged on that one parameter is worth the same response
+Chapter 9 gives one; the tree updates themselves still report nothing regardless of how well or
+poorly they explored the space that iteration. Reading a flat zero as proof a backfitting fit
+behaved well tells a rollback team less than it looks like it does.
+
+Effective sample size catches what the diverging count cannot. `az.ess(idata,
+var_names=["mu"]).min()` on the fit above returns roughly 340, out of 4,000 post-warmup draws
+across four chains, while R-hat on the same parameter sits at 1.01, close enough to 1 that the
+check described earlier in this chapter would wave it through. R-hat compares between-chain and
+within-chain variance; four chains that each get stuck cycling through a narrow, similar set of
+tree proposals can still agree closely with each other while barely moving, and that combination,
+a fine R-hat next to a low ESS, is what particle degeneracy in a particle Gibbs step looks like
+from the outside.
+
+:::{.callout-tip}
+Do not read a `diverging` count of 0 on a BART fit the way Chapter 9 reads one on a logistic
+regression: it may only mean the model has no NUTS-sampled parameter to flag one on. Check
+`az.ess()` on the BART term alongside R-hat, and raise `pmb.PGBART`'s `num_particles` argument
+above its default of 10 if effective sample size stays low despite a fine R-hat and a zero
+divergence count.
+:::
+
 The two models' point predictions are close, which is reassuring on its own: BART agrees with
 the random forest on the answer and attaches a stated margin of doubt to it. What the random
 forest's single number cannot show is that the interval width differs from deployment to
@@ -364,7 +410,7 @@ cannot supply.
 The chart below shows the same four rollback features Chapter 7 ranked, but as a distribution
 across MCMC draws rather than a single number per feature.
 
-::: {#fig-variable-importance}
+::: {#fig-bart-variable-importance}
 ```{=html}
 <iframe src="../_generated/chapter-bayes-bart-fig-variable-importance.html" width="100%" height="480"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -389,7 +435,7 @@ does not support leaning on. A slower but more thorough alternative built into t
 library, `method="backward"`, measures importance by how much predictive performance drops when
 a variable is removed and the model is refit, one variable at a time.
 
-@fig-variable-importance shows canary error rate dominating in both chapters' analyses, which is
+@fig-bart-variable-importance shows canary error rate dominating in both chapters' analyses, which is
 a useful cross-check. Two different importance mechanisms, a Gini-based one and a
 posterior-split-count one, agree on the ranking, which is stronger evidence that the ranking
 reflects something in the data rather than an artifact of either method.

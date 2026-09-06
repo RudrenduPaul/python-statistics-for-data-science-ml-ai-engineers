@@ -14,8 +14,12 @@ import re
 
 import numpy as np
 import plotly.graph_objects as go
+import pymc as pm
+from plotly.subplots import make_subplots
+from scipy.special import expit
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ExpSineSquared, Matern, WhiteKernel
+from sklearn.linear_model import LogisticRegression
 
 RNG = np.random.default_rng(7)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_generated")
@@ -408,6 +412,173 @@ def fig_periodic_kernel() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 8: point-estimate vs. full-Bayesian (MCMC) kernel hyperparameters
+# ---------------------------------------------------------------------------
+def gp_hyperparameter_posterior(n: int = 8):
+    """Eight concurrent-load observations, small enough that a marginal-likelihood
+    point estimate of the length-scale and a full posterior over it can meaningfully
+    disagree, the situation the marginal-likelihood section names as the case where
+    the difference matters most. A dedicated RNG keeps this dataset independent of
+    every other figure's draws."""
+    rng = np.random.default_rng(107)
+    rho = np.sort(rng.uniform(0.05, 0.85, size=n))
+    latency = saturation_curve(rho) + rng.normal(0, 3.0, size=n)
+    return rho, latency
+
+
+def fig_full_bayes_hyperparams() -> go.Figure:
+    rho, latency = gp_hyperparameter_posterior()
+    grid = np.linspace(0.03, 0.92, 250)
+
+    point_kernel = RBF(length_scale=0.2, length_scale_bounds=(0.02, 2.0)) + WhiteKernel(1.0)
+    gp_point = GaussianProcessRegressor(kernel=point_kernel, normalize_y=True,
+                                         n_restarts_optimizer=8, random_state=0)
+    gp_point.fit(rho.reshape(-1, 1), latency)
+    mean_point, std_point = gp_point.predict(grid.reshape(-1, 1), return_std=True)
+    ell_point = float(gp_point.kernel_.k1.length_scale)
+
+    coords = {"obs_id": np.arange(len(rho))}
+    with pm.Model(coords=coords) as full_bayes_model:
+        rho_data = pm.Data("rho_data", rho, dims="obs_id")
+        ell = pm.Gamma("ell", alpha=2.0, beta=8.0)
+        eta = pm.HalfNormal("eta", sigma=50.0)
+        sigma_n = pm.HalfNormal("sigma_n", sigma=10.0)
+        cov = eta ** 2 * pm.gp.cov.ExpQuad(1, ls=ell)
+        gp_full = pm.gp.Marginal(cov_func=cov)
+        gp_full.marginal_likelihood("latency_obs", X=rho_data[:, None], y=latency, sigma=sigma_n)
+        trace = pm.sample(1000, tune=1000, chains=4, random_seed=11, target_accept=0.95,
+                           progressbar=False)
+        f_pred = gp_full.conditional("f_pred", Xnew=grid[:, None])
+        pred = pm.sample_posterior_predictive(trace, var_names=["f_pred"], random_seed=11,
+                                               progressbar=False)
+
+    f_samples = pred.posterior_predictive["f_pred"].values.reshape(-1, len(grid))
+    mean_full = f_samples.mean(axis=0)
+    std_full = f_samples.std(axis=0)
+    ell_samples = trace.posterior["ell"].values.ravel()
+
+    fig = make_subplots(
+        rows=1, cols=2, column_widths=[0.62, 0.38], horizontal_spacing=0.12,
+        subplot_titles=("Predictive fit comparison", "Length-scale posterior"),
+    )
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([grid, grid[::-1]]),
+        y=np.concatenate([mean_point + 1.96 * std_point, (mean_point - 1.96 * std_point)[::-1]]),
+        fill="toself", fillcolor="rgba(245,133,24,0.18)", line=dict(color="rgba(0,0,0,0)"),
+        name="point-estimate 95% band"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=grid, y=mean_point, mode="lines", name="point-estimate mean",
+                              line=dict(color="#F58518", width=2, dash="dash")), row=1, col=1)
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([grid, grid[::-1]]),
+        y=np.concatenate([mean_full + 1.96 * std_full, (mean_full - 1.96 * std_full)[::-1]]),
+        fill="toself", fillcolor="rgba(76,120,168,0.22)", line=dict(color="rgba(0,0,0,0)"),
+        name="full-Bayesian 95% band"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=grid, y=mean_full, mode="lines", name="full-Bayesian mean",
+                              line=dict(color="#4C78A8", width=2.5)), row=1, col=1)
+    fig.add_trace(go.Scatter(x=rho, y=latency, mode="markers", name="observed",
+                              marker=dict(color="#333", size=7)), row=1, col=1)
+    fig.add_trace(go.Histogram(x=ell_samples, nbinsx=40, marker_color="#4C78A8",
+                                name="length-scale posterior", showlegend=False), row=1, col=2)
+    fig.add_vline(x=ell_point, line=dict(color="#F58518", width=2, dash="dash"), row=1, col=2)
+    fig.update_xaxes(title_text="Utilization (rho)", row=1, col=1)
+    fig.update_yaxes(title_text="Latency (ms)", range=[0, 250], row=1, col=1)
+    fig.update_xaxes(title_text="length-scale", row=1, col=2)
+    fig.update_yaxes(title_text="posterior draws", row=1, col=2)
+    fig.update_layout(
+        title="Eight observations: a point-estimate length-scale vs. a full posterior over it",
+        margin=dict(t=110, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 9: Gaussian process classification on a non-monotonic anomaly-flag rate
+# ---------------------------------------------------------------------------
+def anomalous_payload_labels(n: int = 90):
+    """Request payload sizes with a U-shaped anomaly-flag probability: both small
+    (malformed or probe-like) and large (oversized or attack-like) payloads get
+    flagged, while a broad middle range does not. A single logistic-regression
+    coefficient can only make the flag rate rise everywhere or fall everywhere as
+    payload grows, so it cannot represent two separate flagged regions on opposite
+    sides of a safe middle range. A dedicated RNG keeps this dataset independent of
+    every other figure's draws."""
+    rng = np.random.default_rng(207)
+    payload_kb = np.sort(rng.uniform(2.0, 20.0, size=n))
+    true_logit = (
+        -3.5
+        + 5.0 * np.exp(-0.5 * ((payload_kb - 3.0) / 2.5) ** 2)
+        + 5.0 * np.exp(-0.5 * ((payload_kb - 19.0) / 2.5) ** 2)
+    )
+    flagged = rng.binomial(1, expit(true_logit))
+    return payload_kb, flagged
+
+
+def fig_gp_classification_boundary() -> go.Figure:
+    payload_kb, flagged = anomalous_payload_labels()
+    mid, half_range = 11.0, 9.0
+    payload_scaled = (payload_kb - mid) / half_range
+    grid_kb = np.linspace(2.0, 20.0, 120)
+    grid_scaled = (grid_kb - mid) / half_range
+
+    coords = {"obs_id": np.arange(len(payload_kb))}
+    with pm.Model(coords=coords) as gp_classifier:
+        payload_data = pm.Data("payload_data", payload_scaled, dims="obs_id")
+        ell = pm.Gamma("ell", alpha=2.0, beta=3.0)
+        cov = pm.gp.cov.ExpQuad(1, ls=ell)
+        gp = pm.gp.Latent(cov_func=cov)
+        f = gp.prior("f", X=payload_data[:, None], dims="obs_id")
+        p = pm.Deterministic("p", pm.math.invlogit(f), dims="obs_id")
+        pm.Bernoulli("flagged_obs", p=p, observed=flagged, dims="obs_id")
+        trace = pm.sample(1000, tune=1000, chains=4, random_seed=11, target_accept=0.9,
+                           progressbar=False)
+        f_pred = gp.conditional("f_pred", Xnew=grid_scaled[:, None])
+        pred = pm.sample_posterior_predictive(trace, var_names=["f_pred"], random_seed=11,
+                                               progressbar=False)
+
+    f_samples = pred.posterior_predictive["f_pred"].values.reshape(-1, len(grid_kb))
+    p_samples = expit(f_samples)
+    p_mean = p_samples.mean(axis=0)
+    p_lo = np.percentile(p_samples, 2.5, axis=0)
+    p_hi = np.percentile(p_samples, 97.5, axis=0)
+
+    true_logit_grid = (
+        -3.5
+        + 5.0 * np.exp(-0.5 * ((grid_kb - 3.0) / 2.5) ** 2)
+        + 5.0 * np.exp(-0.5 * ((grid_kb - 19.0) / 2.5) ** 2)
+    )
+    true_prob_grid = expit(true_logit_grid)
+
+    logreg = LogisticRegression()
+    logreg.fit(payload_kb.reshape(-1, 1), flagged)
+    p_logreg = logreg.predict_proba(grid_kb.reshape(-1, 1))[:, 1]
+
+    jitter_rng = np.random.default_rng(208)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=grid_kb, y=true_prob_grid, mode="lines", name="true probability",
+                              line=dict(color="#999", dash="dot")))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([grid_kb, grid_kb[::-1]]),
+        y=np.concatenate([p_hi, p_lo[::-1]]),
+        fill="toself", fillcolor="rgba(76,120,168,0.22)", line=dict(color="rgba(0,0,0,0)"),
+        name="95% credible band"))
+    fig.add_trace(go.Scatter(x=grid_kb, y=p_mean, mode="lines", name="GP posterior mean",
+                              line=dict(color="#4C78A8", width=2.5)))
+    fig.add_trace(go.Scatter(x=grid_kb, y=p_logreg, mode="lines", name="logistic regression",
+                              line=dict(color="#F58518", width=2, dash="dash")))
+    fig.add_trace(go.Scatter(
+        x=payload_kb, y=flagged + jitter_rng.normal(0, 0.015, len(flagged)), mode="markers",
+        name="observed (jittered)", marker=dict(color="#333", size=5, opacity=0.6)))
+    fig.update_layout(
+        title="A GP classifier bends twice to follow a U-shaped anomaly-flag rate",
+        xaxis_title="Request payload size (KB)",
+        yaxis_title="P(flagged as anomalous)",
+        yaxis_range=[-0.05, 1.05],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-gp-fig-prior-samples": fig_prior_samples,
     "chapter-bayes-gp-fig-kernel-comparison": fig_kernel_comparison,
@@ -416,6 +587,8 @@ FIGURES = {
     "chapter-bayes-gp-fig-length-scale-fit": fig_length_scale_fit,
     "chapter-bayes-gp-fig-ard-length-scales": fig_ard_length_scales,
     "chapter-bayes-gp-fig-periodic-kernel": fig_periodic_kernel,
+    "chapter-bayes-gp-fig-full-bayes-hyperparams": fig_full_bayes_hyperparams,
+    "chapter-bayes-gp-fig-classification-boundary": fig_gp_classification_boundary,
 }
 
 

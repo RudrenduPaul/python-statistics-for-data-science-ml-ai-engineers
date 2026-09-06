@@ -16,6 +16,7 @@ import os
 import numpy as np
 import plotly.graph_objects as go
 from scipy import stats
+from scipy.optimize import minimize
 
 RNG = np.random.default_rng(11)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_generated")
@@ -540,6 +541,313 @@ def fig_prior_predictive_check() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 9: robust regression, Normal likelihood vs. Student-t likelihood on
+# outlier-contaminated latency data
+# ---------------------------------------------------------------------------
+def fig_robust_regression() -> go.Figure:
+    rng = np.random.default_rng(202)
+    n = 60
+    payload = rng.uniform(2, 20, size=n)
+    base = 30 + 9.5 * payload
+    noise = rng.lognormal(mean=0, sigma=0.18, size=n) * 8
+    latency = base + noise - 8
+
+    # A retry-storm window: a handful of requests each picked up an extra 150-300 ms from
+    # an upstream timeout-and-retry, unrelated to their own payload size.
+    contam_idx = rng.choice(n, size=6, replace=False)
+    spike = rng.uniform(150, 300, size=6)
+    latency_contaminated = latency.copy()
+    latency_contaminated[contam_idx] = latency_contaminated[contam_idx] + spike
+
+    x, y = payload, latency_contaminated
+    x_c = x - x.mean()
+    s_xx = float(np.sum(x_c**2))
+    beta1_normal = float(np.sum(x_c * (y - y.mean())) / s_xx)
+    beta0_normal = float(y.mean() - beta1_normal * x.mean())
+
+    def neg_log_lik_t(params, nu):
+        b0, b1, log_sigma = params
+        sigma = np.exp(log_sigma)
+        mu = b0 + b1 * x
+        return -np.sum(stats.t.logpdf(y, df=nu, loc=mu, scale=sigma))
+
+    nu_fixed = 4.0
+    resid0 = y - (beta0_normal + beta1_normal * x)
+    sigma0 = float(np.std(resid0))
+    fit = minimize(
+        neg_log_lik_t, x0=[beta0_normal, beta1_normal, np.log(sigma0)], args=(nu_fixed,),
+        method="Nelder-Mead", options={"xatol": 1e-8, "fatol": 1e-8, "maxiter": 5000},
+    )
+    beta0_t, beta1_t, _ = fit.x
+
+    x_line = np.linspace(2, 20, 100)
+    is_clean = np.ones(n, dtype=bool)
+    is_clean[contam_idx] = False
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=x[is_clean], y=y[is_clean], mode="markers", name="Ordinary request",
+        marker=dict(color="#4C78A8", size=7, opacity=0.75),
+    ))
+    fig.add_trace(go.Scatter(
+        x=x[~is_clean], y=y[~is_clean], mode="markers", name="Retry-storm request",
+        marker=dict(color="#E45756", size=11, symbol="x"),
+    ))
+    fig.add_trace(go.Scatter(
+        x=x_line, y=beta0_normal + beta1_normal * x_line, mode="lines",
+        name=f"Normal likelihood (slope {beta1_normal:.2f})",
+        line=dict(color="#F58518", width=3, dash="dash"),
+    ))
+    fig.add_trace(go.Scatter(
+        x=x_line, y=beta0_t + beta1_t * x_line, mode="lines",
+        name=f"Student-t likelihood (slope {beta1_t:.2f})",
+        line=dict(color="#54A24B", width=3),
+    ))
+    fig.update_layout(
+        title="Same 60 requests, two likelihoods: only one fit ignores the retry storm",
+        xaxis_title="Payload size (KB)",
+        yaxis_title="Latency (ms)",
+        legend=dict(x=0.02, y=0.98),
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 10: hierarchical regression, no pooling vs. complete pooling vs.
+# partial pooling across five backend services, forest-plot style
+# ---------------------------------------------------------------------------
+def fig_hierarchical_regression() -> go.Figure:
+    rng = np.random.default_rng(505)
+    services = ["cart-service", "pricing-service", "inventory-service",
+                "shipping-service", "fraud-service"]
+    n_per = [140, 110, 85, 50, 4]  # fraud-service just shipped, barely any logged requests
+    true_slope = [9.7, 9.3, 9.6, 9.1, 9.5]
+    sigma_resid = 10.0
+
+    no_pool_slope, no_pool_se, all_x, all_y = [], [], [], []
+    for n_i, b1 in zip(n_per, true_slope):
+        x_i = rng.uniform(2, 20, size=n_i)
+        y_i = 30 + b1 * x_i + rng.normal(0, sigma_resid, size=n_i)
+        x_ic = x_i - x_i.mean()
+        sxx_i = float(np.sum(x_ic**2))
+        b1_hat = float(np.sum(x_ic * (y_i - y_i.mean())) / sxx_i)
+        resid_i = y_i - (y_i.mean() + b1_hat * x_ic)
+        dof = max(n_i - 2, 1)
+        sigma_hat_i = np.sqrt(np.sum(resid_i**2) / dof)
+        no_pool_slope.append(b1_hat)
+        no_pool_se.append(sigma_hat_i / np.sqrt(sxx_i))
+        all_x.append(x_i)
+        all_y.append(y_i)
+
+    no_pool_slope = np.array(no_pool_slope)
+    no_pool_se = np.array(no_pool_se)
+
+    x_all, y_all = np.concatenate(all_x), np.concatenate(all_y)
+    x_all_c = x_all - x_all.mean()
+    sxx_all = float(np.sum(x_all_c**2))
+    beta1_pooled = float(np.sum(x_all_c * (y_all - y_all.mean())) / sxx_all)
+
+    # Partial pooling: the same posterior-precision formula from the top of this chapter,
+    # applied one level up. Each service's own estimate is combined with the population's
+    # distribution across services, weighted by how much each one is trusted.
+    precision_j = 1.0 / no_pool_se**2
+    grand_mean = float(np.average(no_pool_slope, weights=precision_j))
+    tau2 = max(float(np.var(no_pool_slope, ddof=1) - np.mean(no_pool_se**2)), 0.01)
+    precision_between = 1.0 / tau2
+    w_j = precision_j / (precision_j + precision_between)
+    partial_slope = w_j * no_pool_slope + (1 - w_j) * grand_mean
+    partial_se = np.sqrt(w_j) * no_pool_se
+
+    y_positions = np.arange(len(services))
+    fig = go.Figure()
+    offsets = {"No pooling": (-0.22, "#E45756", no_pool_slope, no_pool_se),
+               "Complete pooling": (0.0, "#F58518", np.full(len(services), beta1_pooled),
+                                     np.zeros(len(services))),
+               "Partial pooling": (0.22, "#54A24B", partial_slope, partial_se)}
+
+    for label, (dy, color, slope, se) in offsets.items():
+        fig.add_trace(go.Scatter(
+            x=slope, y=y_positions + dy, mode="markers", name=label,
+            marker=dict(color=color, size=10),
+            error_x=dict(type="data", array=1.96 * se, color=color, thickness=2, width=4),
+        ))
+    fig.add_vline(x=grand_mean, line=dict(color="#999", width=1.5, dash="dot"))
+    fig.update_layout(
+        title="No pooling, complete pooling, and partial pooling: five services' slopes",
+        xaxis_title="Payload-size coefficient (ms per KB)",
+        yaxis=dict(tickmode="array", tickvals=list(y_positions), ticktext=services),
+        legend=dict(x=0.02, y=0.02),
+        margin=dict(t=60, l=140, r=30, b=50),
+        height=480,
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 11: Metropolis-Hastings walkthrough, accept/reject mechanics and
+# long-run convergence against a known closed-form answer
+# ---------------------------------------------------------------------------
+def fig_metropolis_walkthrough() -> go.Figure:
+    rng = np.random.default_rng(303)
+    n = 25
+    x = rng.uniform(2, 20, size=n)
+    base = 30 + 9.5 * x
+    noise = rng.lognormal(mean=0, sigma=0.18, size=n) * 8
+    y = base + noise - 8
+
+    x_c = x - x.mean()
+    s_xx = float(np.sum(x_c**2))
+    beta1_hat = float(np.sum(x_c * (y - y.mean())) / s_xx)
+    beta0 = float(y.mean())
+
+    prior_mean, prior_var, noise_var = 0.0, 25.0, 2.0**2
+    post_var = 1.0 / (1.0 / prior_var + s_xx / noise_var)
+    post_mean = post_var * (prior_mean / prior_var + s_xx * beta1_hat / noise_var)
+    post_sd = np.sqrt(post_var)
+
+    def log_post(b1):
+        mu = beta0 + b1 * x_c
+        log_lik = np.sum(stats.norm.logpdf(y, loc=mu, scale=2.0))
+        log_prior = stats.norm.logpdf(b1, loc=prior_mean, scale=np.sqrt(prior_var))
+        return log_lik + log_prior
+
+    mh_rng = np.random.default_rng(707)
+    step, n_iter = 0.08, 4000
+    chain = np.empty(n_iter)
+    proposed = np.empty(n_iter)
+    accepted = np.empty(n_iter, dtype=bool)
+    current, current_lp = 0.0, log_post(0.0)
+    for i in range(n_iter):
+        prop = current + mh_rng.normal(0, step)
+        prop_lp = log_post(prop)
+        accept = np.log(mh_rng.uniform()) < (prop_lp - current_lp)
+        proposed[i], accepted[i] = prop, accept
+        if accept:
+            current, current_lp = prop, prop_lp
+        chain[i] = current
+
+    n_show = 40
+    iters = np.arange(n_show)
+    accepted_mask = accepted[:n_show]
+    x_grid = np.linspace(post_mean - 5 * post_sd, post_mean + 5 * post_sd, 400)
+    target_density = stats.norm.pdf(x_grid, loc=post_mean, scale=post_sd)
+    post_chain = chain[1000:]
+
+    frames = [
+        go.Frame(name="Step-by-step mechanics", data=[
+            go.Scatter(x=iters, y=chain[:n_show], mode="lines", name="Chain (accepted path)",
+                       line=dict(color="#4C78A8", width=2)),
+            go.Scatter(x=iters[accepted_mask], y=proposed[:n_show][accepted_mask],
+                       mode="markers", name="Proposal accepted",
+                       marker=dict(color="#54A24B", size=9, symbol="triangle-up")),
+            go.Scatter(x=iters[~accepted_mask], y=proposed[:n_show][~accepted_mask],
+                       mode="markers", name="Proposal rejected",
+                       marker=dict(color="#E45756", size=9, symbol="x")),
+        ], layout=go.Layout(
+            xaxis=dict(title="Iteration"), yaxis=dict(title="Coefficient value",
+                                                        range=[-0.3, 1.0]),
+        )),
+        go.Frame(name="Long-run convergence", data=[
+            go.Histogram(x=post_chain, histnorm="probability density", name="MH samples",
+                         marker_color="#4C78A8", opacity=0.6, nbinsx=40),
+            go.Scatter(x=x_grid, y=target_density, mode="lines", name="Closed-form posterior",
+                       line=dict(color="#B279A2", width=3)),
+        ], layout=go.Layout(
+            xaxis=dict(title="Coefficient value", range=[post_mean - 5*post_sd, post_mean + 5*post_sd]),
+            yaxis=dict(title="Density"),
+        )),
+    ]
+
+    fig = go.Figure(data=frames[0].data, layout=frames[0].layout, frames=frames)
+    fig.update_layout(
+        title="A from-scratch Metropolis sampler, checked against the known closed-form answer",
+        legend=dict(x=0.02, y=0.98),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "View: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Figure 12: why divergences happen, funnel geometry under a centered vs.
+# non-centered parameterization  ({#sec-divergences-funnel} in the chapter)
+# ---------------------------------------------------------------------------
+def fig_divergences_funnel() -> go.Figure:
+    rng = np.random.default_rng(909)
+    n = 5000
+
+    # Centered: draw the group deviation directly at the population scale exp(log_tau).
+    log_tau_c = rng.normal(0, 1.2, size=n)
+    effect_c = rng.normal(0, np.exp(log_tau_c))
+
+    # Non-centered: draw a fixed-scale offset first, rescale afterward. Mathematically the
+    # same target distribution; a different pair of coordinates for a sampler to move through.
+    log_tau_nc = rng.normal(0, 1.2, size=n)
+    offset_nc = rng.normal(0, 1.0, size=n)
+    effect_nc = offset_nc * np.exp(log_tau_nc)
+
+    # A single global step size (1.0, tuned to the bulk of the distribution near log_tau=0)
+    # is badly mismatched to the local scale wherever that step is more than 3x too big for
+    # the conditional distribution a sampler would be moving through at that point.
+    step_ref, threshold = 1.0, 3.0
+    mismatch_c = (step_ref / np.exp(log_tau_c)) > threshold
+    mismatch_nc = np.zeros(n, dtype=bool)  # local scale for the offset is always 1: never mismatched
+
+    frames = [
+        go.Frame(name="Centered parameterization", data=[
+            go.Scatter(x=log_tau_c[~mismatch_c], y=effect_c[~mismatch_c], mode="markers",
+                       name="Well-scaled for a fixed step size", marker=dict(color="#4C78A8", size=4, opacity=0.5)),
+            go.Scatter(x=log_tau_c[mismatch_c], y=effect_c[mismatch_c], mode="markers",
+                       name="Step size badly mismatched (divergence risk)",
+                       marker=dict(color="#E45756", size=5, opacity=0.85)),
+        ], layout=go.Layout(annotations=[dict(
+            x=0.02, y=0.05, xref="paper", yref="paper", showarrow=False, xanchor="left",
+            text=f"{100*mismatch_c.mean():.1f}% of draws sit where a global step size is 3x too big",
+            font=dict(size=12, color="#333"),
+        )])),
+        go.Frame(name="Non-centered parameterization", data=[
+            go.Scatter(x=log_tau_nc[~mismatch_nc], y=effect_nc[~mismatch_nc], mode="markers",
+                       name="Well-scaled for a fixed step size", marker=dict(color="#4C78A8", size=4, opacity=0.5)),
+            go.Scatter(x=[], y=[], mode="markers", name="Step size badly mismatched (divergence risk)",
+                       marker=dict(color="#E45756", size=5, opacity=0.85)),
+        ], layout=go.Layout(annotations=[dict(
+            x=0.02, y=0.05, xref="paper", yref="paper", showarrow=False, xanchor="left",
+            text="0.0% of draws: the offset's own scale never depends on log_tau",
+            font=dict(size=12, color="#333"),
+        )])),
+    ]
+
+    fig = go.Figure(data=frames[0].data, layout=frames[0].layout, frames=frames)
+    fig.update_layout(
+        title="Why divergences happen: the funnel's neck, with and without reparameterizing",
+        xaxis_title="log(population scale tau)",
+        yaxis_title="Group deviation from the population mean",
+        yaxis_range=[-15, 15],
+        legend=dict(x=0.02, y=0.98),
+        sliders=[{
+            "active": 0,
+            "currentvalue": {"prefix": "Parameterization: "},
+            "steps": [
+                {"label": f.name, "method": "animate",
+                 "args": [[f.name], {"mode": "immediate", "frame": {"duration": 0, "redraw": True}, "transition": {"duration": 0}}]}
+                for f in frames
+            ],
+        }],
+        margin=dict(t=60, l=60, r=30, b=50),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-bayes-regression-fig-posterior-narrowing": fig_posterior_narrowing,
     "chapter-bayes-regression-fig-ci-repeated-experiments": fig_ci_vs_credible,
@@ -550,6 +858,10 @@ FIGURES = {
     "chapter-bayes-regression-fig-rhat-diagnostic": fig_rhat_diagnostic,
     "chapter-bayes-regression-fig-posterior-predictive-check": fig_posterior_predictive_check,
     "chapter-bayes-regression-fig-prior-predictive-check": fig_prior_predictive_check,
+    "chapter-bayes-regression-fig-robust-regression": fig_robust_regression,
+    "chapter-bayes-regression-fig-hierarchical-regression": fig_hierarchical_regression,
+    "chapter-bayes-regression-fig-metropolis-walkthrough": fig_metropolis_walkthrough,
+    "chapter-bayes-regression-fig-divergences-funnel": fig_divergences_funnel,
 }
 
 

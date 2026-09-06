@@ -209,6 +209,58 @@ Training log-likelihood always improves when a feature is added, noise included,
 tell overfitting from a meaningful gain on its own. Compare elpd_waic or elpd_loo instead.
 :::
 
+## When WAIC and PSIS-LOO disagree
+
+Every comparison in this chapter so far has WAIC and PSIS-LOO pointing the same way: agreeing
+on which model to prefer and differing only in how large the gap is. That agreement holds in
+the ordinary case, and it can still break once a single observation turns unusual enough.
+
+::: {#fig-waic-loo-disagreement}
+```{=html}
+<iframe src="../_generated/chapter-bayes-model-selection-fig-waic-loo-disagreement.html"
+        width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;"
+        loading="lazy"></iframe>
+```
+
+Left: elpd_waic ranks payload_concurrent_noise slightly ahead of payload_concurrent; elpd_loo
+ranks them the other way once one observation's importance ratios turn heavy-tailed. Right: the
+k-hat diagnostic for that same observation clears 0.7.
+:::
+
+@fig-waic-loo-disagreement refits payload_concurrent and payload_concurrent_noise from earlier
+in this chapter, this time with one observation given a small, rare chance per posterior draw of
+being badly missed by the model, the same mechanism @fig-khat-diagnostic used to produce a high
+k-hat.
+
+By elpd_waic, payload_concurrent_noise comes out ahead: -200.6 against payload_concurrent's
+-202.4, a gain of 1.8. By elpd_loo, the ranking flips: payload_concurrent_noise falls to -204.3,
+a loss of 1.9 against the same baseline.
+
+The reason sits in how each quantity is built. WAIC's penalty for the flagged observation,
+$p_{\text{waic}}$, is the sample variance of its log-likelihood across posterior draws, and here
+that variance comes out at 0.229, unremarkable next to the rest of the model. PSIS-LOO's
+Pareto-tail fit sees something the plain variance misses: the k-hat for that same observation
+reaches 0.945, well past the 0.7 line this chapter treats as a warning throughout.
+
+A rare but severe miss barely moves a sample variance computed across thousands of draws, since
+one bad observation contributes only a small share to an average over all of them. PSIS-LOO's
+tail-shape estimate responds to the same miss directly, because it is built from the largest
+weights specifically rather than averaged across every draw. The 0.229-versus-0.945 gap between
+the two metrics is that difference, made visible on one observation.
+
+:::{.callout-important}
+When WAIC and PSIS-LOO disagree on which model is better, trust PSIS-LOO's ranking and read its
+k-hat values before trusting either number. A k-hat past 0.7 on the observation driving the
+disagreement means the next step is refitting without that point. The k-hat is the diagnostic
+built to catch this kind of disagreement, so let it make the call.
+:::
+
+In production terms, a flagged k-hat here is the same signal @fig-khat-diagnostic's outlier
+gave: an observation the posterior is not confidently accounting for. WAIC has no equivalent
+signal to raise; it reports one penalized score and stops. A team that only checked WAIC on this
+dataset would have quietly picked the noise-augmented model to deploy, on a ranking one unstable
+observation produced by chance.
+
 ## Reading a model comparison
 
 Here is what that comparison looks like the way a PyMC and ArviZ workflow produces it in
@@ -303,6 +355,210 @@ PSIS-LOO is not claiming the noise feature hurts the model here. It is correctly
 reward a feature that added no signal, which is the right answer. A table that reported only
 elpd_loo without dSE would tempt a reader into treating a coin flip as a finding.
 
+## Posterior predictive checks: a different question
+
+::: {#fig-ppc-check}
+```{=html}
+<iframe src="../_generated/chapter-bayes-model-selection-fig-ppc-check.html" width="100%"
+        height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Left: the observed latency distribution (bold) against 25 datasets simulated from the fitted
+model's posterior (thin). Right: the number of simulated requests over 150ms, against the four
+observed; almost none of 5,000 simulated datasets produced that many.
+:::
+
+Every diagnostic in this chapter so far, lpd, WAIC, PSIS-LOO, has asked one question in
+different ways: how well does this model predict data it has not seen, compared with another
+model asking the same question. A posterior predictive check asks something else: does this
+model's own generated data look anything like the data it was fit to, with no other model in the
+room to compare against.
+
+@fig-ppc-check fits the chapter's usual payload-and-concurrency latency model to a dataset where
+a small share of requests hit a cold-start path, an unwarmed connection pool, say, adding a large
+delay on top of the usual latency. Posterior predictive checking draws parameter values from the
+posterior, simulates a full new dataset from each draw, and compares those simulated datasets
+against the one on hand [@gelmanmengstern1996]. In PyMC and ArviZ:
+
+```python
+with latency_model:
+    ppc = pm.sample_posterior_predictive(idata, random_seed=6)
+
+az.plot_ppc(ppc, kind="kde")
+```
+
+The left panel of @fig-ppc-check overlays the observed latency density against densities from 25
+simulated datasets. The bulk of the distribution matches well; the observed density's right
+shoulder sits past where almost every simulated curve ends.
+
+A visual overlay like that raises a suspicion without settling it, so the right panel turns that
+suspicion into a number. Pick a test statistic that targets the part of the data the model might
+be getting wrong, here the count of requests over 150ms, compute it on the observed data
+($T_{\text{obs}} = 4$) and on each of 5,000 simulated datasets, and read off the *Bayesian
+p-value*:
+
+$$p_B = P(T_{\text{sim}} \geq T_{\text{obs}} \mid y_{\text{obs}})$$
+
+A model whose posterior predictive distribution reflects the data well should produce this
+statistic near the observed value about as often as not, putting $p_B$ somewhere in the middle
+of its range. Here it came out at 0 out of 5,000: not one simulated dataset produced four or
+more requests over 150ms, against an average of well under one per simulated dataset.
+
+Why this is worth running even after WAIC and PSIS-LOO have picked a winner: those two
+quantities only ever compare candidates against each other. If every candidate model shares the
+same Gaussian-noise assumption, and none of them expect a cold-start tail, PSIS-LOO will still
+confidently rank one of them best, because best-among-flawed-options is the question it is built
+to answer. A posterior predictive check asks a different one: is the winner any good on its own
+terms.
+
+:::{.callout-tip}
+Run a posterior predictive check alongside PSIS-LOO or WAIC, on whichever model they picked.
+Model comparison says which candidate predicts better; a posterior predictive check says whether
+every candidate is missing the same thing.
+:::
+
+For this dataset, the fix looks like Chapter 9's noise-assumption swap: a heavier-tailed or
+mixture likelihood built to reproduce occasional large delays, checked against the same
+$T_{\text{obs}} = 4$ test statistic until $p_B$ lands somewhere unremarkable instead of at the
+edge of its range.
+
+## Bayesian model averaging
+
+::: {#fig-model-averaging}
+```{=html}
+<iframe src="../_generated/chapter-bayes-model-selection-fig-model-averaging.html" width="100%"
+        height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Predicted latency for one new request (low payload, high concurrency) under each of the three
+candidate models, plus the weight-blended posterior predictive distribution. payload_only's
+prediction sits apart from the other two; its near-zero weight keeps it from moving the blend
+despite that gap.
+:::
+
+@fig-model-averaging picks up the three models from the "Reading a model comparison" table and
+asks a different question than `az.compare()` answers. `az.compare()` ranks models and leaves an
+analyst to pick the best row. Model averaging blends every candidate's posterior predictive
+distribution into one, weighted by how much predictive support each model earned.
+
+The weights come from elpd_loo directly, turning each model's elpd_loo into a weight and
+normalizing so the weights sum to one, the softmax construction pseudo-BMA weighting is built on
+[@yaovehtarisimpsongelman2018]:
+
+$$w_k = \frac{\exp(\widehat{\text{elpd}}_{\text{loo},k})}{\sum_j \exp(\widehat{\text{elpd}}_{\text{loo},j})}, \qquad p(y_{\text{new}} \mid \text{data}) = \sum_k w_k\, p(y_{\text{new}} \mid M_k, \text{data})$$
+
+Plugging in the elpd_loo values from earlier gives payload_concurrent a weight of 0.70,
+payload_concurrent_noise 0.30, and payload_only a weight indistinguishable from zero. The
+seven-standard-error elpd_loo gap between payload_only and the other two translates into an
+exponentially small weight: adding a model to the blend does not hand it a share of the vote no
+matter how badly it lost.
+
+```python
+weights = np.exp(elpd_loo - elpd_loo.max())
+weights /= weights.sum()
+membership = rng.choice(len(models), size=n_draws, p=weights)
+blended_draws = np.concatenate([
+    predictive_draws[k][membership == k] for k in range(len(models))
+])
+```
+
+For a new request with a low payload size and near-peak concurrency, the three models disagree
+by a wide margin. payload_only, blind to the concurrency spike, predicts 66.9ms; both
+payload_concurrent and payload_concurrent_noise predict about 82.5ms. The weighted blend lands
+at 82.5ms, close to the 82.4ms picking payload_concurrent alone from `az.compare()`'s top row
+would give.
+
+The near-agreement is informative on its own. Model averaging pulls a prediction away from the
+single best model only when the models it is blending disagree with each other
+and hold comparable weight. payload_only disagrees plenty here but holds no weight, so it changes
+nothing; payload_concurrent_noise holds meaningful weight (30%) but agrees closely with
+payload_concurrent on this prediction, since its one added coefficient is a coin flip centered
+near zero. Averaging earns its keep specifically when two live candidates make different
+predictions, a narrower condition than simply having more than one row in the table.
+
+:::{.callout-note}
+Reach for a weighted blend instead of `az.compare()`'s top row when two or more models sit
+within a few standard errors of each other and a downstream decision needs the full predictive
+uncertainty a single point forecast cannot supply. When one model is standard errors ahead,
+picking it outright and blending it end up in the same place.
+:::
+
+## Bayes factors, and why this chapter did not lead with them
+
+```python
+log_bf10 = (
+    log_marginal_likelihood(X_payload_concurrent, latency, sigma, prior_var=100)
+    - log_marginal_likelihood(X_payload_only, latency, sigma, prior_var=100)
+)
+```
+
+```text
+log_bf10 = 76.08
+```
+
+Every comparison so far in this chapter has asked which model predicts new data with more
+accuracy. There is an older question sitting underneath it: given the data collected, which
+model was more probable to have produced it, integrating over every value each model's
+parameters could plausibly have taken rather than evaluating at the value the data happened to
+favor. The *Bayes factor* answers that question directly, and the code above computes it for
+the same payload-only-versus-payload-and-concurrency comparison this chapter opened with: a log
+Bayes factor of 76.08 decisively favors including concurrent-request count, the same conclusion
+the 72.8-point elpd_loo gap from earlier reached from a different direction.
+
+Why reach for this on top of a predictive-accuracy comparison the chapter has made: a Bayes
+factor answers a question that does not need a held-out prediction task to define what "better"
+means, only which generative story is more probable. That framing suits a strict either/or
+engineering decision, does a rollout ship the new pricing formula or keep the old one, where no
+obvious "predicts better on new data" framing is available.
+
+How to compute it: this chapter's models are conjugate Gaussian, so the marginal likelihood
+integral has a closed form, $y \sim \mathcal{N}(0,\ \sigma_{\text{prior}}^2 XX^\top + \sigma^2
+I)$, and the ratio of two such densities is the Bayes factor with no sampler needed. Most
+Bayesian workflows do not get this shortcut. One route embeds both candidates inside a single
+*encompassing model* with a binary indicator $z$: $z=0$ selects $M_0$'s coefficient structure and
+$z=1$ selects $M_1$'s, both feeding one shared likelihood, with a prior $P(z=1)=0.5$. Fitting
+that joint model, the posterior odds $P(z=1 \mid y) / P(z=0 \mid y)$ equal the Bayes factor
+because the prior odds start at 1:
+
+$$BF_{10} = \frac{p(y \mid M_1)}{p(y \mid M_0)} = \frac{P(z=1 \mid y) / P(z=0 \mid y)}{P(z=1) / P(z=0)}, \qquad p(y \mid M_k) = \int p(y \mid \theta, M_k)\, p(\theta \mid M_k)\, d\theta$$
+
+A second route fits each candidate separately with a sampler built to produce a marginal
+likelihood estimate as a byproduct of sampling, since NUTS does not. Both routes exist because
+the marginal likelihood integral above rarely has a closed form outside a conjugate setup like
+this chapter's.
+
+| prior_var | log BF (noise feature vs. not) | d_elpd_loo (noise feature vs. not) |
+|---:|---:|---:|
+| 0.1 | -0.05 | -0.12 |
+| 1 | -0.39 | -0.97 |
+| 10 | -1.26 | -0.95 |
+| 100 | -2.38 | -0.84 |
+| 1,000 | -3.52 | -0.84 |
+| 10,000 | -4.67 | -0.84 |
+
+That table reruns the payload_concurrent-versus-payload_concurrent_noise comparison from
+earlier, a feature with no effect on the data-generating process, across a widening prior on the
+noise coefficient. As the prior widens, the Bayes factor swings from barely favoring exclusion
+(-0.05) to strongly favoring it (-4.67), purely from prior width, with nothing about the data
+changing. The elpd_loo gap on the same comparison barely moves once the prior is wide enough to
+stop constraining the fit (-0.97 to -0.84).
+
+Sample size tells a matching story. Tripling the dataset, then tripling it again, with the same
+underlying effect between payload_only and payload_concurrent, pushes the log Bayes factor from
+76.1 to 167.6 to 509.9: a number that keeps growing without a natural stopping point, answering
+"is this decisive" only against itself. elpd_loo's gap grows too, but it comes bundled with dSE,
+a standard-error count that stays a portable measure of confidence no matter how much data
+produced it.
+
+:::{.callout-important}
+Bayes factors answer a legitimate question but are sensitive to two things predictive-accuracy
+metrics mostly are not: the width of the prior on any coefficient the comparison hinges on, and
+the sample size, in a way that keeps growing without a reference scale. Reach for WAIC or
+PSIS-LOO by default; reach for a Bayes factor only when the question is which generative story is
+more probable, not which model predicts better, and the prior has been chosen and defended as
+carefully as the likelihood [@kassraftery1995].
+:::
+
 ## When this is worth the setup cost
 
 Fitting three Bayesian models with PyMC and comparing them with ArviZ is more machinery than
@@ -328,6 +584,32 @@ Chapter 5 ended by promising that Part 3 would need PSIS-LOO for this reason. Ch
 "Hierarchical A/B testing" section is where that promise gets collected, using `az.compare()` to
 check whether adding a segment-level effect to an experiment's model improves its predictions or
 only makes it more elaborate.
+
+## What "closer to the truth" means
+
+This chapter has repeated one claim in different forms: some models sit closer to the process
+generating the data than others, and lpd, WAIC, and PSIS-LOO each measure distance from that
+target in their own way. That claim has a formal name.
+
+*Kullback-Leibler divergence* measures how much information is lost when one distribution, $q$,
+stands in for another, $p$:
+
+$$D_{KL}(p \parallel q) = \sum_x p(x) \log \frac{p(x)}{q(x)}$$
+
+A model that assigns high probability everywhere the data-generating process does loses little;
+a model that assigns low probability somewhere that process visits often loses a great deal, no
+matter how well it does everywhere else.
+
+Akaike's original insight behind AIC [@akaike1974], and Watanabe's generalization behind WAIC
+[@watanabe2010], is that expected log predictive density is, up to a constant that does not
+depend on which model is being scored, the same quantity as negative KL divergence from a fitted
+model to the unknown data-generating process. Maximizing elpd and minimizing KL divergence to
+that unknown process are the same optimization problem, seen from opposite ends.
+
+@fig-lpd-per-point, @fig-waic-ploo-complexity, and @fig-elpd-compare have been building this
+formal version of the claim one figure at a time. elpd_waic and elpd_loo are the closest
+computable stand-in this chapter has for how far a model sits from the process that produced the
+data, the one quantity that never shows up in a dataset no matter how much of it gets collected.
 
 ## References {.unnumbered}
 

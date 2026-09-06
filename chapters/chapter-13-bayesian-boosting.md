@@ -285,6 +285,21 @@ It does not tell you how much the fitted ensemble itself might have looked diffe
 different random training run. That second question is closer to what BART's tree-to-tree
 posterior variation captures.
 
+::: {.callout-note}
+NGBoost's distributional prediction also assumes one distribution family holds at every point
+in the input space, typically Normal for a continuous target. That assumption breaks when the
+process being predicted runs through more than one mode. Picture predicting deployment duration
+instead of rollback probability: a fast path finishes in about 3 minutes when a cached build
+image is available, and a slow path takes about 13 minutes when the pipeline has to rebuild the
+image from scratch, with roughly 40% of deployments at a given payload size taking the fast path
+and 60% the slow one. The conditional distribution of duration at that payload size has two
+humps. A Normal-distribution NGBoost fit reports a mean near 9 minutes with a wide variance: a
+duration that sits in the low-density gap between the two clusters, and one hardly any
+deployment reports. Quantile regression, covered next, sidesteps this problem. It never commits
+to a distribution shape, since each quantile is fit on its own, so a well-chosen set of them
+traces out both humps instead of averaging them into one bell curve.
+:::
+
 NGBoost asks the ensemble to output an entire distribution's parameters at once. A narrower,
 older, and in practice more commonly deployed answer asks it to output a single number instead:
 one specific quantile of that distribution, trained directly against that target.

@@ -65,7 +65,7 @@ button converting around 10% of visitors.
 An *informative prior* goes further still, behaving like thousands of pseudo-observations
 concentrated tightly around a known rate.
 
-::: {#fig-prior-shapes}
+::: {#fig-ab-prior-shapes}
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-beta-prior-shapes.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -78,7 +78,7 @@ nearly all its density within a percentage point of 10%. The stronger the prior,
 it takes to move it.
 :::
 
-@fig-prior-shapes shows the same 10% central belief expressed at five different prior
+@fig-ab-prior-shapes shows the same 10% central belief expressed at five different prior
 strengths, from a flat uninformative prior through an increasingly confident one.
 
 Stronger priors are not automatically better. Suppose the checkout team used an informative
@@ -349,7 +349,7 @@ false-positive rate, for frequentist and Bayesian analyses alike. Five undiscipl
 roughly triple the error rate.
 :::
 
-::: {#fig-peeking}
+::: {#fig-ab-peeking}
 ```{=html}
 <iframe src="../_generated/chapter-05-fig-peeking-problem.html" width="100%" height="560"
         style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
@@ -359,7 +359,7 @@ False-positive rate under a true null, as the number of times the test is checke
 single fixed-horizon check holds the nominal 5%; five checks push it past 14%.
 :::
 
-@fig-peeking simulates this directly: two identical variants (no true difference, so any
+@fig-ab-peeking simulates this directly: two identical variants (no true difference, so any
 rejection is a false positive) checked with a standard significance test at growing numbers of
 look points.
 
@@ -649,6 +649,19 @@ value to `sigma_delta` in a way that produces a narrow, hard-to-sample funnel wh
 segment's own data is too sparse to pin its lift down; the offset form breaks that coupling.
 :::
 
+Fitting this model can still log divergent transitions if `sigma_delta` gets sampled with a step
+size too large for how tight the funnel's neck becomes, even with the offset form above.
+@sec-divergences-funnel in Chapter 9 builds the diagnostic for this shape of problem: plotting a
+population-level scale against a group's deviation, and marking where a fixed step size stops
+working. Applied here, that same picture would put `sigma_delta` on one axis and a sparse
+segment's `delta_offset`, Referral or Email, the two segments with the least data to pin down
+their own lift, on the other; divergences would cluster where `sigma_delta` gets pulled small by
+the other segments while these two still carry plenty of individual uncertainty. Running this
+model's own trace through `az.plot_pair(idata, var_names=["sigma_delta", "delta_offset"],
+coords={"segment": "referral"}, divergences=True)` gives the same diagnostic Chapter 9 builds,
+pointed at this chapter's own segment-level parameters instead of a regression coefficient's
+population-level scale.
+
 Running the equivalent computation directly from posterior draws, the same reproducibility
 choice Chapter 10 made for its own figure, produces the table `az.compare()` would print:
 
@@ -702,6 +715,120 @@ prove that difference, can still end up pulled the wrong direction. Treat hierar
 structure as a default worth reaching for, and still check what each segment's own estimate
 says on its own.
 :::
+
+## Latent subgroups: what a mixture model finds when the segment isn't logged
+
+A restaurant's average four-star rating can hide two different dining rooms behind it: one
+table that loved the meal and rated it five stars, another that sent a dish back and rated it
+two. The average is correct and describes neither table. An experiment's average effect can
+hide the same split.
+
+The hierarchical section above handles a version of this problem where the split is a column
+the dataset provides: four traffic sources, each one countable and nameable ahead of time.
+This section handles the harder version, where a split is there but the experiment platform
+never logged it.
+
+Consider the same checkout redesign, now measured on a different metric: seconds spent on the
+checkout page, from arrival to a completed order, under Variant B. A visitor who has used the
+redesigned layout before moves through it quickly, since a new layout only slows someone down
+the first time they see it. A first-time visitor, still expecting the old flow, spends longer
+finding each field. Whether a given visitor is seeing the redesign for the first time is the
+kind of detail an experiment platform often does not capture: the logging pipeline behind this
+chapter's own sample-ratio-mismatch section records a conversion and a timestamp. A visitor's
+prior exposure to the page never makes it into that log.
+
+::: {#fig-latent-mixture}
+```{=html}
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-latent-mixture.html" width="100%"
+        height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Left: the pooled checkout-time change fit as one effect, a single Normal curve sitting between
+the data's two humps and matching neither well. Right: the same data fit as a two-component
+mixture. One cluster, 62% of simulated visitors, checks out about nine seconds faster; the
+other, 38%, checks out about six seconds slower.
+:::
+
+@fig-latent-mixture fits both views to the same 2,400 simulated Variant B visitors. The left
+panel's single-Normal fit reports one number: checkout time changed by 3.4 seconds on average
+(positive means faster), with a standard deviation of 8.1 seconds. That standard deviation is
+doing more work than a single-effect summary usually admits. A wide spread like this can look
+like ordinary noise around one typical visitor's experience. Here it describes something else:
+the gap between two different experiences that got averaged together.
+
+**What it is.** A finite mixture model treats an outcome, here each visitor's change in checkout
+time, as a blend of $K$ component distributions. Each visitor belongs to one component, but
+which one stays unobserved; the model sees only the outcome and infers a weight for each
+component (what share of visitors belong to it), alongside that component's own mean and spread.
+Fitting a mixture at $K = 2$ asks a specific question of the data: does a single Normal curve
+explain this outcome, or does the outcome look like two effects stacked on top of each other?
+
+**Why it matters.** The right panel's two-component fit recovers a weight of 38% for a cluster
+centered near -5.8 seconds, checkouts that got slower, and a weight of 62% for a cluster centered
+near +9.0 seconds, checkouts that got faster. A team watching only the aggregate 3.4-second
+improvement would ship Variant B and call it a clear win. Both numbers matter for what happens
+next: close to 900 visitors out of every 2,400 reaching this checkout page spend roughly six
+additional seconds every time they check out, and the aggregate number hides that cost entirely.
+Whether that 38% lines up with first-time buyers, a specific device class, or something else
+unrecorded is a question this mixture model leaves open, since it never observed group
+membership. What it can do is tell a team that a second effect is there to go looking for, a
+signal the single win-probability number from earlier in this chapter never provides.
+
+**How to compute it.** Fitting a two-component Normal mixture in PyMC needs one piece of care
+beyond the models built earlier in this chapter: without a constraint, the two components are
+not identifiable from each other. Swap "component 0" and "component 1" everywhere in a set of
+posterior draws and the mixture still describes the same distribution, so nothing in the model
+favors one labeling over the other. Label switching describes this risk: an MCMC sampler left
+alone can flip which component it calls "0" partway through a chain, and averaging posterior
+draws across that flip corrupts every summary statistic computed from them, even though each
+individual draw is a valid fit [@stephens2000]. The `ordered` transform on `means` below closes
+that gap: it forces component 0's mean to sit below component 1's mean at every draw, so the
+sampler always commits to one fixed labeling. Left unconstrained, two equally valid labelings
+sit side by side, and the chain can wander between them.
+
+```python
+import numpy as np
+import pymc as pm
+
+with pm.Model() as mixture_model:
+    weights = pm.Dirichlet("weights", a=np.ones(2))
+    means = pm.Normal(
+        "means", mu=0, sigma=10, shape=2,
+        transform=pm.distributions.transforms.ordered,
+        initval=np.array([-6.0, 6.0]),
+    )
+    sigmas = pm.HalfNormal("sigmas", sigma=6, shape=2)
+    pm.NormalMixture("checkout_time_change", w=weights, mu=means, sigma=sigmas,
+                      observed=checkout_time_delta)
+    idata = pm.sample(1500, tune=1500, chains=2, target_accept=0.9)
+```
+
+Each visitor's checkout-time change $\delta_i$ is modeled as a weighted blend of $K$ Normal
+components:
+
+$$p(\delta_i) = \sum_{c=1}^{K} w_c \, \mathcal{N}(\delta_i \mid \mu_c, \sigma_c^2), \qquad
+\sum_{c=1}^{K} w_c = 1$$
+
+with the weights $w_c$ drawn from a Dirichlet prior, so every visitor's outcome is a blend of $K$
+possible experiences.
+
+Choosing $K$ is itself a model-comparison question. Chapter 10's `az.compare()` machinery, used
+earlier in this chapter to check whether a segment-level effect earned its keep, applies here
+too: fit the mixture at $K = 1$ (which collapses to the single-Normal fit in the left panel),
+$K = 2$, and $K = 3$, and let `elpd_loo` say whether an extra component pays for itself.
+
+::: {.callout-warning}
+A mixture model finds a split in the data. Confirming what causes that split takes independent
+evidence: a login flag, a device ID, something this experiment left unlogged. The two clusters
+recovered here look like they map onto first-time versus returning visitors; treat that mapping
+as a hypothesis for that evidence to confirm, and treat the mixture result itself as a reason to
+go find the missing column.
+:::
+
+The checks earlier in this chapter still apply here. A sample-ratio-mismatch problem still
+invalidates every posterior computed from the affected data, mixture or not. Logging the segment
+that explains the split, once that becomes cheap enough to add, still beats inferring it from a
+mixture fit.
 
 ## The limits of Bayesian inference
 

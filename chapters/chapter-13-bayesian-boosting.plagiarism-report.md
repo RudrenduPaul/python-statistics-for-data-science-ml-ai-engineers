@@ -137,3 +137,38 @@ runs several paragraphs of worked example and tooling guidance without a further
 
 No action required. This pass introduced zero Critical or Warning findings. The one Note flag
 above is a monitoring note, not a blocking issue, and needs no edit before publication.
+
+---
+
+## Addendum (2026-09-05): scoped audit of the NGBoost multimodality callout
+
+A follow-up gap-analysis pass, cross-referencing this chapter against BAP's mixture-model
+chapter, added one callout note inside the "NGBoost: a boosted model that outputs a
+distribution" section (between the NGBoost predictive-interval discussion and the transition
+into "Quantile regression"). No other content in the chapter changed in this pass.
+
+**Content added**: a callout stating that NGBoost fits one distribution family (typically
+Normal) at every point, which breaks down when the true conditional distribution is multimodal,
+illustrated with a new, self-contained hypothetical (a two-path deployment pipeline: ~3-minute
+fast path when a cached build image exists, ~13-minute slow path when the image must be
+rebuilt, 40%/60% mix), showing a Normal-distribution NGBoost fit would report a mean near 9
+minutes that few deployments report.
+
+**Web verification performed**: two searches. (1) `"NGBoost" "single distribution family"
+multimodal residuals mixture` confirmed NGBoost's own documentation/paper describes it as usable
+with "any family of distributions with continuous parameters," meaning one chosen family per
+model, not a per-point mixture output; no evidence turned up that NGBoost natively fits
+multimodal/mixture output distributions, supporting the callout's claim rather than
+contradicting it. (2) A search for the callout's closing phrase ("average of two clusters is
+not itself a plausible outcome") returned no matching or near-matching result; results confirm
+the underlying statistical point (a bimodal distribution's mean can fall in a low-density gap
+between its two peaks) is standard, uncredited textbook knowledge, not a single-source claim
+that needs a citation.
+
+**Findings**: 🔴 Critical: 0. 🟡 Warning: 0. 🔵 Note: 0. The two-path deployment scenario, its
+numbers (3 min, 13 min, 40%, 60%, 9 min mean), and the callout's wording are original to this
+pass, not drawn from BAP, NGBoost's own paper or docs, or any search result. No citation gap:
+NGBoost is cited via @duan2020ngboost earlier in the same section, and this callout makes no new
+named-framework or statistical claim that needs its own citation.
+
+Verdict: **PUBLICATION-READY**. No action required.

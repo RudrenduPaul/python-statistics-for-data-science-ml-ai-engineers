@@ -486,6 +486,378 @@ A well-behaved posterior over a model's parameters is not proof the model fits t
 posterior predictive check before trusting any downstream decision built on that fit.
 :::
 
+## Robust regression: when a handful of points sway the whole fit {#sec-robust-regression}
+
+Every regression in this chapter so far has assumed $\varepsilon$ is well behaved: log-normal
+after Chapter 1's correction, but never wild. A retry storm breaks that assumption on purpose.
+
+::: {#fig-robust-regression}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-robust-regression.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+Same 60 requests, two likelihoods: the Normal-likelihood fit tracks the six retry-storm requests
+it should ignore; the Student-t-likelihood fit does not.
+:::
+
+@fig-robust-regression fits the checkout API's payload-latency relationship on 60 requests, six of
+which each picked up an extra 150 to 300 milliseconds from an upstream service timing out and
+retrying mid-request, unrelated to how large their own payload happened to be. Everything else
+about the data matches the log-normal noise this book has used since Chapter 1.
+
+**What a Student-t likelihood is.** Swapping the Normal likelihood for a Student-t likelihood
+keeps the same linear model, $Y = \beta_0 + \beta_1 X + \varepsilon$, and changes only the assumed
+shape of $\varepsilon$. A Student-t distribution with a low degrees-of-freedom parameter $\nu$ has
+heavier tails than a Normal: values several standard deviations from the center are unlikely
+under either distribution, but far less unlikely under the Student-t. That one difference is what
+makes the fit behave differently around outliers.
+
+**Why it matters.** The Normal-likelihood fit in @fig-robust-regression comes out at 8.32
+milliseconds per kilobyte, more than a full millisecond below the checkout API's true
+per-kilobyte cost of 9.5, dragged there by six contaminated points out of sixty. A
+capacity-planning number built from that slope understates how much a payload increase will cost,
+and nothing about the fit's diagnostics flags the problem on its own: six points out of sixty is
+rarely enough to fail a quick residual check. The Student-t fit lands at 9.48, within two
+hundredths of a millisecond of the true value, without a single request removed from the dataset
+by hand.
+
+**How to compute it.** Fitting a Student-t likelihood by maximum a posteriori estimation needs an
+optimizer rather than the closed-form update from the top of this chapter, since the Student-t is
+not conjugate to a Normal likelihood the way the Gaussian prior on $\beta_1$ was. In PyMC:
+
+```python
+import pymc as pm
+
+with pm.Model() as robust_model:
+    beta0 = pm.Normal("beta0", mu=0, sigma=20)
+    beta1 = pm.Normal("beta1", mu=0, sigma=5)
+    sigma = pm.HalfNormal("sigma", sigma=10)
+    nu = pm.Exponential("nu", 1 / 10) + 1
+    mu = beta0 + beta1 * payload_kb
+    pm.StudentT("latency", nu=nu, mu=mu, sigma=sigma, observed=latency_ms)
+    trace = pm.sample(2000, tune=1000, chains=4, random_seed=11)
+```
+
+Letting `nu` carry its own prior, rather than fixing it, lets the data decide how heavy the tails
+need to be: a dataset with no outliers at all pushes `nu`'s posterior toward large values, where
+the Student-t and the Normal are nearly indistinguishable, and PyMC ends up fitting something
+close to the plain Normal-likelihood model without anyone choosing between the two ahead of time
+[@lange1989]. The figure above fixes $\nu = 4$ and solves for the fit directly by evaluating the
+Student-t log-density on a grid of candidate coefficients and taking the maximum, the same
+closed-form-versus-optimization distinction this chapter has drawn since it first reached for
+PyMC: a model with a known likelihood shape can be solved directly, and letting an extra parameter
+float usually cannot.
+
+**Formal notation.** With a Student-t likelihood, the model changes only its second line:
+
+$$
+Y_i \mid \beta_0, \beta_1, \sigma, \nu \sim \text{StudentT}\left(\nu,\ \beta_0 + \beta_1 X_i,\ \sigma\right)
+$$
+
+$\nu$ controls tail weight: as $\nu \to \infty$, the Student-t converges to a Normal with the same
+location and scale, and low values of $\nu$, in the range of 3 to 7, produce visibly heavier
+tails without the distribution losing a finite mean. That convergence is why a Normal-likelihood
+model is a special case of a Student-t model rather than a separate one; letting $\nu$ float is a
+strictly more flexible choice that costs one extra parameter to estimate.
+
+::: {.callout-tip}
+A quick way to decide whether robust regression is worth the extra parameter: refit with a
+Student-t likelihood and check whether the coefficient estimates move by more than a rounding
+error. If they barely move, the data has no meaningful outliers and the Normal likelihood was
+fine all along.
+:::
+
+## Hierarchical regression: letting every service borrow strength from the rest {#sec-hierarchical-regression}
+
+The horseshoe prior earlier in this chapter shrinks a coefficient toward zero within a single
+regression. This section shrinks something different: an entire group's coefficient toward the
+rest of the population, when that group has too little data to stand on its own.
+
+::: {#fig-hierarchical-regression}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-hierarchical-regression.html" width="100%" height="500"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+No pooling, complete pooling, and partial pooling for five backend services' payload-size
+slopes. Partial pooling shrinks fraud-service's noisy four-request estimate hardest, since it
+has the least data to stand on.
+:::
+
+@fig-hierarchical-regression fits the same payload-to-latency relationship separately for five
+services behind the checkout API: cart-service, pricing-service, inventory-service,
+shipping-service, and fraud-service, a newly launched check with only 4 logged requests so far,
+against the other four services' 50 to 140 requests each.
+
+**What no pooling, complete pooling, and partial pooling are.** Three ways to combine five
+separate datasets into slope estimates, in increasing order of how much information they share
+across services. No pooling fits each service on its own data alone, as if the other four
+services did not exist. Complete pooling does the opposite: it throws every service's requests
+into one dataset and fits a single shared slope, as if the five services behaved identically.
+Partial pooling, the hierarchical option, sits between the two: each service's slope is treated
+as drawn from a shared population distribution, so a service's own data and the population's
+typical behavior both inform its final estimate, weighted by how much data that service has to
+offer.
+
+**Why it matters.** fraud-service's no-pooling slope comes out at 10.10 milliseconds per
+kilobyte with a standard error of 0.87; four requests are nowhere near enough to pin down a slope
+with any confidence, and the value this simulation was built from is 9.5. Complete pooling
+ignores fraud-service's own signal and reports 9.54 for every service, including
+shipping-service, whose true slope of 9.1 sits meaningfully below that shared number. Partial
+pooling gives fraud-service a slope of 9.55, close to the population's typical behavior rather
+than the noisy four-request estimate, while still reporting 9.00 for shipping-service, grounded
+in shipping-service's own 50 requests rather than forced to match everyone else. An engineer who
+trusts fraud-service's no-pooling estimate on day one would build a capacity plan around a slope
+0.6 milliseconds per kilobyte higher than its neighbors, on evidence equivalent to four coin
+flips. Partial pooling does not throw fraud-service's four requests away; it just declines to
+trust them past the weight four requests can carry.
+
+**How to compute it.** The figure above computes partial pooling with a closed-form shortcut: the
+same posterior-precision formula from the top of this chapter,
+
+$$
+w_j = \frac{1/\text{se}_j^2}{1/\text{se}_j^2 + 1/\tau^2}, \qquad
+\hat\beta_{1,j}^{\text{partial}} = w_j\, \hat\beta_{1,j}^{\text{no-pool}} + (1-w_j)\, \bar\beta_1
+$$
+
+applied one level up. In place of a single coefficient's prior mean and variance, $\bar\beta_1$
+and $\tau^2$ are the population's mean slope and between-service variance, estimated here from
+the five no-pooling slopes themselves. A service with a small standard error, meaning it has a
+lot of its own data, gets a weight $w_j$ close to 1 and mostly keeps its own estimate;
+fraud-service's $w_j$ comes out at 0.12, so 88% of its final estimate comes from the population
+rather than its own four requests.
+
+A full Bayesian fit estimates all of this jointly instead of in two separate steps, and is what a
+production model would use:
+
+```python
+import pymc as pm
+
+coords = {"service": ["cart", "pricing", "inventory", "shipping", "fraud"]}
+
+with pm.Model(coords=coords) as hierarchical_model:
+    mu_beta1 = pm.Normal("mu_beta1", mu=0, sigma=5)
+    tau_beta1 = pm.HalfNormal("tau_beta1", sigma=2)
+    beta1 = pm.Normal("beta1", mu=mu_beta1, sigma=tau_beta1, dims="service")
+    beta0 = pm.Normal("beta0", mu=0, sigma=20, dims="service")
+    sigma = pm.HalfNormal("sigma", sigma=10)
+    mu = beta0[service_idx] + beta1[service_idx] * payload_kb
+    pm.Normal("latency", mu=mu, sigma=sigma, observed=latency_ms)
+    trace = pm.sample(2000, tune=1000, chains=4, random_seed=11)
+```
+
+`pm.Model(coords=...)` names the service dimension once, and `dims="service"` tells PyMC that
+`beta1` holds one value per service rather than one value overall. `mu_beta1` and `tau_beta1` are
+the population-level mean and standard deviation the five services' slopes are drawn from;
+fitting them jointly with each service's own `beta1` lets a service with little data borrow the
+others' information automatically, rather than through the two-step shortcut used to draw the
+figure above.
+
+**Formal notation.**
+
+$$
+\beta_{1,j} \sim \text{Normal}(\mu_{\beta_1}, \tau_{\beta_1}^2), \qquad
+Y_{ij} = \beta_{0,j} + \beta_{1,j} X_{ij} + \varepsilon_{ij}
+$$
+
+for service $j = 1, \dots, 5$ and request $i$ within that service. $\tau_{\beta_1}^2$ controls how
+much pooling happens: as $\tau_{\beta_1}^2 \to 0$, every service is pulled toward the same slope,
+recovering complete pooling; as $\tau_{\beta_1}^2 \to \infty$, each service's slope moves
+independently of the others, recovering no pooling. Partial pooling is what happens in between,
+with the data itself setting how far toward either extreme $\tau_{\beta_1}^2$ should sit, rather
+than an analyst choosing one of the two extremes ahead of time [@gelmanhill2007].
+
+::: {.callout-note}
+The tighter $\tau_{\beta_1}$ is estimated to be, the harder every service's slope gets pulled
+toward the shared mean, and the harder that joint model becomes to sample: this is the same
+geometry the divergences section later in this chapter builds a figure around.
+:::
+
+## How MCMC explores a posterior, step by step {#sec-mcmc-metropolis-hastings}
+
+Earlier in this chapter, MCMC got one sentence: it "explores many candidate coefficient values by
+trial and error, lingering near ones that fit the data well." That sentence is true and shows no
+mechanism. This section builds one from scratch, on a problem small enough to check against the
+closed-form formula from the top of the chapter.
+
+::: {#fig-metropolis-walkthrough}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-metropolis-walkthrough.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+A from-scratch Metropolis sampler targeting a 25-request posterior this chapter has a closed-form
+answer for. The step-by-step view shows individual proposals accepted and rejected; the long-run
+view shows 3,000 post-burn-in samples against the closed-form density.
+:::
+
+@fig-metropolis-walkthrough runs a Metropolis sampler against the payload-size coefficient's
+posterior on a fresh 25-request sample, small enough to keep the walkthrough short and paired
+with the same conjugate-Normal formula this chapter derived at the top: a posterior mean of 9.48
+milliseconds per kilobyte and a posterior standard deviation of 0.08, computed directly with no
+sampling involved.
+
+**What a Metropolis sampler is.** At every step, the sampler proposes a new candidate value near
+its current position, decides whether to move there, and either moves or stays put. Repeated
+thousands of times, the fraction of iterations spent near any given value converges to that
+value's posterior density, without the sampler ever computing the posterior's normalizing
+constant, the part of Bayes' theorem that is usually hardest to get in closed form.
+
+**Why it matters.** The "step-by-step mechanics" view in @fig-metropolis-walkthrough shows the
+first 40 iterations, each one either a green accepted move or a red rejected one. The first eight
+tell the whole story:
+
+| Iteration | Current | Proposed | Accept? | Next |
+|---|---|---|---|---|
+| 1 | 0.000 | -0.011 | No | 0.000 |
+| 2 | 0.000 | 0.147 | Yes | 0.147 |
+| 3 | 0.147 | 0.090 | No | 0.147 |
+| 4 | 0.147 | 0.160 | Yes | 0.160 |
+| 5 | 0.160 | 0.070 | No | 0.160 |
+| 6 | 0.160 | 0.153 | No | 0.160 |
+| 7 | 0.160 | 0.298 | Yes | 0.298 |
+| 8 | 0.298 | 0.336 | Yes | 0.336 |
+
+A rejected proposal is not wasted computation the way it might look at first glance: staying put
+is the correct behavior whenever the proposed point explains the data worse than the current one,
+and counting the repeated value again is what gives it the right weight in the final histogram.
+Run for 4,000 iterations, this sampler accepted 70.2% of its proposals and produced 3,000
+post-burn-in draws with a sample mean of 9.48 and a sample standard deviation of 0.08, matching
+the closed-form answer to two decimal places without the sampler ever being told what that answer
+was.
+
+**How to compute it.** The acceptance step is the whole algorithm:
+
+```python
+def log_posterior(beta1):
+    log_lik = norm.logpdf(latency_ms, loc=beta0 + beta1 * payload_centered, scale=2.0).sum()
+    log_prior = norm.logpdf(beta1, loc=0, scale=5.0)
+    return log_lik + log_prior
+
+current, current_lp = 0.0, log_posterior(0.0)
+samples = []
+for _ in range(4000):
+    proposal = current + rng.normal(0, step_size)
+    proposal_lp = log_posterior(proposal)
+    if np.log(rng.uniform()) < proposal_lp - current_lp:
+        current, current_lp = proposal, proposal_lp
+    samples.append(current)
+```
+
+Working in log-space avoids underflow once the likelihood involves more than a handful of
+observations, and comparing a log-uniform draw against the log-ratio is equivalent to comparing a
+plain uniform draw against the ratio itself. This proposal is symmetric, a Normal random walk
+centered on the current value, which is what makes a plain ratio of posterior densities the
+correct acceptance rule; an asymmetric proposal needs a correction term for however lopsided the
+proposal is, the Hastings half of Metropolis-Hastings [@metropolis1953; @hastings1970].
+
+**Why NUTS improves on this.** A plain random walk like the one above has to be told a step size
+by hand, and one step size rarely suits every part of a posterior equally well: too large, and it
+proposes moves the posterior keeps rejecting; too small, and it accepts almost everything but
+crawls, taking many iterations to move anywhere. The No-U-Turn Sampler PyMC reaches for by
+default, what `pm.sample` runs unless told otherwise, uses the posterior's gradient to propose
+distant moves that stay probable, adapts its own step size automatically during warmup, and stops
+each proposed trajectory once it starts curving back on itself instead of running a fixed number
+of steps every time [@hoffmangelman2014]. For the single-coefficient posterior in this
+walkthrough, plain Metropolis works fine; the posterior is one bump with no odd geometry to trip
+over. For the horseshoe prior's spike-and-tail shape from earlier in this chapter, or the
+hierarchical model's population-level variance parameter from the previous section, a fixed-step
+random walk struggles in the regions those models most need explored with care. The next section
+shows why.
+
+## Why divergences happen: the funnel {#sec-divergences-funnel}
+
+This chapter has asserted, twice, that certain models need a non-centered parameterization to
+sample well: the horseshoe prior earlier in this chapter, and the hierarchical model's
+population-level variance in the previous section. Neither assertion has had a supporting
+picture until now.
+
+::: {#fig-divergences-funnel}
+```{=html}
+<iframe src="../_generated/chapter-bayes-regression-fig-divergences-funnel.html" width="100%" height="560"
+        style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+```
+
+The same funnel-shaped posterior, sampled two ways. Centered, 16.8% of draws sit where a single
+step size is more than three times too big for the local geometry. Non-centered, none do.
+:::
+
+@fig-divergences-funnel draws 5,000 samples from a simple two-parameter posterior that shows up
+whenever a hierarchical model estimates a population-level standard deviation, here called
+$\tau$, jointly with an individual group's deviation from the population mean. The same
+underlying distribution is drawn two different ways: once in its natural, centered coordinates,
+and once in a reparameterized, non-centered form.
+
+**What the funnel is.** Plot $\log \tau$ against a group's deviation from the population mean,
+and the region of high posterior probability narrows sharply as $\log \tau$ decreases: when the
+population-level spread is small, every group's deviation is pulled close to zero too, since the
+two are directly linked (the deviation's own conditional distribution has standard deviation
+$\tau$). The result looks like a funnel, wide where $\tau$ is larger and narrowing to a point
+where it is small.
+
+**Why it matters.** A sampler moving through the centered coordinates has to use one step size
+across the whole funnel. Calibrate that step size to move efficiently through the wide part, and
+it becomes badly oversized the moment the chain wanders into the neck: @fig-divergences-funnel
+marks 16.8% of the centered draws as sitting where a step size tuned to the funnel's bulk is more
+than three times too large for the neck's own scale. An HMC or NUTS sampler in that spot flags
+the problem directly: its numerical integrator becomes unstable partway through a proposed
+trajectory, and PyMC reports that step as a divergence rather than folding a bad value into the
+trace unnoticed. Ignore divergence warnings, and the reported posterior for $\tau$ tends toward
+larger values than its true posterior holds, since the sampler under-visits the narrow region it
+cannot navigate with a step size built for the wide part. The "more than a handful of
+divergences" warning box earlier in this chapter was pointing at this same problem, without yet
+showing what a handful of divergences looks like or why they cluster where they do.
+
+**How to compute it.** Centered and non-centered parameterizations describe the same distribution
+in different coordinates.
+
+$$
+\text{Centered:} \quad \log\tau \sim \text{Normal}(0, 1.2^2), \qquad \delta \sim \text{Normal}(0, \tau^2)
+$$
+
+$$
+\text{Non-centered:} \quad \log\tau \sim \text{Normal}(0, 1.2^2), \qquad z \sim \text{Normal}(0, 1), \qquad \delta = z \cdot \tau
+$$
+
+where $\delta$ is a group's deviation from the population mean. In the non-centered form, $z$'s
+own conditional distribution never depends on $\tau$; its scale stays fixed at 1 no matter what
+$\tau$ is, so a single step size that works well for $z$ at one value of $\tau$ works just as well
+at every other value. @fig-divergences-funnel's non-centered panel confirms this directly: none
+of its draws are flagged, by construction, since nothing about $z$'s scale changes as $\tau$
+shrinks.
+
+In PyMC, the non-centered version replaces a direct draw with an offset and a rescale:
+
+```python
+with pm.Model() as centered:
+    tau = pm.HalfNormal("tau", sigma=3)
+    delta = pm.Normal("delta", mu=0, sigma=tau, dims="service")
+
+with pm.Model() as non_centered:
+    tau = pm.HalfNormal("tau", sigma=3)
+    z = pm.Normal("z", mu=0, sigma=1, dims="service")
+    delta = pm.Deterministic("delta", z * tau, dims="service")
+```
+
+Both models describe the same prior on `delta`. Only the second one gives NUTS a posterior
+shaped like a simple, round hill to move through instead of a funnel, which is why a non-centered
+parameterization is worth reaching for by default whenever a hierarchical model's population-level
+scale might come out small [@neal2003].
+
+PyMC flags a transition as divergent when its Hamiltonian simulation's discretization error
+crosses a fixed threshold partway through a step, a numerical check unrelated to $\hat{R}$ or
+`ess_bulk`: a model can show a good $\hat{R}$ and good `ess_bulk` overall while still logging
+divergences clustered in one region of parameter space, since both summary statistics average
+over the whole chain and a funnel's neck can be a small enough region to barely move either one.
+
+::: {.callout-warning}
+Divergences cluster where a model's posterior geometry is hardest, not at random. A handful
+scattered across many spots is a nuisance; a cluster tells an analyst precisely where to look.
+Reparameterizing, or tightening the prior on the offending scale parameter, usually clears both
+at once.
+:::
+
 ## What carries forward
 
 Every other predictive method in this book gets the same treatment in the chapters that follow: a

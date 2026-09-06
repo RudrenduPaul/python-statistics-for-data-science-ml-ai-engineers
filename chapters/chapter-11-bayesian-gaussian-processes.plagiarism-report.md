@@ -264,3 +264,57 @@ and upgraded to Verified.
 
 Updated word count: ~3,150. Verdict unchanged: **PUBLICATION-READY** (local review only, per the
 standing "do not publish" instruction on this project).
+
+## Addendum: GP-classification and full-Bayesian-hyperparameters gap-fill pass (2026-09-05)
+
+**Scope**: an audit against BAP (Bayesian Analysis with Python) chapter 7 found this chapter's
+biggest gap was GP classification, previously a single paragraph with no math, code, or figure.
+Three additions close that gap: a new section "Full Bayesian hyperparameters: sampling the
+length-scale instead of optimizing it" (one new two-panel figure, `fig-full-bayes-hyperparams`,
+one PyMC code sample, one callout), a new section "When the outcome is a label: Gaussian process
+classification" (one new figure, `fig-gp-classification-boundary`, one PyMC code sample, one
+callout), and two compact callouts on GP-modulated Poisson GLMs and Kronecker-structured GPs
+added to "When the closed form runs out." No existing section, figure, or callout was removed,
+shortened, or reworded beyond the two-sentence intro tweak in "When the closed form runs out"
+that now points at the new classification section instead of re-describing it inline.
+
+- **Category A (quotes)**: none.
+- **Category B (statistics)**: every number in both new sections (the length-scale posterior
+  mean/interval, the noise posterior interval, the credible-band width ratios, the flagged-count
+  29/90, the logistic-regression coefficient 0.030, the GP posterior probabilities at the range
+  edges and midpoint) comes from datasets generated and models fit inside this session, using
+  dedicated RNG seeds (107 and 207) independent of every other figure's draws so the numbers do
+  not depend on script execution order. Recomputed outside the chapter's own `-plots.py` first,
+  then reconfirmed by loading the edited script via `importlib` and calling its functions
+  directly, and a third time from the executed `.ipynb` cell outputs: all three runs agree with
+  the prose to the stated precision.
+- **Category C (named frameworks)**: `pm.gp.Latent`, `pm.gp.Marginal`, `pm.math.invlogit`, NUTS,
+  and `pm.gp.LatentKron` are PyMC API names, not attributable prose; the chapter's existing PyMC
+  citation ([@salvatier2016pymc3], introduced in Chapter 9) covers the library. No new
+  citation needed.
+- **Category D (distinctive phrases)**: four of the most distinctive original phrases in the new
+  content were checked directly via live WebSearch on 2026-09-05: "A prior on the length-scale,
+  signal variance, and noise means none of the three collapses" (no matching or near-matching
+  wording found; results returned general GP-hyperparameter-prior literature, unrelated
+  wording), "algebraic shortcut, integrating the latent function out in closed form" (no match;
+  unrelated closed-form-solution results), "A lookout watching one corridor for trouble" and
+  "Picture two analysts handed the same eight readings" (no match on either; both original
+  analogies), "A rule that only tracks how far along the corridor something is" (no match;
+  results were about an unrelated accounting "corridor rule"), and the Kronecker-GP callout's
+  framing against "sparse or variational approximation" (matched only to legitimate GP-scaling
+  literature on the general Kronecker-GP concept, not to any specific sentence; the callout's own
+  wording carries no citation, matching how this chapter treats `LatentKron` as a named PyMC
+  technique rather than a specific paper's finding). **All CLEAR**.
+- **Category E (attributed claims)**: none of the new content names an external organization,
+  researcher, or study as a source; every claim is either a mechanical fact about the PyMC API
+  (verified by running it) or a number computed inside this session.
+- **BAP dataset/example avoidance check**: grepped the full chapter for every BAP ch.7 dataset
+  and variable name to avoid (`space_flu`, `iris`, `coal`, `redwood`, `island`, `kline`,
+  `sepal`) after drafting. Zero matches. The classification example (request payload size vs. a
+  U-shaped anomaly-flag probability) and the full-Bayesian-hyperparameters example (a small
+  concurrent-load-vs-latency subset, reusing this chapter's own running scenario) are both
+  original to this book, matching the research file's recommendation.
+
+No Critical or Warning findings. Updated word count: ~6,000. Verdict unchanged:
+**PUBLICATION-READY** (local review only, per the standing "do not publish" instruction on this
+project).

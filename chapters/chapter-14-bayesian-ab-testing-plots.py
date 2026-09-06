@@ -671,6 +671,106 @@ def fig_hierarchical_segments() -> go.Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Figure 9: latent subgroup heterogeneity, a two-component mixture on checkout-
+# time change reveals a helped cluster and a harmed cluster that a single
+# aggregate effect hides.
+# ---------------------------------------------------------------------------
+def fig_latent_mixture() -> go.Figure:
+    # Same reasoning as fig_hierarchical_segments: import PyMC locally so every other
+    # figure in this script, and any environment that only needs those, never pays its
+    # import cost.
+    import pymc as pm
+
+    rng = np.random.default_rng(505)
+    n_users = 2400
+    # Two latent groups the experiment platform never logs: visitors who have seen the
+    # redesigned checkout before (it saves them time) and first-time visitors who are
+    # still expecting the old flow (it costs them time). Only the pooled outcome is
+    # observed; group membership is not.
+    true_weight_returning = 0.62
+    true_mean_returning, true_sd_returning = 9.0, 3.0
+    true_mean_first_time, true_sd_first_time = -6.0, 4.5
+
+    is_returning = rng.random(n_users) < true_weight_returning
+    checkout_time_delta = np.where(
+        is_returning,
+        rng.normal(true_mean_returning, true_sd_returning, n_users),
+        rng.normal(true_mean_first_time, true_sd_first_time, n_users),
+    )
+
+    naive_mean = float(checkout_time_delta.mean())
+    naive_sd = float(checkout_time_delta.std())
+
+    with pm.Model():
+        weights = pm.Dirichlet("weights", a=np.ones(2))
+        # The `ordered` transform pins component 0 below component 1 at every draw,
+        # which is what keeps the sampler from flipping which component it calls "0"
+        # partway through a chain (the label-switching problem the chapter text walks
+        # through). Without it, two chains, or even two stretches of one chain, could
+        # each be a valid fit while disagreeing on which cluster is which.
+        means = pm.Normal(
+            "means", mu=0, sigma=10, shape=2,
+            transform=pm.distributions.transforms.ordered,
+            initval=np.array([-6.0, 6.0]),
+        )
+        sigmas = pm.HalfNormal("sigmas", sigma=6, shape=2)
+        pm.NormalMixture("checkout_time_change", w=weights, mu=means, sigma=sigmas,
+                          observed=checkout_time_delta)
+        idata = pm.sample(1500, tune=1500, chains=2, cores=1, target_accept=0.9,
+                           random_seed=101, progressbar=False)
+
+    w = idata.posterior["weights"].mean(dim=["chain", "draw"]).values
+    mu = idata.posterior["means"].mean(dim=["chain", "draw"]).values
+    sd = idata.posterior["sigmas"].mean(dim=["chain", "draw"]).values
+
+    x = np.linspace(-25, 25, 400)
+    x_list = x.tolist()
+    counts, edges = np.histogram(checkout_time_delta, bins=40, density=True)
+    centers = ((edges[:-1] + edges[1:]) / 2).tolist()
+    widths = (edges[1:] - edges[:-1]).tolist()
+
+    naive_fit = stats.norm.pdf(x, naive_mean, naive_sd).tolist()
+    comp_harmed = (w[0] * stats.norm.pdf(x, mu[0], sd[0])).tolist()
+    comp_helped = (w[1] * stats.norm.pdf(x, mu[1], sd[1])).tolist()
+    mixture_fit = (np.array(comp_harmed) + np.array(comp_helped)).tolist()
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Aggregate view: one effect, one number",
+                         "Two-component mixture: what the aggregate hides"),
+    )
+    fig.add_trace(go.Bar(x=centers, y=counts.tolist(), width=widths,
+                          marker_color="#B7C7DB", opacity=0.7, showlegend=False),
+                  row=1, col=1)
+    fig.add_trace(go.Scatter(x=x_list, y=naive_fit, mode="lines",
+                              line=dict(color="#333", width=2.5, dash="dash"),
+                              name="single-Normal fit"), row=1, col=1)
+    fig.add_vline(x=naive_mean, line=dict(color="#4C78A8", width=2), row=1, col=1)
+
+    fig.add_trace(go.Bar(x=centers, y=counts.tolist(), width=widths,
+                          marker_color="#B7C7DB", opacity=0.7, showlegend=False),
+                  row=1, col=2)
+    fig.add_trace(go.Scatter(x=x_list, y=comp_harmed, mode="lines", fill="tozeroy",
+                              line=dict(color="#E45756", width=2),
+                              name=f"harmed cluster (weight {w[0]:.0%})"), row=1, col=2)
+    fig.add_trace(go.Scatter(x=x_list, y=comp_helped, mode="lines", fill="tozeroy",
+                              line=dict(color="#4C78A8", width=2),
+                              name=f"helped cluster (weight {w[1]:.0%})"), row=1, col=2)
+    fig.add_trace(go.Scatter(x=x_list, y=mixture_fit, mode="lines",
+                              line=dict(color="#333", width=2.5),
+                              name="mixture fit"), row=1, col=2)
+
+    fig.update_xaxes(title_text="change in checkout time (seconds, + saved / - added)")
+    fig.update_yaxes(title_text="density", row=1, col=1)
+    fig.update_layout(
+        title="One aggregate effect hides two different visitor experiences",
+        legend=dict(orientation="h", yanchor="bottom", y=1.16, xanchor="center", x=0.5),
+        margin=dict(t=110, l=60, r=30, b=60),
+    )
+    return fig
+
+
 FIGURES = {
     "chapter-05-fig-beta-prior-shapes": fig_prior_shapes,
     "chapter-05-fig-posterior-update": fig_posterior_update,
@@ -681,6 +781,7 @@ FIGURES = {
     "chapter-bayes-ab-testing-fig-srm-check": fig_srm_check,
     "chapter-bayes-ab-testing-fig-multiple-metrics": fig_multiple_metrics,
     "chapter-bayes-ab-testing-fig-hierarchical-segments": fig_hierarchical_segments,
+    "chapter-bayes-ab-testing-fig-latent-mixture": fig_latent_mixture,
 }
 
 
