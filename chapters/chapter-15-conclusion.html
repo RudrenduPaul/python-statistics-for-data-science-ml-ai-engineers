@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -37,7 +37,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -156,11 +156,6 @@ ul.task-list li input[type="checkbox"] {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -352,6 +347,7 @@ ul.task-list li input[type="checkbox"] {
 <p>The first is the gap between what a summary statistic reports and what happened underneath it. A mean hides a slow tail (Chapter 1).</p>
 <p>A p-value gets treated as the probability the null hypothesis is true, which is not what it measures (Chapter 2, and the American Statistical Association said so directly, in print, in 2016).</p>
 <p>An R-squared goes up every time a useless predictor is added, whether or not that predictor means anything (Chapter 4).</p>
+<p>The rollback classifier’s own error rate told a similar half-truth. A single number said how often the model was wrong, but nothing about which of two ways it was wrong. Chapters 7 and 8 broke that number apart into a confusion matrix and an ROC curve, because a rollback that fires on a healthy deploy costs a team something different than a bad deploy that slips through untouched.</p>
 <p>In every case, the fix was the same: ask what the number was built to measure, then check whether that matches the question being asked.</p>
 <p>The second is the confounder. The kidney-stone data in Chapter 1 showed a treatment that won every subgroup and lost overall, because stone severity influenced both which treatment a patient got and how likely they were to recover.</p>
 <p>Chapter 14 closed on the same warning: a Bayesian posterior is just as vulnerable to that confound as a frequentist p-value is, because the problem lives in how the data was collected, not in which framework analyzes it afterward.</p>

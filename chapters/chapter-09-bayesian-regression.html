@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -240,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -401,8 +396,13 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#did-the-sampler-converge" id="toc-did-the-sampler-converge" class="nav-link" data-scroll-target="#did-the-sampler-converge">Did the sampler converge?</a></li>
   </ul></li>
-  <li><a href="#posterior-predictive-checks" id="toc-posterior-predictive-checks" class="nav-link" data-scroll-target="#posterior-predictive-checks"><span class="header-section-number">9.5</span> Posterior predictive checks</a></li>
-  <li><a href="#what-carries-forward" id="toc-what-carries-forward" class="nav-link" data-scroll-target="#what-carries-forward"><span class="header-section-number">9.6</span> What carries forward</a></li>
+  <li><a href="#prior-predictive-checks" id="toc-prior-predictive-checks" class="nav-link" data-scroll-target="#prior-predictive-checks"><span class="header-section-number">9.5</span> Prior predictive checks</a></li>
+  <li><a href="#posterior-predictive-checks" id="toc-posterior-predictive-checks" class="nav-link" data-scroll-target="#posterior-predictive-checks"><span class="header-section-number">9.6</span> Posterior predictive checks</a></li>
+  <li><a href="#sec-robust-regression" id="toc-sec-robust-regression" class="nav-link" data-scroll-target="#sec-robust-regression"><span class="header-section-number">9.7</span> Robust regression: when a handful of points sway the whole fit</a></li>
+  <li><a href="#sec-hierarchical-regression" id="toc-sec-hierarchical-regression" class="nav-link" data-scroll-target="#sec-hierarchical-regression"><span class="header-section-number">9.8</span> Hierarchical regression: letting every service borrow strength from the rest</a></li>
+  <li><a href="#sec-mcmc-metropolis-hastings" id="toc-sec-mcmc-metropolis-hastings" class="nav-link" data-scroll-target="#sec-mcmc-metropolis-hastings"><span class="header-section-number">9.9</span> How MCMC explores a posterior, step by step</a></li>
+  <li><a href="#sec-divergences-funnel" id="toc-sec-divergences-funnel" class="nav-link" data-scroll-target="#sec-divergences-funnel"><span class="header-section-number">9.10</span> Why divergences happen: the funnel</a></li>
+  <li><a href="#what-carries-forward" id="toc-what-carries-forward" class="nav-link" data-scroll-target="#what-carries-forward"><span class="header-section-number">9.11</span> What carries forward</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -465,8 +465,8 @@ Figure&nbsp;9.1: The posterior over the payload-size coefficient at n = 10, 30, 
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-posterior-narrowing" class="quarto-xref">Figure&nbsp;<span>9.1</span></a> traces the posterior starting from a weakly informative prior, <span class="math inline">\(\beta_1 \sim \text{Normal}(0, 5^2)\)</span>, centered on zero because the direction of the payload-latency relationship is left open before the data speaks, across five sample sizes drawn from the same simulated request stream Chapter 4 used.</p>
-<p>At <span class="math inline">\(n=10\)</span>, the posterior is still wide and noticeably left of the true slope, since the prior still has meaningful influence. By <span class="math inline">\(n=1000\)</span>, the posterior mean lands at 9.50 milliseconds per kilobyte with a posterior standard deviation of 0.01, closely matching the true slope this simulation was built from.</p>
+<p><a href="#fig-posterior-narrowing" class="quarto-xref">Figure&nbsp;<span>9.1</span></a> traces the posterior starting from a weakly informative prior, <span class="math inline">\(\beta_1 \sim \text{Normal}(0, 3^2)\)</span>, centered on zero because the direction of the payload-latency relationship is left open before the data speaks, paired with a cautious pre-data assumption of 20 milliseconds for the residual noise’s standard deviation, across five sample sizes drawn from the same simulated request stream Chapter 4 used.</p>
+<p>At <span class="math inline">\(n=10\)</span>, the posterior mean sits at 8.52 milliseconds per kilobyte with a posterior standard deviation of 0.99: still wide, and noticeably left of the true slope of 9.5, since the prior still has meaningful influence at this sample size. By <span class="math inline">\(n=1000\)</span>, the posterior mean lands at 9.48 milliseconds per kilobyte with a posterior standard deviation of 0.12, closely matching the true slope this simulation was built from.</p>
 <p>This is because as <span class="math inline">\(S_{xx}\)</span> grows, the <span class="math inline">\(\tau_n^2\)</span> formula above gives the prior’s precision, <span class="math inline">\(1/\tau_0^2\)</span>, less and less weight relative to the data’s. Eventually the posterior mean converges on the OLS estimate regardless of where the prior started.</p>
 <p>Recall from Chapter 4 that a flat prior recovers the OLS estimate outright; this figure shows the same convergence happening gradually as data accumulates instead.</p>
 </section>
@@ -529,7 +529,7 @@ Figure&nbsp;9.4: Ridge (Gaussian), Lasso (Laplace), and horseshoe prior densitie
 </figcaption>
 </figure>
 </div>
-<p><a href="chapter-14-bayesian-ab-testing.html#fig-prior-shapes" class="quarto-xref">Figure&nbsp;<span>14.1</span></a> puts the two priors side by side with a third, newer alternative: the <em>horseshoe prior</em> <span class="citation" data-cites="carvalhopolsonscott2010">(<a href="chapter-01-descriptive-statistics.html#ref-carvalhopolsonscott2010" role="doc-biblioref">Carvalho, Polson, and Scott 2010</a>)</span>.</p>
+<p><a href="#fig-prior-shapes" class="quarto-xref">Figure&nbsp;<span>9.4</span></a> puts the two priors side by side with a third, newer alternative: the <em>horseshoe prior</em> <span class="citation" data-cites="carvalhopolsonscott2010">(<a href="chapter-01-descriptive-statistics.html#ref-carvalhopolsonscott2010" role="doc-biblioref">Carvalho, Polson, and Scott 2010</a>)</span>.</p>
 <p>Think of packing a suitcase: Ridge squeezes every item a little smaller. The Lasso throws out anything under a certain size entirely. The horseshoe does both at once, crushing clutter down small while leaving the items that matter close to full size.</p>
 <p>The horseshoe prior has a spike at zero, taller than either the Gaussian’s or the Laplace’s, and tails that stay heavier than both further out.</p>
 <p>It achieves this shape by giving each coefficient its own local shrinkage weight, drawn from a <em>half-Cauchy distribution</em> (a distribution over positive numbers that piles up most of its mass near zero but tapers slowly enough that an occasional large value stays plausible), multiplied by a shared global shrinkage parameter. Most coefficients get a tiny local weight and are crushed toward zero, while a few get a large local weight and pass through with almost no shrinkage at all.</p>
@@ -661,29 +661,67 @@ Warning
 </div>
 </section>
 </section>
-<section id="posterior-predictive-checks" class="level2" data-number="9.5">
-<h2 data-number="9.5" class="anchored" data-anchor-id="posterior-predictive-checks"><span class="header-section-number">9.5</span> Posterior predictive checks</h2>
+<section id="prior-predictive-checks" class="level2" data-number="9.5">
+<h2 data-number="9.5" class="anchored" data-anchor-id="prior-predictive-checks"><span class="header-section-number">9.5</span> Prior predictive checks</h2>
+<div id="fig-prior-predictive-check" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-predictive-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-prior-predictive-check.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-predictive-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.8: Forty draws from the timeout model’s priors alone, before any request data, at two prior widths for the payload-size coefficient. The narrower prior (standard deviation 0.5) keeps most curves gentle; the wider one (standard deviation 10) produces curves that swing from near 0% to near 100% timeout probability within a couple of kilobytes.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-prior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.8</span></a> draws forty pairs of <span class="math inline">\((\beta_0, \beta_1)\)</span> from the timeout model’s priors, before the model has looked at a single request, and plots the timeout-probability curve each pair implies against payload size.</p>
+<p>A prior predictive check asks a question the posterior predictive check later in this chapter cannot: do the model’s stated assumptions describe plausible outcomes before any data gets involved? A posterior predictive check compares simulated data to observed data after fitting; a prior predictive check compares simulated data to what an analyst would expect to see, using nothing but the priors, a routine step in the modern Bayesian workflow literature <span class="citation" data-cites="gabrysimpsonvehtaribetancourtgelman2019">(<a href="chapter-01-descriptive-statistics.html#ref-gabrysimpsonvehtaribetancourtgelman2019" role="doc-biblioref">Gabry et al. 2019</a>)</span>.</p>
+<p>The distinction matters because a prior that looks harmless written down as <span class="math inline">\(\text{Normal}(0, 0.5^2)\)</span> can imply something an analyst would reject on sight once it is drawn out as a curve. At standard deviation 0.5, 38 of the forty curves above stay in a believable range: a gradual rise in timeout probability spread over several kilobytes of payload size. At standard deviation 10, 37 of the forty curves jump from near-certain success to near-certain timeout across a two- or three-kilobyte window, a claim no engineer running this checkout API would sign off on before seeing a single request.</p>
+<p>The earlier posterior-narrowing figure in this chapter showed that a prior still shapes the posterior meaningfully at n = 10. A prior that implies impossible curves does the same kind of shaping on a small dataset, and the model gives no warning that it happened. A posterior predictive check would eventually catch a resulting bad fit, but only after data collection and model fitting are both done. A prior predictive check catches it before either starts.</p>
+<p>Computing one takes the same PyMC model defined earlier for the timeout classifier, minus the <code>observed</code> argument:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> timeout_model:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    prior_checks <span class="op">=</span> pm.sample_prior_predictive(draws<span class="op">=</span><span class="dv">500</span>, random_seed<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(prior_checks, group<span class="op">=</span><span class="st">"prior"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>pm.sample_prior_predictive</code> draws parameter values straight from the priors, the same way the figure above was built, and simulates timeout outcomes from those draws without touching <code>timeout_observed</code> at all. Nothing here depends on the request data existing yet; the check can run as soon as the priors are written down.</p>
+<p>Formally, a prior predictive check draws <span class="math inline">\(\theta^{(s)} \sim p(\theta)\)</span> for <span class="math inline">\(s = 1, \dots, S\)</span> sets of parameters directly from the prior, then draws simulated data <span class="math inline">\(\tilde y^{(s)} \sim
+p(y \mid \theta^{(s)})\)</span> from the model’s likelihood conditioned on each draw. Checking the resulting <span class="math inline">\(\tilde y^{(s)}\)</span> against domain knowledge is what makes this a check of the prior. A check of the fit runs the same comparison against the data observed once fitting is done.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run a prior predictive check before fitting anything, and a posterior predictive check after. One asks whether the assumptions are reasonable before data arrives; the other asks whether the fitted model reproduces the data that did.</p>
+</div>
+</div>
+</section>
+<section id="posterior-predictive-checks" class="level2" data-number="9.6">
+<h2 data-number="9.6" class="anchored" data-anchor-id="posterior-predictive-checks"><span class="header-section-number">9.6</span> Posterior predictive checks</h2>
 <p>A weather model can be confident in its own numbers and still be wrong if it never checks itself against what happened outside. A posterior predictive check is that reality check for a statistical model.</p>
 <p>A posterior tells an analyst what the model believes about its parameters. It says nothing about whether the model itself is a reasonable description of the data.</p>
 <p>A <em>posterior predictive check</em> closes that gap: draw parameter values from the posterior, simulate new data from the model using those draws, and compare the simulated data to what was observed <span class="citation" data-cites="gelmanmengstern1996">(<a href="chapter-01-descriptive-statistics.html#ref-gelmanmengstern1996" role="doc-biblioref">Gelman, Meng, and Stern 1996</a>)</span>. In PyMC and ArviZ, that workflow is two calls:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> timeout_model:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    ppc <span class="op">=</span> pm.sample_posterior_predictive(trace, random_seed<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(ppc, kind<span class="op">=</span><span class="st">"cumulative"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> timeout_model:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    ppc <span class="op">=</span> pm.sample_posterior_predictive(trace, random_seed<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(ppc, kind<span class="op">=</span><span class="st">"cumulative"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="fig-posterior-predictive-check" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-posterior-predictive-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <iframe src="../_generated/chapter-bayes-regression-fig-posterior-predictive-check.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-predictive-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9.8: Observed latency against data simulated from the fitted model’s posterior, under two different noise assumptions. Only the log-normal assumption reproduces the observed right tail.
+Figure&nbsp;9.9: Residuals (observed latency minus the fitted line) against data simulated from the fitted model’s posterior, averaged over 200 replications under two different noise assumptions. Only the log-normal assumption reproduces the observed right tail.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-posterior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.8</span></a> runs this check on a regression model for latency itself rather than the timeout classifier, comparing two different assumptions about the noise term.</p>
+<p><a href="#fig-posterior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.9</span></a> runs this check on a regression model for latency itself rather than the timeout classifier, comparing two different assumptions about the noise term.</p>
 <p>The first assumes <span class="math inline">\(\varepsilon\)</span> is normally distributed, the default behind both OLS and the conjugate Gaussian posterior used earlier in this chapter. The second draws <span class="math inline">\(\varepsilon\)</span> from a distribution matching the log-normal noise Chapter 1 established for this data.</p>
-<p>Under the Gaussian-noise assumption, the simulated draws spread symmetrically around the fitted line and undershoot the right tail the observed data has. Recall from Chapter 1 that checkout-API latency is right-skewed by construction, a hard floor near zero and an unbounded upside; a symmetric noise model cannot reproduce that shape no matter how its variance is tuned.</p>
-<p>Switching the noise assumption to match the log-normal shape closes the gap in the tail. That is the kind of mismatch a posterior predictive check exists to catch before a model with a wrong noise assumption gets used to set an alerting threshold or a service-level objective.</p>
+<p>Plotting raw latency would bury the noise term’s shape under the much larger spread the payload-size predictor contributes on its own, so <a href="#fig-posterior-predictive-check" class="quarto-xref">Figure&nbsp;<span>9.9</span></a> subtracts the fitted line first and compares residuals, averaged over 200 simulated replications to smooth out the noise a single draw would carry. Above 3 milliseconds of residual, the observed data has 18 requests. The Gaussian-noise model’s average is 10, undershooting the tail the observed data has; the log-normal-noise model’s average is 18.9, matching it closely. Recall from Chapter 1 that checkout-API latency is right-skewed by construction, a hard floor near zero and an unbounded upside; a symmetric noise model cannot reproduce that shape no matter how its variance is tuned.</p>
+<p>Switching the noise assumption to match the log-normal shape closes most of the gap in the tail. That is the kind of mismatch a posterior predictive check exists to catch before a model with a wrong noise assumption gets used to set an alerting threshold or a service-level objective.</p>
 <p>A model can have a perfectly reasonable-looking posterior over its coefficients and still make this mistake, because the coefficients and the noise assumption are separate modeling choices. Checking the posterior alone would have missed it; checking what the model predicts against what happened did not.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -699,8 +737,264 @@ Tip
 </div>
 </div>
 </section>
-<section id="what-carries-forward" class="level2" data-number="9.6">
-<h2 data-number="9.6" class="anchored" data-anchor-id="what-carries-forward"><span class="header-section-number">9.6</span> What carries forward</h2>
+<section id="sec-robust-regression" class="level2" data-number="9.7">
+<h2 data-number="9.7" class="anchored" data-anchor-id="sec-robust-regression"><span class="header-section-number">9.7</span> Robust regression: when a handful of points sway the whole fit</h2>
+<p>Every regression in this chapter so far has assumed <span class="math inline">\(\varepsilon\)</span> is well behaved: log-normal after Chapter 1’s correction, but never wild. A retry storm breaks that assumption on purpose.</p>
+<div id="fig-robust-regression" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-robust-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-robust-regression.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-robust-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.10: Same 60 requests, two likelihoods: the Normal-likelihood fit tracks the six retry-storm requests it should ignore; the Student-t-likelihood fit does not.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-robust-regression" class="quarto-xref">Figure&nbsp;<span>9.10</span></a> fits the checkout API’s payload-latency relationship on 60 requests, six of which each picked up an extra 150 to 300 milliseconds from an upstream service timing out and retrying mid-request, unrelated to how large their own payload happened to be. Everything else about the data matches the log-normal noise this book has used since Chapter 1.</p>
+<p><strong>What a Student-t likelihood is.</strong> Swapping the Normal likelihood for a Student-t likelihood keeps the same linear model, <span class="math inline">\(Y = \beta_0 + \beta_1 X + \varepsilon\)</span>, and changes only the assumed shape of <span class="math inline">\(\varepsilon\)</span>. A Student-t distribution with a low degrees-of-freedom parameter <span class="math inline">\(\nu\)</span> has heavier tails than a Normal: values several standard deviations from the center are unlikely under either distribution, but far less unlikely under the Student-t. That one difference is what makes the fit behave differently around outliers.</p>
+<p><strong>Why it matters.</strong> The Normal-likelihood fit in <a href="#fig-robust-regression" class="quarto-xref">Figure&nbsp;<span>9.10</span></a> comes out at 8.32 milliseconds per kilobyte, more than a full millisecond below the checkout API’s true per-kilobyte cost of 9.5, dragged there by six contaminated points out of sixty. A capacity-planning number built from that slope understates how much a payload increase will cost, and nothing about the fit’s diagnostics flags the problem on its own: six points out of sixty is rarely enough to fail a quick residual check. The Student-t fit lands at 9.48, within two hundredths of a millisecond of the true value, without a single request removed from the dataset by hand.</p>
+<p><strong>How to compute it.</strong> Fitting a Student-t likelihood by maximum a posteriori estimation needs an optimizer rather than the closed-form update from the top of this chapter, since the Student-t is not conjugate to a Normal likelihood the way the Gaussian prior on <span class="math inline">\(\beta_1\)</span> was. In PyMC:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> robust_model:</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="op">=</span> pm.Normal(<span class="st">"beta0"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> pm.Normal(<span class="st">"beta1"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> pm.HalfNormal(<span class="st">"sigma"</span>, sigma<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    nu <span class="op">=</span> pm.Exponential(<span class="st">"nu"</span>, <span class="dv">1</span> <span class="op">/</span> <span class="dv">10</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> beta0 <span class="op">+</span> beta1 <span class="op">*</span> payload_kb</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    pm.StudentT(<span class="st">"latency"</span>, nu<span class="op">=</span>nu, mu<span class="op">=</span>mu, sigma<span class="op">=</span>sigma, observed<span class="op">=</span>latency_ms)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    trace <span class="op">=</span> pm.sample(<span class="dv">2000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>, random_seed<span class="op">=</span><span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Letting <code>nu</code> carry its own prior, rather than fixing it, lets the data decide how heavy the tails need to be: a dataset with no outliers at all pushes <code>nu</code>’s posterior toward large values, where the Student-t and the Normal are nearly indistinguishable, and PyMC ends up fitting something close to the plain Normal-likelihood model without anyone choosing between the two ahead of time <span class="citation" data-cites="lange1989">(<a href="chapter-01-descriptive-statistics.html#ref-lange1989" role="doc-biblioref">Lange, Little, and Taylor 1989</a>)</span>. The figure above fixes <span class="math inline">\(\nu = 4\)</span> and solves for the fit directly by evaluating the Student-t log-density on a grid of candidate coefficients and taking the maximum, the same closed-form-versus-optimization distinction this chapter has drawn since it first reached for PyMC: a model with a known likelihood shape can be solved directly, and letting an extra parameter float usually cannot.</p>
+<p><strong>Formal notation.</strong> With a Student-t likelihood, the model changes only its second line:</p>
+<p><span class="math display">\[
+Y_i \mid \beta_0, \beta_1, \sigma, \nu \sim \text{StudentT}\left(\nu,\ \beta_0 + \beta_1 X_i,\ \sigma\right)
+\]</span></p>
+<p><span class="math inline">\(\nu\)</span> controls tail weight: as <span class="math inline">\(\nu \to \infty\)</span>, the Student-t converges to a Normal with the same location and scale, and low values of <span class="math inline">\(\nu\)</span>, in the range of 3 to 7, produce visibly heavier tails without the distribution losing a finite mean. That convergence is why a Normal-likelihood model is a special case of a Student-t model rather than a separate one; letting <span class="math inline">\(\nu\)</span> float is a strictly more flexible choice that costs one extra parameter to estimate.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A quick way to decide whether robust regression is worth the extra parameter: refit with a Student-t likelihood and check whether the coefficient estimates move by more than a rounding error. If they barely move, the data has no meaningful outliers and the Normal likelihood was fine all along.</p>
+</div>
+</div>
+</section>
+<section id="sec-hierarchical-regression" class="level2" data-number="9.8">
+<h2 data-number="9.8" class="anchored" data-anchor-id="sec-hierarchical-regression"><span class="header-section-number">9.8</span> Hierarchical regression: letting every service borrow strength from the rest</h2>
+<p>The horseshoe prior earlier in this chapter shrinks a coefficient toward zero within a single regression. This section shrinks something different: an entire group’s coefficient toward the rest of the population, when that group has too little data to stand on its own.</p>
+<div id="fig-hierarchical-regression" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hierarchical-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-hierarchical-regression.html" width="100%" height="500" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hierarchical-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.11: No pooling, complete pooling, and partial pooling for five backend services’ payload-size slopes. Partial pooling shrinks fraud-service’s noisy four-request estimate hardest, since it has the least data to stand on.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-hierarchical-regression" class="quarto-xref">Figure&nbsp;<span>9.11</span></a> fits the same payload-to-latency relationship separately for five services behind the checkout API: cart-service, pricing-service, inventory-service, shipping-service, and fraud-service, a newly launched check with only 4 logged requests so far, against the other four services’ 50 to 140 requests each.</p>
+<p><strong>What no pooling, complete pooling, and partial pooling are.</strong> Three ways to combine five separate datasets into slope estimates, in increasing order of how much information they share across services. No pooling fits each service on its own data alone, as if the other four services did not exist. Complete pooling does the opposite: it throws every service’s requests into one dataset and fits a single shared slope, as if the five services behaved identically. Partial pooling, the hierarchical option, sits between the two: each service’s slope is treated as drawn from a shared population distribution, so a service’s own data and the population’s typical behavior both inform its final estimate, weighted by how much data that service has to offer.</p>
+<p><strong>Why it matters.</strong> fraud-service’s no-pooling slope comes out at 10.10 milliseconds per kilobyte with a standard error of 0.87; four requests are nowhere near enough to pin down a slope with any confidence, and the value this simulation was built from is 9.5. Complete pooling ignores fraud-service’s own signal and reports 9.54 for every service, including shipping-service, whose true slope of 9.1 sits meaningfully below that shared number. Partial pooling gives fraud-service a slope of 9.55, close to the population’s typical behavior rather than the noisy four-request estimate, while still reporting 9.00 for shipping-service, grounded in shipping-service’s own 50 requests rather than forced to match everyone else. An engineer who trusts fraud-service’s no-pooling estimate on day one would build a capacity plan around a slope 0.6 milliseconds per kilobyte higher than its neighbors, on evidence equivalent to four coin flips. Partial pooling does not throw fraud-service’s four requests away; it just declines to trust them past the weight four requests can carry.</p>
+<p><strong>How to compute it.</strong> The figure above computes partial pooling with a closed-form shortcut: the same posterior-precision formula from the top of this chapter,</p>
+<p><span class="math display">\[
+w_j = \frac{1/\text{se}_j^2}{1/\text{se}_j^2 + 1/\tau^2}, \qquad
+\hat\beta_{1,j}^{\text{partial}} = w_j\, \hat\beta_{1,j}^{\text{no-pool}} + (1-w_j)\, \bar\beta_1
+\]</span></p>
+<p>applied one level up. In place of a single coefficient’s prior mean and variance, <span class="math inline">\(\bar\beta_1\)</span> and <span class="math inline">\(\tau^2\)</span> are the population’s mean slope and between-service variance, estimated here from the five no-pooling slopes themselves. A service with a small standard error, meaning it has a lot of its own data, gets a weight <span class="math inline">\(w_j\)</span> close to 1 and mostly keeps its own estimate; fraud-service’s <span class="math inline">\(w_j\)</span> comes out at 0.12, so 88% of its final estimate comes from the population rather than its own four requests.</p>
+<p>A full Bayesian fit estimates all of this jointly instead of in two separate steps, and is what a production model would use:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>coords <span class="op">=</span> {<span class="st">"service"</span>: [<span class="st">"cart"</span>, <span class="st">"pricing"</span>, <span class="st">"inventory"</span>, <span class="st">"shipping"</span>, <span class="st">"fraud"</span>]}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model(coords<span class="op">=</span>coords) <span class="im">as</span> hierarchical_model:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    mu_beta1 <span class="op">=</span> pm.Normal(<span class="st">"mu_beta1"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    tau_beta1 <span class="op">=</span> pm.HalfNormal(<span class="st">"tau_beta1"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> pm.Normal(<span class="st">"beta1"</span>, mu<span class="op">=</span>mu_beta1, sigma<span class="op">=</span>tau_beta1, dims<span class="op">=</span><span class="st">"service"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="op">=</span> pm.Normal(<span class="st">"beta0"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">20</span>, dims<span class="op">=</span><span class="st">"service"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> pm.HalfNormal(<span class="st">"sigma"</span>, sigma<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> beta0[service_idx] <span class="op">+</span> beta1[service_idx] <span class="op">*</span> payload_kb</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    pm.Normal(<span class="st">"latency"</span>, mu<span class="op">=</span>mu, sigma<span class="op">=</span>sigma, observed<span class="op">=</span>latency_ms)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    trace <span class="op">=</span> pm.sample(<span class="dv">2000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>, random_seed<span class="op">=</span><span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>pm.Model(coords=...)</code> names the service dimension once, and <code>dims="service"</code> tells PyMC that <code>beta1</code> holds one value per service rather than one value overall. <code>mu_beta1</code> and <code>tau_beta1</code> are the population-level mean and standard deviation the five services’ slopes are drawn from; fitting them jointly with each service’s own <code>beta1</code> lets a service with little data borrow the others’ information automatically, rather than through the two-step shortcut used to draw the figure above.</p>
+<p><strong>Formal notation.</strong></p>
+<p><span class="math display">\[
+\beta_{1,j} \sim \text{Normal}(\mu_{\beta_1}, \tau_{\beta_1}^2), \qquad
+Y_{ij} = \beta_{0,j} + \beta_{1,j} X_{ij} + \varepsilon_{ij}
+\]</span></p>
+<p>for service <span class="math inline">\(j = 1, \dots, 5\)</span> and request <span class="math inline">\(i\)</span> within that service. <span class="math inline">\(\tau_{\beta_1}^2\)</span> controls how much pooling happens: as <span class="math inline">\(\tau_{\beta_1}^2 \to 0\)</span>, every service is pulled toward the same slope, recovering complete pooling; as <span class="math inline">\(\tau_{\beta_1}^2 \to \infty\)</span>, each service’s slope moves independently of the others, recovering no pooling. Partial pooling is what happens in between, with the data itself setting how far toward either extreme <span class="math inline">\(\tau_{\beta_1}^2\)</span> should sit, rather than an analyst choosing one of the two extremes ahead of time <span class="citation" data-cites="gelmanhill2007">(<a href="chapter-01-descriptive-statistics.html#ref-gelmanhill2007" role="doc-biblioref">Gelman and Hill 2007</a>)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The tighter <span class="math inline">\(\tau_{\beta_1}\)</span> is estimated to be, the harder every service’s slope gets pulled toward the shared mean, and the harder that joint model becomes to sample: this is the same geometry the divergences section later in this chapter builds a figure around.</p>
+</div>
+</div>
+</section>
+<section id="sec-mcmc-metropolis-hastings" class="level2" data-number="9.9">
+<h2 data-number="9.9" class="anchored" data-anchor-id="sec-mcmc-metropolis-hastings"><span class="header-section-number">9.9</span> How MCMC explores a posterior, step by step</h2>
+<p>Earlier in this chapter, MCMC got one sentence: it “explores many candidate coefficient values by trial and error, lingering near ones that fit the data well.” That sentence is true and shows no mechanism. This section builds one from scratch, on a problem small enough to check against the closed-form formula from the top of the chapter.</p>
+<div id="fig-metropolis-walkthrough" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-metropolis-walkthrough-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-metropolis-walkthrough.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-metropolis-walkthrough-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.12: A from-scratch Metropolis sampler targeting a 25-request posterior this chapter has a closed-form answer for. The step-by-step view shows individual proposals accepted and rejected; the long-run view shows 3,000 post-burn-in samples against the closed-form density.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-metropolis-walkthrough" class="quarto-xref">Figure&nbsp;<span>9.12</span></a> runs a Metropolis sampler against the payload-size coefficient’s posterior on a fresh 25-request sample, small enough to keep the walkthrough short and paired with the same conjugate-Normal formula this chapter derived at the top: a posterior mean of 9.48 milliseconds per kilobyte and a posterior standard deviation of 0.08, computed directly with no sampling involved.</p>
+<p><strong>What a Metropolis sampler is.</strong> At every step, the sampler proposes a new candidate value near its current position, decides whether to move there, and either moves or stays put. Repeated thousands of times, the fraction of iterations spent near any given value converges to that value’s posterior density, without the sampler ever computing the posterior’s normalizing constant, the part of Bayes’ theorem that is usually hardest to get in closed form.</p>
+<p><strong>Why it matters.</strong> The “step-by-step mechanics” view in <a href="#fig-metropolis-walkthrough" class="quarto-xref">Figure&nbsp;<span>9.12</span></a> shows the first 40 iterations, each one either a green accepted move or a red rejected one. The first eight tell the whole story:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Iteration</th>
+<th>Current</th>
+<th>Proposed</th>
+<th>Accept?</th>
+<th>Next</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.000</td>
+<td>-0.011</td>
+<td>No</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.000</td>
+<td>0.147</td>
+<td>Yes</td>
+<td>0.147</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>0.147</td>
+<td>0.090</td>
+<td>No</td>
+<td>0.147</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>0.147</td>
+<td>0.160</td>
+<td>Yes</td>
+<td>0.160</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>0.160</td>
+<td>0.070</td>
+<td>No</td>
+<td>0.160</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>0.160</td>
+<td>0.153</td>
+<td>No</td>
+<td>0.160</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>0.160</td>
+<td>0.298</td>
+<td>Yes</td>
+<td>0.298</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>0.298</td>
+<td>0.336</td>
+<td>Yes</td>
+<td>0.336</td>
+</tr>
+</tbody>
+</table>
+<p>A rejected proposal is not wasted computation the way it might look at first glance: staying put is the correct behavior whenever the proposed point explains the data worse than the current one, and counting the repeated value again is what gives it the right weight in the final histogram. Run for 4,000 iterations, this sampler accepted 70.2% of its proposals and produced 3,000 post-burn-in draws with a sample mean of 9.48 and a sample standard deviation of 0.08, matching the closed-form answer to two decimal places without the sampler ever being told what that answer was.</p>
+<p><strong>How to compute it.</strong> The acceptance step is the whole algorithm:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> log_posterior(beta1):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    log_lik <span class="op">=</span> norm.logpdf(latency_ms, loc<span class="op">=</span>beta0 <span class="op">+</span> beta1 <span class="op">*</span> payload_centered, scale<span class="op">=</span><span class="fl">2.0</span>).<span class="bu">sum</span>()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    log_prior <span class="op">=</span> norm.logpdf(beta1, loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="fl">5.0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> log_lik <span class="op">+</span> log_prior</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>current, current_lp <span class="op">=</span> <span class="fl">0.0</span>, log_posterior(<span class="fl">0.0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> []</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4000</span>):</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    proposal <span class="op">=</span> current <span class="op">+</span> rng.normal(<span class="dv">0</span>, step_size)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    proposal_lp <span class="op">=</span> log_posterior(proposal)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.log(rng.uniform()) <span class="op">&lt;</span> proposal_lp <span class="op">-</span> current_lp:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        current, current_lp <span class="op">=</span> proposal, proposal_lp</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    samples.append(current)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Working in log-space avoids underflow once the likelihood involves more than a handful of observations, and comparing a log-uniform draw against the log-ratio is equivalent to comparing a plain uniform draw against the ratio itself. This proposal is symmetric, a Normal random walk centered on the current value, which is what makes a plain ratio of posterior densities the correct acceptance rule; an asymmetric proposal needs a correction term for however lopsided the proposal is, the Hastings half of Metropolis-Hastings <span class="citation" data-cites="metropolis1953 hastings1970">(<a href="chapter-01-descriptive-statistics.html#ref-metropolis1953" role="doc-biblioref">Metropolis et al. 1953</a>; <a href="chapter-01-descriptive-statistics.html#ref-hastings1970" role="doc-biblioref">Hastings 1970</a>)</span>.</p>
+<p><strong>Why NUTS improves on this.</strong> A plain random walk like the one above has to be told a step size by hand, and one step size rarely suits every part of a posterior equally well: too large, and it proposes moves the posterior keeps rejecting; too small, and it accepts almost everything but crawls, taking many iterations to move anywhere. The No-U-Turn Sampler PyMC reaches for by default, what <code>pm.sample</code> runs unless told otherwise, uses the posterior’s gradient to propose distant moves that stay probable, adapts its own step size automatically during warmup, and stops each proposed trajectory once it starts curving back on itself instead of running a fixed number of steps every time <span class="citation" data-cites="hoffmangelman2014">(<a href="chapter-01-descriptive-statistics.html#ref-hoffmangelman2014" role="doc-biblioref">Hoffman and Gelman 2014</a>)</span>. For the single-coefficient posterior in this walkthrough, plain Metropolis works fine; the posterior is one bump with no odd geometry to trip over. For the horseshoe prior’s spike-and-tail shape from earlier in this chapter, or the hierarchical model’s population-level variance parameter from the previous section, a fixed-step random walk struggles in the regions those models most need explored with care. The next section shows why.</p>
+</section>
+<section id="sec-divergences-funnel" class="level2" data-number="9.10">
+<h2 data-number="9.10" class="anchored" data-anchor-id="sec-divergences-funnel"><span class="header-section-number">9.10</span> Why divergences happen: the funnel</h2>
+<p>This chapter has asserted, twice, that certain models need a non-centered parameterization to sample well: the horseshoe prior earlier in this chapter, and the hierarchical model’s population-level variance in the previous section. Neither assertion has had a supporting picture until now.</p>
+<div id="fig-divergences-funnel" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-divergences-funnel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-regression-fig-divergences-funnel.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-divergences-funnel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.13: The same funnel-shaped posterior, sampled two ways. Centered, 16.8% of draws sit where a single step size is more than three times too big for the local geometry. Non-centered, none do.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-divergences-funnel" class="quarto-xref">Figure&nbsp;<span>9.13</span></a> draws 5,000 samples from a simple two-parameter posterior that shows up whenever a hierarchical model estimates a population-level standard deviation, here called <span class="math inline">\(\tau\)</span>, jointly with an individual group’s deviation from the population mean. The same underlying distribution is drawn two different ways: once in its natural, centered coordinates, and once in a reparameterized, non-centered form.</p>
+<p><strong>What the funnel is.</strong> Plot <span class="math inline">\(\log \tau\)</span> against a group’s deviation from the population mean, and the region of high posterior probability narrows sharply as <span class="math inline">\(\log \tau\)</span> decreases: when the population-level spread is small, every group’s deviation is pulled close to zero too, since the two are directly linked (the deviation’s own conditional distribution has standard deviation <span class="math inline">\(\tau\)</span>). The result looks like a funnel, wide where <span class="math inline">\(\tau\)</span> is larger and narrowing to a point where it is small.</p>
+<p><strong>Why it matters.</strong> A sampler moving through the centered coordinates has to use one step size across the whole funnel. Calibrate that step size to move efficiently through the wide part, and it becomes badly oversized the moment the chain wanders into the neck: <a href="#fig-divergences-funnel" class="quarto-xref">Figure&nbsp;<span>9.13</span></a> marks 16.8% of the centered draws as sitting where a step size tuned to the funnel’s bulk is more than three times too large for the neck’s own scale. An HMC or NUTS sampler in that spot flags the problem directly: its numerical integrator becomes unstable partway through a proposed trajectory, and PyMC reports that step as a divergence rather than folding a bad value into the trace unnoticed. Ignore divergence warnings, and the reported posterior for <span class="math inline">\(\tau\)</span> tends toward larger values than its true posterior holds, since the sampler under-visits the narrow region it cannot navigate with a step size built for the wide part. The “more than a handful of divergences” warning box earlier in this chapter was pointing at this same problem, without yet showing what a handful of divergences looks like or why they cluster where they do.</p>
+<p><strong>How to compute it.</strong> Centered and non-centered parameterizations describe the same distribution in different coordinates.</p>
+<p><span class="math display">\[
+\text{Centered:} \quad \log\tau \sim \text{Normal}(0, 1.2^2), \qquad \delta \sim \text{Normal}(0, \tau^2)
+\]</span></p>
+<p><span class="math display">\[
+\text{Non-centered:} \quad \log\tau \sim \text{Normal}(0, 1.2^2), \qquad z \sim \text{Normal}(0, 1), \qquad \delta = z \cdot \tau
+\]</span></p>
+<p>where <span class="math inline">\(\delta\)</span> is a group’s deviation from the population mean. In the non-centered form, <span class="math inline">\(z\)</span>’s own conditional distribution never depends on <span class="math inline">\(\tau\)</span>; its scale stays fixed at 1 no matter what <span class="math inline">\(\tau\)</span> is, so a single step size that works well for <span class="math inline">\(z\)</span> at one value of <span class="math inline">\(\tau\)</span> works just as well at every other value. <a href="#fig-divergences-funnel" class="quarto-xref">Figure&nbsp;<span>9.13</span></a>’s non-centered panel confirms this directly: none of its draws are flagged, by construction, since nothing about <span class="math inline">\(z\)</span>’s scale changes as <span class="math inline">\(\tau\)</span> shrinks.</p>
+<p>In PyMC, the non-centered version replaces a direct draw with an offset and a rescale:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> centered:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    tau <span class="op">=</span> pm.HalfNormal(<span class="st">"tau"</span>, sigma<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    delta <span class="op">=</span> pm.Normal(<span class="st">"delta"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>tau, dims<span class="op">=</span><span class="st">"service"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> non_centered:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    tau <span class="op">=</span> pm.HalfNormal(<span class="st">"tau"</span>, sigma<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> pm.Normal(<span class="st">"z"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>, dims<span class="op">=</span><span class="st">"service"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    delta <span class="op">=</span> pm.Deterministic(<span class="st">"delta"</span>, z <span class="op">*</span> tau, dims<span class="op">=</span><span class="st">"service"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Both models describe the same prior on <code>delta</code>. Only the second one gives NUTS a posterior shaped like a simple, round hill to move through instead of a funnel, which is why a non-centered parameterization is worth reaching for by default whenever a hierarchical model’s population-level scale might come out small <span class="citation" data-cites="neal2003">(<a href="chapter-01-descriptive-statistics.html#ref-neal2003" role="doc-biblioref">Neal 2003</a>)</span>.</p>
+<p>PyMC flags a transition as divergent when its Hamiltonian simulation’s discretization error crosses a fixed threshold partway through a step, a numerical check unrelated to <span class="math inline">\(\hat{R}\)</span> or <code>ess_bulk</code>: a model can show a good <span class="math inline">\(\hat{R}\)</span> and good <code>ess_bulk</code> overall while still logging divergences clustered in one region of parameter space, since both summary statistics average over the whole chain and a funnel’s neck can be a small enough region to barely move either one.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Divergences cluster where a model’s posterior geometry is hardest, not at random. A handful scattered across many spots is a nuisance; a cluster tells an analyst precisely where to look. Reparameterizing, or tightening the prior on the offending scale parameter, usually clears both at once.</p>
+</div>
+</div>
+</section>
+<section id="what-carries-forward" class="level2" data-number="9.11">
+<h2 data-number="9.11" class="anchored" data-anchor-id="what-carries-forward"><span class="header-section-number">9.11</span> What carries forward</h2>
 <p>Every other predictive method in this book gets the same treatment in the chapters that follow: a Bayesian counterpart with its own posterior, its own priors, and its own honest accounting of what the extra computation buys over a point estimate.</p>
 <p>The equivalence this chapter opened with (Ridge as a Gaussian prior, Lasso as a Laplace prior) is not a special case specific to linear regression.</p>
 <p>It is the first instance of a pattern that recurs through cross-validation, splines, trees, and boosting alike: a classical method that produces one best answer, and a Bayesian version of the same method that produces a full distribution over answers, at the cost of more computation and more to explain.</p>
@@ -711,8 +1005,29 @@ Tip
 <div id="ref-carvalhopolsonscott2010" class="csl-entry" role="listitem">
 Carvalho, Carlos M., Nicholas G. Polson, and James G. Scott. 2010. <span>“The Horseshoe Estimator for Sparse Signals.”</span> <em>Biometrika</em> 97 (2): 465–80. <a href="https://doi.org/10.1093/biomet/asq017">https://doi.org/10.1093/biomet/asq017</a>.
 </div>
+<div id="ref-gabrysimpsonvehtaribetancourtgelman2019" class="csl-entry" role="listitem">
+Gabry, Jonah, Daniel Simpson, Aki Vehtari, Michael Betancourt, and Andrew Gelman. 2019. <span>“Visualization in <span>B</span>ayesian Workflow.”</span> <em>Journal of the Royal Statistical Society Series A: Statistics in Society</em> 182 (2): 389–402. <a href="https://doi.org/10.1111/rssa.12378">https://doi.org/10.1111/rssa.12378</a>.
+</div>
+<div id="ref-gelmanhill2007" class="csl-entry" role="listitem">
+Gelman, Andrew, and Jennifer Hill. 2007. <em>Data Analysis Using Regression and Multilevel/Hierarchical Models</em>. New York, NY: Cambridge University Press.
+</div>
 <div id="ref-gelmanmengstern1996" class="csl-entry" role="listitem">
 Gelman, Andrew, Xiao-Li Meng, and Hal Stern. 1996. <span>“Posterior Predictive Assessment of Model Fitness via Realized Discrepancies.”</span> <em>Statistica Sinica</em> 6 (4): 733–807.
+</div>
+<div id="ref-hastings1970" class="csl-entry" role="listitem">
+Hastings, W. Keith. 1970. <span>“Monte Carlo Sampling Methods Using Markov Chains and Their Applications.”</span> <em>Biometrika</em> 57 (1): 97–109. <a href="https://doi.org/10.1093/biomet/57.1.97">https://doi.org/10.1093/biomet/57.1.97</a>.
+</div>
+<div id="ref-hoffmangelman2014" class="csl-entry" role="listitem">
+Hoffman, Matthew D., and Andrew Gelman. 2014. <span>“The <span>No-U-Turn Sampler</span>: Adaptively Setting Path Lengths in <span>H</span>amiltonian <span>M</span>onte <span>C</span>arlo.”</span> <em>Journal of Machine Learning Research</em> 15 (1): 1593–623.
+</div>
+<div id="ref-lange1989" class="csl-entry" role="listitem">
+Lange, Kenneth L., Roderick J. A. Little, and Jeremy M. G. Taylor. 1989. <span>“Robust Statistical Modeling Using the <span class="nocase">t</span> Distribution.”</span> <em>Journal of the American Statistical Association</em> 84 (408): 881–96. <a href="https://doi.org/10.1080/01621459.1989.10478852">https://doi.org/10.1080/01621459.1989.10478852</a>.
+</div>
+<div id="ref-metropolis1953" class="csl-entry" role="listitem">
+Metropolis, Nicholas, Arianna W. Rosenbluth, Marshall N. Rosenbluth, Augusta H. Teller, and Edward Teller. 1953. <span>“Equation of State Calculations by Fast Computing Machines.”</span> <em>The Journal of Chemical Physics</em> 21 (6): 1087–92. <a href="https://doi.org/10.1063/1.1699114">https://doi.org/10.1063/1.1699114</a>.
+</div>
+<div id="ref-neal2003" class="csl-entry" role="listitem">
+Neal, Radford M. 2003. <span>“Slice Sampling.”</span> <em>The Annals of Statistics</em> 31 (3): 705–67. <a href="https://doi.org/10.1214/aos/1056562461">https://doi.org/10.1214/aos/1056562461</a>.
 </div>
 <div id="ref-parkcasella2008" class="csl-entry" role="listitem">
 Park, Trevor, and George Casella. 2008. <span>“The Bayesian Lasso.”</span> <em>Journal of the American Statistical Association</em> 103 (482): 681–86. <a href="https://doi.org/10.1198/016214508000000337">https://doi.org/10.1198/016214508000000337</a>.

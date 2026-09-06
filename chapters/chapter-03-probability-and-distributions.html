@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +206,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -372,12 +367,16 @@ window.Quarto = {
   <li><a href="#geometric-distribution" id="toc-geometric-distribution" class="nav-link" data-scroll-target="#geometric-distribution">Geometric distribution</a></li>
   <li><a href="#poisson-distribution" id="toc-poisson-distribution" class="nav-link" data-scroll-target="#poisson-distribution">Poisson distribution</a></li>
   <li><a href="#exponential-distribution" id="toc-exponential-distribution" class="nav-link" data-scroll-target="#exponential-distribution">Exponential distribution</a></li>
+  <li><a href="#lognormal-distribution" id="toc-lognormal-distribution" class="nav-link" data-scroll-target="#lognormal-distribution">Lognormal distribution</a></li>
   </ul></li>
   <li><a href="#mean-and-variance-of-a-distribution" id="toc-mean-and-variance-of-a-distribution" class="nav-link" data-scroll-target="#mean-and-variance-of-a-distribution"><span class="header-section-number">3.4</span> Mean and variance of a distribution</a></li>
-  <li><a href="#the-central-limit-theorem" id="toc-the-central-limit-theorem" class="nav-link" data-scroll-target="#the-central-limit-theorem"><span class="header-section-number">3.5</span> The Central Limit Theorem</a></li>
-  <li><a href="#the-birthday-problem-collisions-in-a-space-that-felt-safe" id="toc-the-birthday-problem-collisions-in-a-space-that-felt-safe" class="nav-link" data-scroll-target="#the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.6</span> The birthday problem: collisions in a space that felt safe</a></li>
-  <li><a href="#selecting-without-replacement-canary-cohorts" id="toc-selecting-without-replacement-canary-cohorts" class="nav-link" data-scroll-target="#selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.7</span> Selecting without replacement: canary cohorts</a></li>
-  <li><a href="#uniform-outcomes-over-many-categories-sharding" id="toc-uniform-outcomes-over-many-categories-sharding" class="nav-link" data-scroll-target="#uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.8</span> Uniform outcomes over many categories: sharding</a></li>
+  <li><a href="#chebyshevs-inequality-a-bound-that-needs-no-assumptions" id="toc-chebyshevs-inequality-a-bound-that-needs-no-assumptions" class="nav-link" data-scroll-target="#chebyshevs-inequality-a-bound-that-needs-no-assumptions"><span class="header-section-number">3.5</span> Chebyshev’s inequality: a bound that needs no assumptions</a></li>
+  <li><a href="#joint-distributions-and-independence" id="toc-joint-distributions-and-independence" class="nav-link" data-scroll-target="#joint-distributions-and-independence"><span class="header-section-number">3.6</span> Joint distributions and independence</a></li>
+  <li><a href="#the-law-of-large-numbers" id="toc-the-law-of-large-numbers" class="nav-link" data-scroll-target="#the-law-of-large-numbers"><span class="header-section-number">3.7</span> The Law of Large Numbers</a></li>
+  <li><a href="#the-central-limit-theorem" id="toc-the-central-limit-theorem" class="nav-link" data-scroll-target="#the-central-limit-theorem"><span class="header-section-number">3.8</span> The Central Limit Theorem</a></li>
+  <li><a href="#the-birthday-problem-collisions-in-a-space-that-felt-safe" id="toc-the-birthday-problem-collisions-in-a-space-that-felt-safe" class="nav-link" data-scroll-target="#the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.9</span> The birthday problem: collisions in a space that felt safe</a></li>
+  <li><a href="#selecting-without-replacement-canary-cohorts" id="toc-selecting-without-replacement-canary-cohorts" class="nav-link" data-scroll-target="#selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.10</span> Selecting without replacement: canary cohorts</a></li>
+  <li><a href="#uniform-outcomes-over-many-categories-sharding" id="toc-uniform-outcomes-over-many-categories-sharding" class="nav-link" data-scroll-target="#uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.11</span> Uniform outcomes over many categories: sharding</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -409,7 +408,7 @@ window.Quarto = {
 <p>This chapter works through five questions that come up whenever uncertainty needs a number attached to it:</p>
 <ol type="1">
 <li><em>Given some new evidence, how should a prior belief update?</em> Bayes’ theorem is the formal answer, and it is easy to get wrong by instinct alone.</li>
-<li><em>Which named distribution matches the mechanism producing a number?</em> Eight distributions cover most of what shows up in production systems, each tied to a specific generating process rather than chosen by looks.</li>
+<li><em>Which named distribution matches the mechanism producing a number?</em> Nine distributions cover most of what shows up in production systems, each tied to a specific generating process rather than chosen by looks.</li>
 <li><em>Why does the normal distribution show up everywhere, even when the underlying process is not normal at all?</em> The Central Limit Theorem explains the pattern.</li>
 <li><em>How surprising is a coincidence?</em> The birthday problem shows that collisions happen far sooner than intuition expects, with consequences for anything that generates random identifiers.</li>
 <li><em>How do sampling without replacement and uniform random assignment behave?</em> The mechanics behind drawing a canary cohort or assigning a request to a shard.</li>
@@ -465,7 +464,7 @@ Important
 </section>
 <section id="matching-a-distribution-to-the-mechanism" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="matching-a-distribution-to-the-mechanism"><span class="header-section-number">3.3</span> Matching a distribution to the mechanism</h2>
-<p>A distribution is not a shape to pick because it looks right; it follows from the process that generated the data. Eight distributions cover most of what a production system produces.</p>
+<p>A distribution is not a shape to pick because it looks right; it follows from the process that generated the data. Nine distributions cover most of what a production system produces.</p>
 <section id="normal-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="normal-distribution">Normal distribution</h3>
 <p>Plot the heights of thousands of adults and the result is usually a hump shape: many people near the middle height, few extremely short or extremely tall people.</p>
@@ -705,6 +704,39 @@ Warning
 </div>
 </div>
 </section>
+<section id="lognormal-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="lognormal-distribution">Lognormal distribution</h3>
+<div id="fig-lognormal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lognormal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-lognormal-latency.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lognormal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.10: The checkout-API latency density from Chapter 1, redrawn as a lognormal curve at growing spread. As sigma rises, the mean (dashed line) pulls further above the median (dotted line); at sigma = 0.90 the two sit far apart, while at sigma = 0.20 they nearly coincide.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-lognormal" class="quarto-xref">Figure&nbsp;<span>3.10</span></a> is the same latency data Chapter 1 built its running example from (<code>RNG.lognormal(mean=np.log(45), sigma=0.35, ...)</code>), redrawn here as a density curve instead of a histogram. Every response-time figure in this book, and the payload and duration figures in several later chapters, is generated the same way, but this chapter never gave that generating mechanism its own name.</p>
+<p>A quantity behaves lognormally whenever its logarithm, not the quantity itself, follows a normal distribution. Response times are the standard example: a request’s latency is the product of many independent multiplicative slowdowns (a slower disk read, a retry, a queueing delay), and multiplying many positive random factors together produces the same right-skewed hump this book’s latency figures have shown since Chapter 1: a floor at zero, a peak near the typical case, and a long tail of rare, much slower requests.</p>
+<p>That shape carries a direct engineering consequence: the mean of a lognormal metric always sits above its median, and the gap between the two grows with the spread. A dashboard that reports only “average response time” over a lognormal metric will read higher than what most requests experienced, which is why Chapter 1 recommended the median or a trimmed statistic for latency reporting in the first place. <a href="#fig-lognormal" class="quarto-xref">Figure&nbsp;<span>3.10</span></a> makes that gap visible: dragging sigma from 0.20 to 0.90 pulls the mean further past the median while the median itself barely moves.</p>
+<p>Computing with a lognormal metric means working in log space first. Taking the natural log of every observed latency turns the right-skewed lognormal data back into ordinary normal data, at which point every tool built for the normal distribution (a z-score threshold, a confidence interval built with the CLT) becomes usable again. Chapter 9’s regression diagnostics handle payload-size noise the same way: fit the model on the log scale, then convert the predictions back with an exponential.</p>
+<p>The <em>lognormal distribution</em> describes a random variable <span class="math inline">\(X\)</span> such that <span class="math inline">\(\ln(X)\)</span> follows a normal distribution with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>:</p>
+<p><span class="math display">\[f(x) = \frac{1}{x \sigma \sqrt{2\pi}} e^{-\frac{(\ln x - \mu)^2}{2\sigma^2}} \quad \text{for } x &gt; 0\]</span></p>
+<p>In other words, <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> describe the normal distribution of the logged values, not the mean and standard deviation of <span class="math inline">\(X\)</span> itself; the mean of <span class="math inline">\(X\)</span> works out to <span class="math inline">\(e^{\mu + \sigma^2/2}\)</span>, which is why it always lands above the median, <span class="math inline">\(e^\mu\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A lognormal variable is never negative and has no upper bound, matching two facts about latency that a normal distribution would get wrong: a request cannot finish in negative time, and a rare request can take far longer than a typical one with no theoretical ceiling.</p>
+</div>
+</div>
+</section>
 </section>
 <section id="mean-and-variance-of-a-distribution" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="mean-and-variance-of-a-distribution"><span class="header-section-number">3.4</span> Mean and variance of a distribution</h2>
@@ -731,10 +763,120 @@ Warning
 </div>
 <p>Recall from Chapter 1 that these are the population-level counterparts of the sample mean and sample variance computed from data. Every distribution introduced in this chapter has a known formula for both, which is part of what makes naming the right distribution useful in the first place.</p>
 </section>
-<section id="the-central-limit-theorem" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="the-central-limit-theorem"><span class="header-section-number">3.5</span> The Central Limit Theorem</h2>
+<section id="chebyshevs-inequality-a-bound-that-needs-no-assumptions" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="chebyshevs-inequality-a-bound-that-needs-no-assumptions"><span class="header-section-number">3.5</span> Chebyshev’s inequality: a bound that needs no assumptions</h2>
+<div id="fig-chebyshev" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chebyshev-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-chebyshev-bound.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chebyshev-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.11: Two ways to bound how far a metric can stray from its mean. The dashed line assumes the metric is normal; the solid line makes no assumption about its shape at all, and pays for that safety with a much looser bound.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-chebyshev" class="quarto-xref">Figure&nbsp;<span>3.11</span></a> compares two answers to the same question: how much of a metric’s mass can sit more than <span class="math inline">\(k\)</span> standard deviations from its mean? At <span class="math inline">\(k = 3\)</span>, a normal metric puts under 0.3% of its mass out that far, the three-sigma rule from earlier in this chapter. The bound that makes no assumption about the metric’s shape only guarantees under 11.1%, a much weaker but far more widely applicable claim.</p>
+<p>Most metrics an on-call team watches, queue depth, retry counts, a newly added latency percentile with no history yet, have not been checked for normality, and some (the right-skewed latency metric this chapter has used throughout) are known not to be normal. An alerting threshold built on the normal-distribution three-sigma rule can be quietly wrong for a metric like that: it will either fire too often or miss the tail it was meant to catch, because the metric’s tail is thicker than a normal distribution’s. Chebyshev’s inequality gives a threshold that holds regardless of the metric’s shape, at the cost of being far more conservative.</p>
+<p>Computing a Chebyshev bound needs only the mean and standard deviation, quantities every monitoring system tracks. Divide 1 by <span class="math inline">\(k^2\)</span>: a threshold of 2 standard deviations bounds the tail at 25%, a threshold of 3 standard deviations bounds it at about 11.1%, and a threshold of 5 standard deviations bounds it at 4%. No histogram, percentile estimate, or distributional assumption is needed to compute any of those numbers.</p>
+<p><em>Chebyshev’s inequality</em> states that for any random variable <span class="math inline">\(X\)</span> with finite mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>, and any <span class="math inline">\(k &gt; 0\)</span>:</p>
+<p><span class="math display">\[P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}\]</span></p>
+<p>In other words, no matter what shape a distribution takes, so long as it has a finite mean and variance, the chance of landing more than <span class="math inline">\(k\)</span> standard deviations from the mean can never exceed <span class="math inline">\(1/k^2\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chebyshev’s bound is loose enough that it should not replace a normal-distribution threshold once a metric is known to be close to normal. It earns its place for a metric whose shape has not been checked yet, or is known to be far from normal, where a distribution-free bound is worth more than a tight bound resting on the wrong assumption.</p>
+</div>
+</div>
+</section>
+<section id="joint-distributions-and-independence" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="joint-distributions-and-independence"><span class="header-section-number">3.6</span> Joint distributions and independence</h2>
+<div id="fig-joint" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-joint-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-joint-cache-sla.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-joint-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.12: Two joint distributions over the same two variables, cache outcome and SLA outcome, sharing the same marginal rates (60% hit, 70% meets SLA) but distributing that probability across the four combinations in sharply different ways.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-joint" class="quarto-xref">Figure&nbsp;<span>3.12</span></a> tracks two variables at once for the same request: whether it hit the cache (hit or miss) and whether it met its latency SLA (met or missed). The “assumed independent” scenario multiplies the two marginal rates cell by cell, 60% hit times 70% met gives 42% of requests landing in the hit-and-met cell. The “observed” scenario keeps the same two marginal rates but concentrates far more of the probability in that same cell, 51% instead of 42%, because a cache hit and an SLA-met outcome are not happening independently of each other.</p>
+<p>A <em>joint distribution</em> over two random variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> assigns a probability to every combination of their outcomes at once, capturing how the two move together, something each variable’s own distribution cannot show on its own. Chapter 1’s correlation coefficient is a single number summarizing how far a joint distribution’s shape strays from what independence would predict; this section spells out that comparison directly, cell by cell.</p>
+<p>Knowing only that 60% of requests hit the cache and 70% meet their SLA answers a narrower question than “of the requests that hit the cache, what share met their SLA?” Two variables can share identical marginal rates while pointing to opposite engineering conclusions: in the independent scenario, caching has no bearing on whether a request meets its SLA, but in the observed scenario, a cache hit often comes packaged with an SLA success, evidence that the cache is helping reduce tail latency, a causal signal rather than a coincidence of two unrelated rates.</p>
+<p>Checking independence is a single multiplication: compute the product of the two marginal probabilities, <span class="math inline">\(P(\text{hit}) \times P(\text{SLA met})\)</span>, and compare it to the joint probability, <span class="math inline">\(P(\text{hit and SLA met})\)</span>, read directly off the joint table. When the two numbers match, as in the “assumed independent” scenario, the variables carry no information about each other. When they diverge, as in the “observed” scenario (42% predicted against 51% observed), that gap is the signal a correlation coefficient is built to detect.</p>
+<p>Formally, two events <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are <em>independent</em> when their joint probability factors into the product of their individual probabilities:</p>
+<p><span class="math display">\[P(A \cap B) = P(A) \, P(B)\]</span></p>
+<p>In other words, knowing that <span class="math inline">\(A\)</span> happened changes nothing about how likely <span class="math inline">\(B\)</span> is, and vice versa; conditioning on one event leaves the other’s probability unchanged.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A joint distribution’s two marginal distributions never reveal how the variables relate to each other; two sharply different joint tables, like the two shown in <a href="#fig-joint" class="quarto-xref">Figure&nbsp;<span>3.12</span></a>, can produce identical marginals. Reporting only marginal rates, “60% cache hit rate, 70% SLA compliance,” hides which of these two sharply different stories is playing out in production.</p>
+</div>
+</div>
+</section>
+<section id="the-law-of-large-numbers" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="the-law-of-large-numbers"><span class="header-section-number">3.7</span> The Law of Large Numbers</h2>
+<div id="fig-lln" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lln-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-lln-convergence.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lln-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.13: Four independent simulated runs of a rolling conversion-rate average. Early on, the four lines scatter widely; by a few hundred requests, all four have settled close to the true rate marked by the dashed line.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-lln" class="quarto-xref">Figure&nbsp;<span>3.13</span></a> runs the same simulated experiment four times: 3,000 simulated requests, each converting at some fixed true probability, with a running average tracked after every request. The four runs start scattered (a run of a dozen lucky or unlucky requests can push an early average far from the true rate) and converge to the same dashed line as more requests accumulate, regardless of which run is being watched.</p>
+<p>The <em>Law of Large Numbers</em> (LLN) is the reason an observed rate gets trusted as an estimate of a true rate at all. Without it, there would be no basis for treating “42 conversions out of 1,000 visitors” as evidence about the underlying conversion probability, since a small sample’s average could sit anywhere.</p>
+<p>Every A/B test in this book, and every canary rollout in this chapter, leans on the LLN without naming it: watching a metric over a growing sample and trusting that the average settles down is the LLN in practice. A dashboard that reports a conversion rate from only 20 visitors sits in the regime where the LLN has not yet done its work, the same small-sample instability <a href="#fig-lln" class="quarto-xref">Figure&nbsp;<span>3.13</span></a> shows in its first few hundred requests.</p>
+<p>Computing with the LLN needs nothing beyond tracking a running average as data accumulates: sum the outcomes seen so far and divide by the count. That arithmetic is trivial; the theorem’s substance lies in the guarantee that the answer keeps getting closer to the true value as the count grows, with no upper limit on how close it can get given enough data.</p>
+<p>Formally, the LLN states that as the sample size <span class="math inline">\(n\)</span> grows, the sample mean <span class="math inline">\(\bar{X}_n\)</span> converges to the true population mean <span class="math inline">\(\mu\)</span>:</p>
+<p><span class="math display">\[\bar{X}_n \xrightarrow{n \to \infty} \mu\]</span></p>
+<p>In other words, no matter how volatile any single observation is, averaging enough of them washes out that volatility and leaves a number that settles on the truth.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The LLN and the Central Limit Theorem answer different questions about the same sample mean: the LLN says where the sample mean is heading (the true mean), and the CLT, covered next, says what shape its distribution takes on the way there (normal, regardless of the population’s own shape).</p>
+</div>
+</div>
+</section>
+<section id="the-central-limit-theorem" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="the-central-limit-theorem"><span class="header-section-number">3.8</span> The Central Limit Theorem</h2>
 <p>Roll one die and the result is unpredictable, spread evenly across six numbers.</p>
 <p>But roll ten dice, average them, and repeat that experiment many times: those averages start clustering into a familiar bell shape. The Central Limit Theorem explains why averages behave this way.</p>
+<div id="fig-clt-three-panel" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clt-three-panel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-03-fig-clt-three-panel.html" width="100%" height="420" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clt-three-panel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.14: Garbage-collection pause durations across 6,000 simulated JVM instances: raw pauses on the left, means of 8 pauses in the middle, means of 32 pauses on the right. The right-skewed shape from the left panel is nearly gone by the right panel.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-clt-three-panel" class="quarto-xref">Figure&nbsp;<span>3.14</span></a> makes the same point three different ways side by side, using a new production scenario: garbage-collection pause durations sampled across a fleet of JVM instances. The left panel plots 6,000 raw pause durations, heavily right-skewed, most pauses short with a long tail of rare, much longer ones. The middle panel plots the mean of every group of 8 of those same pauses; the tail is shorter and the peak has shifted. The right panel plots the mean of every group of 32; the shape is close to a symmetric bell, even though not one of the 6,000 raw pauses that fed into it was drawn from a normal distribution.</p>
+<p>Nothing about the three panels required naming a formula first. Averaging 8 raw pause durations, then 32, and watching the histogram’s shape change is the entire content of the theorem below, before any notation gets involved.</p>
 <p>The <em>Central Limit Theorem</em> (CLT) states that, given a large enough sample, the distribution of the sample mean approaches normal, regardless of the shape of the population the sample was drawn from.</p>
 <div id="fig-clt" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -742,11 +884,11 @@ Warning
 <iframe src="../_generated/chapter-03-fig-clt-simulation.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.10: Sample means of a skewed parent distribution become normal-shaped as sample size grows, the same property that makes the t-test in Chapter 2 usable even on non-normal data at moderate sample sizes.
+Figure&nbsp;3.15: Sample means of a skewed parent distribution become normal-shaped as sample size grows, the same property that makes the t-test in Chapter 2 usable even on non-normal data at moderate sample sizes.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-clt" class="quarto-xref">Figure&nbsp;<span>3.10</span></a> simulates 4,000 samples drawn from a heavily right-skewed exponential distribution, at growing sample sizes, and tracks how the distribution of sample means transforms from skewed to bell-shaped as sample size increases.</p>
+<p><a href="#fig-clt" class="quarto-xref">Figure&nbsp;<span>3.15</span></a> simulates 4,000 samples drawn from a heavily right-skewed exponential distribution, at growing sample sizes, and tracks how the distribution of sample means transforms from skewed to bell-shaped as sample size increases.</p>
 <p>This is because averaging cancels out extreme values from both directions. A sample mean drawn from a right-skewed population is only pulled upward by outliers to the extent those outliers outweigh the many ordinary observations averaged alongside them, and as the sample grows, that influence shrinks.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -764,8 +906,8 @@ Tip
 <p>How large “large enough” needs to be depends on how skewed or heavy-tailed the underlying distribution is. A mildly skewed metric might converge to a usable normal shape by a few dozen observations.</p>
 <p>A latency distribution with rare, extreme spikes (a long tail with much of the variance concentrated in a small number of outlier requests) can need a sample far larger than the usual rule-of-thumb size before the sample mean behaves normally enough to trust.</p>
 </section>
-<section id="the-birthday-problem-collisions-in-a-space-that-felt-safe" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.6</span> The birthday problem: collisions in a space that felt safe</h2>
+<section id="the-birthday-problem-collisions-in-a-space-that-felt-safe" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="the-birthday-problem-collisions-in-a-space-that-felt-safe"><span class="header-section-number">3.9</span> The birthday problem: collisions in a space that felt safe</h2>
 <p>In a room of just 23 people, there is better than a fifty-fifty chance two of them share a birthday, even with 365 possible birthdays to choose from.</p>
 <p>That surprises most people, because what matters is not the number of people but the number of pairs of people to compare.</p>
 <p>The <em>birthday problem</em> asks how many people need to be in a room before the probability that two of them share a birthday passes 50%. The answer, 23, is far smaller than most people guess, because the relevant count is not the number of people but the number of <em>pairs</em> of people, and pairs grow quadratically.</p>
@@ -776,12 +918,12 @@ Tip
 <iframe src="../_generated/chapter-03-fig-birthday-collision.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-birthday-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.11: Collision probability for randomly generated identifiers, by identifier length in bits. The x-axis is on a log scale: an 8-bit ID space collides almost immediately, while a 64-bit space needs billions of IDs before collisions become likely.
+Figure&nbsp;3.16: Collision probability for randomly generated identifiers, by identifier length in bits. The x-axis is on a log scale: an 8-bit ID space collides almost immediately, while a 64-bit space needs billions of IDs before collisions become likely.
 </figcaption>
 </figure>
 </div>
 <p>This is not a party trick. It is the same mechanism behind hash and identifier collisions, formalized as the <em>birthday bound</em>: for an identifier space of size <span class="math inline">\(N\)</span>, the number of randomly generated identifiers needed before a collision becomes likely scales with <span class="math inline">\(\sqrt{N}\)</span>, not <span class="math inline">\(N\)</span>.</p>
-<p><a href="#fig-birthday" class="quarto-xref">Figure&nbsp;<span>3.11</span></a> shows how quickly collision probability climbs as more identifiers are generated, at a few different identifier lengths.</p>
+<p><a href="#fig-birthday" class="quarto-xref">Figure&nbsp;<span>3.16</span></a> shows how quickly collision probability climbs as more identifiers are generated, at a few different identifier lengths.</p>
 <p>The birthday bound is why a widely used hash function’s security depends on a space far larger than an intuition about brute-force guessing would suggest.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -798,8 +940,8 @@ Important
 </div>
 <p>Any system that generates random identifiers, such as trace IDs, session tokens, or cache keys, needs identifier lengths chosen with the birthday bound in mind, not the naive assumption that collisions only become likely once the identifier space is nearly exhausted.</p>
 </section>
-<section id="selecting-without-replacement-canary-cohorts" class="level2" data-number="3.7">
-<h2 data-number="3.7" class="anchored" data-anchor-id="selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.7</span> Selecting without replacement: canary cohorts</h2>
+<section id="selecting-without-replacement-canary-cohorts" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="selecting-without-replacement-canary-cohorts"><span class="header-section-number">3.10</span> Selecting without replacement: canary cohorts</h2>
 <p>Drawing colored marbles one at a time from a bag, without putting each one back, changes the odds for every draw after the first.</p>
 <p>Picking a random handful of accounts for a test group works the same way: once an account is picked, the odds for the remaining picks shift.</p>
 <p>Marble-and-urn problems are, structurally, sampling-without-replacement problems: once a marble is drawn, it is gone, and every subsequent probability is conditioned on that removal. The same mechanics apply to selecting a canary cohort from a pool of accounts.</p>
@@ -818,10 +960,14 @@ Note
 <p>Multiplying the shrinking odds across all 5 draws, (197/200)(196/199)(195/198)(194/197)(193/196), works out to about 92.6%. So a canary assembled by a documented random draw still carries roughly a 7% chance that at least one heavy account slips in by chance alone, a number worth knowing before treating any single canary run as decisive.</p>
 </div>
 </div>
-<p>By contrast, choosing a canary cohort by hand, rather than through a documented random process, is a quiet source of selection bias, the same failure mode Chapter 1 introduced. A canary chosen to “look representative” is not a canary chosen at random, and the two are not interchangeable.</p>
+<p>That calculation has a name: it is a <em>hypergeometric</em> one, 5 draws made without replacement from a finite pool of 200, where 3 of the 200 carry the outcome being tracked. The <em>hypergeometric distribution</em> formalizes this setup and gives the probability of drawing <span class="math inline">\(k\)</span> successes:</p>
+<p><span class="math display">\[f(k) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}\]</span></p>
+<p>where <span class="math inline">\(N\)</span> is the pool size (200 accounts), <span class="math inline">\(K\)</span> is the number of successes in the pool (3 heavy accounts), <span class="math inline">\(n\)</span> is the number of draws (5 canary slots), and <span class="math inline">\(k\)</span> is the number of successes drawn. Setting <span class="math inline">\(k = 0\)</span> in this formula and working through the binomial coefficients reproduces the same 92.6% the callout above computed one draw at a time; the shrinking-odds multiplication and the formula are two routes to one number.</p>
+<p>The binomial distribution earlier in this chapter is the same idea with one assumption dropped: binomial trials draw with replacement, or from a pool so large that removing one item barely moves the odds, while the hypergeometric distribution tracks what happens when the pool is small enough that each draw meaningfully changes the odds for the next one, the situation the canary cohort above sits in.</p>
+<p>By contrast, choosing a canary cohort by hand, rather than through a documented random process, is a quiet source of selection bias, the same problem Chapter 1 introduced. A canary chosen to “look representative” is not a canary chosen at random, and the two are not interchangeable.</p>
 </section>
-<section id="uniform-outcomes-over-many-categories-sharding" class="level2" data-number="3.8">
-<h2 data-number="3.8" class="anchored" data-anchor-id="uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.8</span> Uniform outcomes over many categories: sharding</h2>
+<section id="uniform-outcomes-over-many-categories-sharding" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="uniform-outcomes-over-many-categories-sharding"><span class="header-section-number">3.11</span> Uniform outcomes over many categories: sharding</h2>
 <p>Rolling a fair six-sided die, each number from 1 to 6 has the same one-in-six chance of coming up.</p>
 <p>Assigning requests to servers through a well-designed hash works the same way: every server should get a fair, equal share of the traffic, just like every face of the die.</p>
 <p>Die-roll problems generalize directly to a common infrastructure pattern: assigning a request to one of <span class="math inline">\(N\)</span> shards based on a hash of its key, where the hash function is designed so the assignment behaves like a fair <span class="math inline">\(N\)</span>-sided die.</p>

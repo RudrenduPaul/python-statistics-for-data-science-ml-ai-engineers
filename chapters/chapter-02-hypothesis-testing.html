@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -58,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -366,14 +395,22 @@ window.Quarto = {
   <li><a href="#type-i-and-type-ii-errors-the-two-ways-to-be-wrong" id="toc-type-i-and-type-ii-errors-the-two-ways-to-be-wrong" class="nav-link" data-scroll-target="#type-i-and-type-ii-errors-the-two-ways-to-be-wrong"><span class="header-section-number">2.4</span> Type I and Type II errors: the two ways to be wrong</a></li>
   <li><a href="#statistical-power-how-long-to-run-the-canary" id="toc-statistical-power-how-long-to-run-the-canary" class="nav-link" data-scroll-target="#statistical-power-how-long-to-run-the-canary"><span class="header-section-number">2.5</span> Statistical power: how long to run the canary</a></li>
   <li><a href="#sample-size-how-many-requests-before-the-number-can-be-trusted" id="toc-sample-size-how-many-requests-before-the-number-can-be-trusted" class="nav-link" data-scroll-target="#sample-size-how-many-requests-before-the-number-can-be-trusted"><span class="header-section-number">2.6</span> Sample size: how many requests before the number can be trusted</a></li>
-  <li><a href="#confounding-variables" id="toc-confounding-variables" class="nav-link" data-scroll-target="#confounding-variables"><span class="header-section-number">2.7</span> Confounding variables</a></li>
-  <li><a href="#paired-and-unpaired-t-tests" id="toc-paired-and-unpaired-t-tests" class="nav-link" data-scroll-target="#paired-and-unpaired-t-tests"><span class="header-section-number">2.8</span> Paired and unpaired t-tests</a></li>
-  <li><a href="#comparing-three-or-more-groups-anova" id="toc-comparing-three-or-more-groups-anova" class="nav-link" data-scroll-target="#comparing-three-or-more-groups-anova"><span class="header-section-number">2.9</span> Comparing three or more groups: ANOVA</a></li>
-  <li><a href="#categorical-association-chi-squared-and-goodness-of-fit" id="toc-categorical-association-chi-squared-and-goodness-of-fit" class="nav-link" data-scroll-target="#categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.10</span> Categorical association: chi-squared and goodness of fit</a></li>
-  <li><a href="#controlling-for-a-continuous-confounder-ancova" id="toc-controlling-for-a-continuous-confounder-ancova" class="nav-link" data-scroll-target="#controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.11</span> Controlling for a continuous confounder: ANCOVA</a></li>
-  <li><a href="#designing-the-experiment-before-running-it" id="toc-designing-the-experiment-before-running-it" class="nav-link" data-scroll-target="#designing-the-experiment-before-running-it"><span class="header-section-number">2.12</span> Designing the experiment before running it</a></li>
-  <li><a href="#after-anova-pairwise-post-hoc-tests" id="toc-after-anova-pairwise-post-hoc-tests" class="nav-link" data-scroll-target="#after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.13</span> After ANOVA: pairwise post-hoc tests</a></li>
-  <li><a href="#when-the-data-will-not-cooperate-non-parametric-tests" id="toc-when-the-data-will-not-cooperate-non-parametric-tests" class="nav-link" data-scroll-target="#when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.14</span> When the data will not cooperate: non-parametric tests</a></li>
+  <li><a href="#confidence-intervals-for-a-mean-and-a-proportion" id="toc-confidence-intervals-for-a-mean-and-a-proportion" class="nav-link" data-scroll-target="#confidence-intervals-for-a-mean-and-a-proportion"><span class="header-section-number">2.7</span> Confidence intervals for a mean and a proportion</a>
+  <ul class="collapse">
+  <li><a href="#a-confidence-interval-for-a-mean" id="toc-a-confidence-interval-for-a-mean" class="nav-link" data-scroll-target="#a-confidence-interval-for-a-mean">A confidence interval for a mean</a></li>
+  <li><a href="#a-confidence-interval-for-a-proportion" id="toc-a-confidence-interval-for-a-proportion" class="nav-link" data-scroll-target="#a-confidence-interval-for-a-proportion">A confidence interval for a proportion</a></li>
+  </ul></li>
+  <li><a href="#sequential-testing-the-cost-of-checking-early" id="toc-sequential-testing-the-cost-of-checking-early" class="nav-link" data-scroll-target="#sequential-testing-the-cost-of-checking-early"><span class="header-section-number">2.8</span> Sequential testing: the cost of checking early</a></li>
+  <li><a href="#confounding-variables" id="toc-confounding-variables" class="nav-link" data-scroll-target="#confounding-variables"><span class="header-section-number">2.9</span> Confounding variables</a></li>
+  <li><a href="#paired-and-unpaired-t-tests" id="toc-paired-and-unpaired-t-tests" class="nav-link" data-scroll-target="#paired-and-unpaired-t-tests"><span class="header-section-number">2.10</span> Paired and unpaired t-tests</a></li>
+  <li><a href="#the-two-proportion-z-test" id="toc-the-two-proportion-z-test" class="nav-link" data-scroll-target="#the-two-proportion-z-test"><span class="header-section-number">2.11</span> The two-proportion z-test</a></li>
+  <li><a href="#comparing-three-or-more-groups-anova" id="toc-comparing-three-or-more-groups-anova" class="nav-link" data-scroll-target="#comparing-three-or-more-groups-anova"><span class="header-section-number">2.12</span> Comparing three or more groups: ANOVA</a></li>
+  <li><a href="#categorical-association-chi-squared-and-goodness-of-fit" id="toc-categorical-association-chi-squared-and-goodness-of-fit" class="nav-link" data-scroll-target="#categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.13</span> Categorical association: chi-squared and goodness of fit</a></li>
+  <li><a href="#controlling-for-a-continuous-confounder-ancova" id="toc-controlling-for-a-continuous-confounder-ancova" class="nav-link" data-scroll-target="#controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.14</span> Controlling for a continuous confounder: ANCOVA</a></li>
+  <li><a href="#designing-the-experiment-before-running-it" id="toc-designing-the-experiment-before-running-it" class="nav-link" data-scroll-target="#designing-the-experiment-before-running-it"><span class="header-section-number">2.15</span> Designing the experiment before running it</a></li>
+  <li><a href="#after-anova-pairwise-post-hoc-tests" id="toc-after-anova-pairwise-post-hoc-tests" class="nav-link" data-scroll-target="#after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.16</span> After ANOVA: pairwise post-hoc tests</a></li>
+  <li><a href="#the-multiple-comparisons-problem" id="toc-the-multiple-comparisons-problem" class="nav-link" data-scroll-target="#the-multiple-comparisons-problem"><span class="header-section-number">2.17</span> The multiple-comparisons problem</a></li>
+  <li><a href="#when-the-data-will-not-cooperate-non-parametric-tests" id="toc-when-the-data-will-not-cooperate-non-parametric-tests" class="nav-link" data-scroll-target="#when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.18</span> When the data will not cooperate: non-parametric tests</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -410,6 +447,8 @@ window.Quarto = {
 <li><em>What are the two ways a test can be wrong, and what does each one cost?</em> Type I and Type II errors trade off against each other, and the trade is a business decision, not just a statistical one.</li>
 <li><em>How much data does a decision need before it can be trusted?</em> Statistical power and sample size determine how long a test needs to run.</li>
 <li><em>What happens when there are more than two groups, more than one confounder, or data that refuses to look normal?</em> ANOVA, chi-squared tests, ANCOVA, experimental design, and non-parametric alternatives cover the cases a simple t-test cannot.</li>
+<li><em>How do I turn a single estimate into a range I can trust, or compare two proportions instead of two means?</em> Confidence intervals and the two-proportion z-test extend the machinery above to estimates and proportions directly.</li>
+<li><em>What goes wrong when a test gets checked before it is finished, or when many tests run at once?</em> Sequential testing and the multiple-comparisons problem cover two of the most common ways a correct test still misleads a team in production.</li>
 </ol>
 <section id="stating-a-hypothesis" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="stating-a-hypothesis"><span class="header-section-number">2.1</span> Stating a hypothesis</h2>
@@ -437,10 +476,20 @@ Note
 <h2 data-number="2.2" class="anchored" data-anchor-id="testing-a-single-mean-the-z-test-and-the-t-test"><span class="header-section-number">2.2</span> Testing a single mean: the Z-test and the t-test</h2>
 <p>Imagine checking whether a coin is rigged by flipping it 30 times. Landing heads far more than half the time is a clue something is off.</p>
 <p>The Z-test and t-test do the same thing for averages: they measure how far a sample’s average sits from what plain chance would predict.</p>
-<p>Suppose the team wants to check the new mean latency against a fixed target, 40 ms, the number the SLA promises. The <em>Z-test</em> compares a sample mean to a target when the population standard deviation is known:</p>
+<p>Suppose the team wants to check the new mean latency against a fixed target, 40 ms, the number the SLA promises.</p>
+<p>Before naming a test, a simulation can answer the same question with nothing but arithmetic. Suppose the team collects 50 requests after the rollout and the sample mean comes out to 34.8 ms, well under target. Years of pre-rollout monitoring pinned the population’s spread at a standard deviation of 20 ms, so a computer can draw thousands of pretend samples from a system whose average never moved off 40 ms and count how often a mean that low turns up by chance alone.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>mu0, sigma, n <span class="op">=</span> <span class="fl">40.0</span>, <span class="fl">20.0</span>, <span class="dv">50</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>sim_means <span class="op">=</span> rng.normal(mu0, sigma, size<span class="op">=</span>(<span class="dv">20_000</span>, n)).mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> <span class="fl">34.8</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p_simulated <span class="op">=</span> (sim_means <span class="op">&lt;=</span> observed).mean()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># p_simulated = 0.034</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Out of 20,000 pretend samples drawn from a population that never moved off the 40 ms target, only about 3.4 percent came in at 34.8 ms or lower. That count answers how surprising the result would be if the cache changed nothing: rare, not impossible.</p>
+<p>The <em>Z-test</em> compares a sample mean to a target when the population standard deviation is known, reaching the same answer without simulating a single sample:</p>
 <p><span class="math display">\[z = \frac{\bar{x} - \mu}{\sigma / \sqrt{n}}\]</span></p>
 <p>Here <span class="math inline">\(\bar{x}\)</span> is the sample mean, <span class="math inline">\(\mu\)</span> is the target value, <span class="math inline">\(\sigma\)</span> is the population standard deviation, and <span class="math inline">\(n\)</span> is the sample size.</p>
-<p>Roughly speaking, the Z-test asks how many standard errors the sample mean sits from the target: a <span class="math inline">\(z\)</span> far from zero means the sample mean is unlikely to have occurred by chance if the target were correct.</p>
+<p>Roughly speaking, the Z-test asks how many standard errors the sample mean sits from the target: a <span class="math inline">\(z\)</span> far from zero means the sample mean is unlikely to have occurred by chance if the target were correct. Plugging in <span class="math inline">\(\bar{x} = 34.8\)</span>, <span class="math inline">\(\mu = 40\)</span>, <span class="math inline">\(\sigma = 20\)</span>, and <span class="math inline">\(n = 50\)</span> gives <span class="math inline">\(z \approx -1.84\)</span> and a one-sided p-value of 0.033, matching the 3.4 percent the simulation counted directly.</p>
 <p>In practice, the population standard deviation is almost never known in advance; it has to be estimated from the same sample used to estimate the mean. The <em>t-test</em> handles that case:</p>
 <p><span class="math display">\[t = \frac{\bar{x} - \mu}{S / \sqrt{n}}\]</span></p>
 <p>where <span class="math inline">\(S\)</span> is the sample standard deviation. The t-test uses the t-distribution rather than the normal distribution to calculate its p-value, because estimating <span class="math inline">\(\sigma\)</span> from the sample adds extra uncertainty that the normal distribution does not account for.</p>
@@ -550,6 +599,12 @@ Figure&nbsp;2.3: Statistical power rises with sample size, more slowly for small
 </figure>
 </div>
 <p><a href="#fig-power-curve" class="quarto-xref">Figure&nbsp;<span>2.3</span></a> shows how power climbs as sample size grows, for a few different effect sizes; small effects need dramatically more traffic before the test can reliably see them.</p>
+<p>The slider beneath that figure steps through values of <em>Cohen’s d</em>, a term used but never defined until now.</p>
+<p><em>Cohen’s d</em> is a standardized effect size: a way of expressing how far apart two group means sit that does not depend on the units the underlying metric happens to use.</p>
+<p>Comparing a 7.5 ms latency gap against a two-point jump in a conversion-rate percentage is not a fair comparison on raw numbers alone, since the two metrics sit on different scales with different natural spreads. Putting both gaps on the same d-scale is what makes it possible to say a latency change and a conversion-rate change carry a similar amount of evidence, or that one is a much bigger jump relative to its own noise than the other.</p>
+<p>Computing it divides the gap between two means by a pooled standard deviation that blends both groups’ variability into one number:</p>
+<p><span class="math display">\[d = \frac{\bar{x}_1 - \bar{x}_2}{s_{\text{pooled}}}\]</span></p>
+<p>A latency gap of 7.5 ms against a pooled standard deviation of 15 ms works out to <span class="math inline">\(d = 0.5\)</span>, a medium-sized effect under the loose convention Cohen proposed: 0.2 small, 0.5 medium, 0.8 large. Those are the same values (plus 0.1 and 0.3) the slider under <a href="#fig-power-curve" class="quarto-xref">Figure&nbsp;<span>2.3</span></a> steps through.</p>
 <p>A team running a canary deployment for the caching layer is, whether they call it this or not, deciding how much statistical power they want before they trust the result.</p>
 <p>A commonly used power target is 0.8, an 80% chance of detecting the effect if it exists.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -590,8 +645,105 @@ Note
 </div>
 </div>
 </section>
-<section id="confounding-variables" class="level2" data-number="2.7">
-<h2 data-number="2.7" class="anchored" data-anchor-id="confounding-variables"><span class="header-section-number">2.7</span> Confounding variables</h2>
+<section id="confidence-intervals-for-a-mean-and-a-proportion" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="confidence-intervals-for-a-mean-and-a-proportion"><span class="header-section-number">2.7</span> Confidence intervals for a mean and a proportion</h2>
+<div id="fig-ci-bootstrap" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ci-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-02-fig-ci-bootstrap.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ci-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: Resampling the same 25-request sample thousands of times and recomputing its mean each time traces out how much that mean would wobble on a re-draw. Demanding more confidence widens the interval; there is no way to buy both narrowness and certainty at once.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-ci-bootstrap" class="quarto-xref">Figure&nbsp;<span>2.4</span></a> resamples a small sample of 25 post-rollout requests with replacement ten thousand times, recomputes the mean of each resample, and reads off the middle 80, 90, 95, or 99 percent of that bootstrap distribution as a confidence interval. A thermometer read once tells you the temperature at that moment; reading it many times under the same conditions tells you how much a single reading could have wobbled.</p>
+<p>A single sample mean is a point estimate: one number, with nothing attached to say how far off a second sample might land. A <em>confidence interval</em> answers that question directly, giving a range of values likely to contain the population parameter, along with a confidence level stating how often intervals built this way would capture the truth across repeated sampling.</p>
+<p>Shipping a dashboard that reports “mean latency: 45.2 ms” with no interval invites a team to treat every day-to-day wiggle in that number as meaningful, when part of that wiggle is the sampling noise the bootstrap distribution above traces out.</p>
+<section id="a-confidence-interval-for-a-mean" class="level3">
+<h3 class="anchored" data-anchor-id="a-confidence-interval-for-a-mean">A confidence interval for a mean</h3>
+<p>The same interval has a closed-form shortcut once the sample is close to normal, or the sample size is large enough for the Central Limit Theorem to cover for it:</p>
+<p><span class="math display">\[\bar{x} \pm t^{*} \frac{S}{\sqrt{n}}\]</span></p>
+<p>where <span class="math inline">\(\bar x\)</span> is the sample mean, <span class="math inline">\(S\)</span> is the sample standard deviation, <span class="math inline">\(n\)</span> is the sample size, and <span class="math inline">\(t^{*}\)</span> is the critical value from the t-distribution at the chosen confidence level and <span class="math inline">\(n - 1\)</span> degrees of freedom (the same t-distribution introduced earlier in this chapter).</p>
+<p>For the 25-request sample behind <a href="#fig-ci-bootstrap" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>, the sample mean is 45.2 ms with a sample standard deviation of 13.4 ms. Plugging those numbers in gives a 95 percent confidence interval of [39.7, 50.8] ms, close to the bootstrap’s [40.3, 50.5] ms: two different routes landing on almost the same range.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A wider interval reports honest uncertainty, not a weaker result. A 25-request sample cannot pin down the mean as tightly as a 2,500-request sample can, and a properly built confidence interval says so instead of hiding it behind a single deceptively precise number.</p>
+</div>
+</div>
+</section>
+<section id="a-confidence-interval-for-a-proportion" class="level3">
+<h3 class="anchored" data-anchor-id="a-confidence-interval-for-a-proportion">A confidence interval for a proportion</h3>
+<p>The same logic applies to a proportion, the fraction of requests that succeed rather than the average of a continuous metric. Suppose a canary release serves 120 requests and 109 of them complete successfully:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">41</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>successes <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.91</span>, <span class="dv">120</span>)  <span class="co"># 109 of 120 succeeded</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p_hat <span class="op">=</span> successes.mean()  <span class="co"># 0.9083</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>boot_p <span class="op">=</span> np.array([rng.choice(successes, size<span class="op">=</span><span class="dv">120</span>, replace<span class="op">=</span><span class="va">True</span>).mean()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10_000</span>)])</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ci_95 <span class="op">=</span> np.percentile(boot_p, [<span class="fl">2.5</span>, <span class="fl">97.5</span>])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ci_95 = [0.850, 0.958]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Bootstrapping the 120 successes the same way as the latency sample gives a 95 percent interval of roughly [0.850, 0.958] around the observed success rate of 0.908.</p>
+<p>A confidence interval for a proportion has its own closed-form shortcut, built the same way as the interval for a mean but using the proportion’s own standard error:</p>
+<p><span class="math display">\[\hat{p} \pm z^{*} \sqrt{\frac{\hat{p}(1 - \hat{p})}{n}}\]</span></p>
+<p>where <span class="math inline">\(\hat p\)</span> is the sample proportion, <span class="math inline">\(n\)</span> is the sample size, and <span class="math inline">\(z^{*}\)</span> is 1.96 for a 95 percent interval. This gives [0.857, 0.960] here, close to the bootstrap’s range but not centered quite the same way.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This formula (the Wald interval) can misbehave when the observed proportion sits close to 0 or 1, sometimes producing bounds above 1.0 or below 0.0 for a small sample with an extreme success rate. The Wilson score interval corrects for this and is the safer default whenever a canary’s success rate lands above roughly 0.9 or below 0.1.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sequential-testing-the-cost-of-checking-early" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="sequential-testing-the-cost-of-checking-early"><span class="header-section-number">2.8</span> Sequential testing: the cost of checking early</h2>
+<div id="fig-peeking" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-02-fig-peeking.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.5: Two thousand simulated A/B tests, each built with no difference between control and treatment, checked every 100 requests per group instead of once at the end. The share flagged significant climbs well past the nominal 5 percent as the checking continues.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-peeking" class="quarto-xref">Figure&nbsp;<span>2.5</span></a> simulates 2,000 A/B tests where nothing separates the two groups (the null hypothesis is true in every one of them), then checks each test’s p-value after every 100 requests per group instead of waiting for a single planned sample size. By 2,000 requests per group, 23.8 percent of these null-true tests had crossed the 0.05 threshold at some earlier checkpoint, compared with 4.7 percent that would have crossed it under a single planned look at that same final sample size.</p>
+<p><em>Sequential testing</em>, or “peeking,” is the practice of checking a hypothesis test’s p-value repeatedly as data accumulates and stopping the moment it crosses the significance threshold, rather than fixing the sample size in advance and checking once. A dashboard that shows a live p-value for a running A/B test invites this behavior, whether or not the team checking it knows the term for what it is doing.</p>
+<p>Each additional look at the data is another chance for random noise alone to cross the 0.05 line, even when nothing in the underlying system changed. Stopping the moment a test looks significant, instead of continuing to the planned sample size, systematically favors declaring victory on noise: a team using this habit across many launches will ship changes that do nothing measurable far more often than the 5 percent rate a single, pre-planned look promises.</p>
+<p>Two standard fixes exist. <strong>Fixing the sample size in advance</strong> (using the sample size formula from earlier in this chapter) and checking the result once removes the temptation entirely, at the cost of waiting for the full sample before learning anything. <strong>Sequential testing methods</strong>, such as alpha-spending functions or always-valid p-values, allow repeated looks by shrinking the significance threshold at each check so that the combined false-positive rate across all the looks still lands at the intended level.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A live dashboard showing a running p-value only counts as a sequential test when the underlying calculation accounts for how many times the result gets checked. Watching that number and stopping when it dips below 0.05 otherwise carries the inflated false-positive rate shown above, well past the 5 percent rate the threshold implies.</p>
+</div>
+</div>
+<p>Recall from earlier in this chapter that statistical power and sample size determine how much data a decision needs before it can be trusted; peeking is what happens when a team acts on a decision before that data has finished arriving.</p>
+</section>
+<section id="confounding-variables" class="level2" data-number="2.9">
+<h2 data-number="2.9" class="anchored" data-anchor-id="confounding-variables"><span class="header-section-number">2.9</span> Confounding variables</h2>
 <p>Ice cream sales and drowning deaths both rise in summer, but ice cream does not cause drowning. Hot weather drives both.</p>
 <p>A confounding variable is a hidden factor like that: it influences two things at once and makes them look connected even when one is not driving the other.</p>
 <p>A <em>confounding variable</em> is a factor that influences both the thing being measured and the thing suspected of causing it, distorting the apparent relationship between them.</p>
@@ -600,8 +752,8 @@ Note
 <p>Three standard ways to control for a confounder: <strong>stratify</strong> the analysis by the confounding variable (compare overnight latency to overnight latency, daytime to daytime); <strong>match</strong> observations on the confounder (pair each after-rollout hour with a before-rollout hour at the same time of day); or <strong>include the confounder as a covariate</strong> in a regression model, which Chapter 4 develops further and this chapter’s ANCOVA section applies directly.</p>
 <p>Recall from Chapter 1 that correlation alone cannot distinguish a true driver from a confounder. The same caution applies to any before-after comparison that ignores what else changed at the same time as the thing being tested.</p>
 </section>
-<section id="paired-and-unpaired-t-tests" class="level2" data-number="2.8">
-<h2 data-number="2.8" class="anchored" data-anchor-id="paired-and-unpaired-t-tests"><span class="header-section-number">2.8</span> Paired and unpaired t-tests</h2>
+<section id="paired-and-unpaired-t-tests" class="level2" data-number="2.10">
+<h2 data-number="2.10" class="anchored" data-anchor-id="paired-and-unpaired-t-tests"><span class="header-section-number">2.10</span> Paired and unpaired t-tests</h2>
 <p>Comparing the same ten runners’ race times before and after a new training plan is different from comparing ten runners on the old plan to ten different runners on the new one.</p>
 <p>The first setup is paired, the second is not, and each needs its own version of the t-test.</p>
 <p>A <em>paired t-test</em> applies when two measurements are linked, typically the same unit measured twice. Comparing the same set of customer accounts’ latency before and after the cache rollout, matched account by account, is a paired design:</p>
@@ -633,8 +785,23 @@ Warning
 <p>Running an unpaired t-test on data that is naturally paired throws away the correlation between the two measurements, which usually inflates the variance estimate and makes a true effect harder to detect. Before choosing between a paired and unpaired test, check whether each unit in the sample was measured twice.</p>
 </div>
 </div>
-<p>An <em>unpaired t-test</em> (also called an independent t-test) applies when the two groups being compared are not linked, for instance a randomized A/B test where incoming requests are assigned to a control path or a cached path:</p>
+<p>An <em>unpaired t-test</em> (also called an independent t-test) applies when the two groups being compared are not linked, for instance a randomized A/B test where incoming requests are assigned to a control path or a cached path.</p>
+<div id="fig-permutation-null" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-permutation-null-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-02-fig-permutation-null.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-permutation-null-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.6: Shuffling which latency values belong to “control” and which belong to “cached” 20,000 times, and recomputing the difference in group means after each shuffle, builds a null distribution with no formula involved. The observed difference sits far out in that distribution’s tail.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-permutation-null" class="quarto-xref">Figure&nbsp;<span>2.6</span></a> takes 60 control-path and 60 cached-path latency measurements and pools them into one list of 120 numbers, on the logic that if the caching layer changed nothing, “control” and “cached” are just arbitrary labels stuck onto interchangeable measurements. Shuffling those labels thousands of times and recomputing the mean difference under each relabeling shows what differences arise from label-shuffling alone, with no cache effect anywhere in the data.</p>
+<p>The observed difference between the two groups is 9.8 ms. Only 0.56 percent of 20,000 shuffles produced a difference at least that large in either direction, making a 9.8 ms gap far bigger than what label-shuffling alone tends to produce.</p>
+<p>The slider under the figure also shows what happens with too few shuffles: at 100 shuffles, none of the reshuffled differences reached 9.8 ms, making the gap look rarer than the fuller shuffle count later confirms; the estimate settles down only once the shuffle count reaches the thousands. Running a permutation test on a production dataset carries this same cost: enough shuffles to trust the resulting p-value can mean tens of thousands of recomputations of a group mean, a compute cost worth weighing against simply running the closed-form test below.</p>
+<p>The <em>unpaired t-test</em> answers the same question the permutation test just answered, in one closed-form step instead of thousands of reshuffles:</p>
 <p><span class="math display">\[t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{S_1^2/n_1 + S_2^2/n_2}}\]</span></p>
+<p>Welch’s version of this test, applied to the same 120 measurements, returns a p-value of 0.0065, close to the permutation test’s 0.0056 despite never shuffling a single label.</p>
 <p>When the two groups have unequal variances, which is common when comparing a stable control path to a newly deployed one, Welch’s t-test (a variant that does not assume equal variances) is the safer default over the standard unpaired t-test.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -651,8 +818,43 @@ Warning
 </div>
 <p>Both paired and unpaired tests assume the underlying data is close to normal or that the sample is large; the non-parametric alternatives near the end of this chapter cover what to do when that assumption fails.</p>
 </section>
-<section id="comparing-three-or-more-groups-anova" class="level2" data-number="2.9">
-<h2 data-number="2.9" class="anchored" data-anchor-id="comparing-three-or-more-groups-anova"><span class="header-section-number">2.9</span> Comparing three or more groups: ANOVA</h2>
+<section id="the-two-proportion-z-test" class="level2" data-number="2.11">
+<h2 data-number="2.11" class="anchored" data-anchor-id="the-two-proportion-z-test"><span class="header-section-number">2.11</span> The two-proportion z-test</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">2030</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>old_layer <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.81</span>, <span class="dv">1500</span>)    <span class="co"># old caching layer: checkout completion</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>new_layer <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.855</span>, <span class="dv">1500</span>)   <span class="co"># new caching layer: checkout completion</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>p1, p2 <span class="op">=</span> old_layer.mean(), new_layer.mean()           <span class="co"># 0.815, 0.864</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>pooled <span class="op">=</span> (old_layer.<span class="bu">sum</span>() <span class="op">+</span> new_layer.<span class="bu">sum</span>()) <span class="op">/</span> <span class="dv">3000</span>   <span class="co"># 0.840</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>se <span class="op">=</span> np.sqrt(pooled <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> pooled) <span class="op">*</span> (<span class="dv">1</span><span class="op">/</span><span class="dv">1500</span> <span class="op">+</span> <span class="dv">1</span><span class="op">/</span><span class="dv">1500</span>))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> (p2 <span class="op">-</span> p1) <span class="op">/</span> se                                    <span class="co"># 3.63</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>p_value <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(<span class="bu">abs</span>(z)))            <span class="co"># 0.0003</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Everything the two-sample t-test does for a continuous measurement like latency, a <em>two-proportion z-test</em> does for a checkout completion rate: it compares two proportions against each other rather than each against a fixed target.</p>
+<p>Comparing conversion rates, error rates, or completion rates between two variants is at least as common in production A/B testing as comparing two means, yet the tools built for categorical data so far in this chapter (the chi-squared test, covered next) are built around counting categories, not directly comparing two rates the way an engineer thinks about them: “the new layer completes checkouts 4.9 percentage points more often, is that gap believable.”</p>
+<p>For the old caching layer, 1,500 checkouts complete at a rate of 81.5 percent; for the new one, 1,500 checkouts complete at 86.4 percent, a 4.9 percentage point gap. Pooling both groups’ completions into one combined rate under the assumption that the two layers perform identically gives the standard error the test statistic is measured against:</p>
+<p><span class="math display">\[z = \frac{\hat{p}_2 - \hat{p}_1}{\sqrt{\hat{p}(1 - \hat{p})\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}}\]</span></p>
+<p>where <span class="math inline">\(\hat p_1\)</span> and <span class="math inline">\(\hat p_2\)</span> are the two observed proportions, <span class="math inline">\(\hat p\)</span> is the pooled proportion across both groups combined, and <span class="math inline">\(n_1\)</span> and <span class="math inline">\(n_2\)</span> are the two sample sizes. Here <span class="math inline">\(z
+= 3.63\)</span>, giving a two-sided p-value of 0.0003, a result unlikely to come from label-shuffling noise: a permutation test on the same 3,000 checkout outcomes, shuffling which group each 0/1 outcome belongs to 20,000 times, puts the resampled p-value at 0.00025, in close agreement.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The two-proportion z-test needs a pooled proportion under the assumption of no difference, unlike the two-sample t-test, which estimates each group’s variance separately. A proportion’s variance is fixed by the proportion itself (<span class="math inline">\(\hat p(1-\hat p)\)</span>), leaving nothing extra to estimate, which is why Welch’s correction, the safer default for comparing two means, has no equivalent step here.</p>
+</div>
+</div>
+<p>A small absolute gap in proportions can still be a substantial relative change: an 81.5 percent to 86.4 percent completion rate is a 4.9-point absolute gain, but it also means the checkout failure rate dropped from 18.5 percent to 13.6 percent, close to a 27 percent cut in the share of checkouts that fail. Reporting only the absolute gap can undersell a result like this one.</p>
+</section>
+<section id="comparing-three-or-more-groups-anova" class="level2" data-number="2.12">
+<h2 data-number="2.12" class="anchored" data-anchor-id="comparing-three-or-more-groups-anova"><span class="header-section-number">2.12</span> Comparing three or more groups: ANOVA</h2>
 <p>A t-test can compare two classrooms’ test scores, but what about five classrooms? Checking every possible pair one at a time gets messy fast.</p>
 <p>ANOVA compares many groups at once and asks one question: does at least one group stand apart from the rest?</p>
 <p>A t-test compares two groups. <em>Analysis of variance</em> (ANOVA) extends the same logic to three or more, for instance comparing mean latency across three deployment regions running the same caching layer. ANOVA tests the null hypothesis that all group means are equal against the alternative that at least one differs:</p>
@@ -665,13 +867,14 @@ Warning
 <iframe src="../_generated/chapter-02-fig-anova-between-within.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anova-between-within-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.4: Three regions’ latency distributions as the gap between their means widens. F rises and p falls even though the spread within each region never changes.
+Figure&nbsp;2.7: Three regions’ latency distributions as the gap between their means widens. F rises and p falls even though the spread within each region never changes.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-anova-between-within" class="quarto-xref">Figure&nbsp;<span>2.4</span></a> holds the within-group spread fixed and widens the gap between the three region means. It shows <span class="math inline">\(F\)</span> climb and the p-value fall as the between-group signal grows relative to the within-group noise that never changes.</p>
+<p><a href="#fig-anova-between-within" class="quarto-xref">Figure&nbsp;<span>2.7</span></a> holds the within-group spread fixed and widens the gap between the three region means. It shows <span class="math inline">\(F\)</span> climb and the p-value fall as the between-group signal grows relative to the within-group noise that never changes.</p>
 <p>A large <span class="math inline">\(F\)</span> means the groups differ more from each other than individual observations differ within a group, evidence that region is driving some of the variation in latency rather than random noise alone.</p>
 <p>ANOVA answers only whether at least one region differs, not which one; the pairwise tests later in this chapter pick up from there.</p>
+<p>The same shuffle-based logic from the unpaired t-test extends here without much change: relabel which of the three regions each latency observation belongs to, recompute the between-group and within-group variance under that relabeling, and repeat thousands of times to build a null distribution for <span class="math inline">\(F\)</span> directly. The closed-form F-test above is the fast version of that process. Running the full permutation version costs more compute for the same reason the unpaired t-test’s permutation check did: the earlier comparison needed thousands of reshuffles before its estimated p-value stopped moving (0.0040 at 1,000 shuffles versus 0.0056 at 20,000), and a three-group relabeling has more ways to shuffle than a two-group one, so it settles even more slowly. Production pipelines default to the closed-form F-test for this reason, reaching for the permutation version mainly when a group’s data is too irregular for the F-test’s assumptions to hold with any confidence.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -686,8 +889,8 @@ Warning
 </div>
 </div>
 </section>
-<section id="categorical-association-chi-squared-and-goodness-of-fit" class="level2" data-number="2.10">
-<h2 data-number="2.10" class="anchored" data-anchor-id="categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.10</span> Categorical association: chi-squared and goodness of fit</h2>
+<section id="categorical-association-chi-squared-and-goodness-of-fit" class="level2" data-number="2.13">
+<h2 data-number="2.13" class="anchored" data-anchor-id="categorical-association-chi-squared-and-goodness-of-fit"><span class="header-section-number">2.13</span> Categorical association: chi-squared and goodness of fit</h2>
 <p>Suppose a bag is supposed to hold equal numbers of red, blue, and green candies, but a handful you grab has far more red than expected.</p>
 <p>The chi-squared test measures whether counts like that are ordinary luck or a meaningful mismatch from what the bag was supposed to contain.</p>
 <p>ANOVA compares means of continuous data. The <em>chi-squared test</em> compares frequencies of categorical data. Suppose the team wants to know whether error type (timeout, 500, connection reset) is independent of which region served the request, or whether certain regions produce disproportionately more of one error type. The test statistic is</p>
@@ -709,9 +912,10 @@ Note
 <p>Both tests assume the sample is large enough that expected counts in each category are not too small (a common rule of thumb is at least 5). With rarer categories, Fisher’s test (built around permutation probabilities computed directly rather than the chi-squared approximation) is the safer choice.</p>
 </div>
 </div>
+<p>The chi-squared statistic also has a permutation version, built the same way as the tests above: shuffle the error-type label attached to each observed request, recompute <span class="math inline">\(\chi^2\)</span> under each shuffle, and compare the observed statistic against the resulting simulated null. As a rule of thumb, resolving a permutation p-value near a stricter threshold such as 0.01 reliably needs on the order of ten times as many shuffles as resolving one near 0.05, since the estimate’s own uncertainty shrinks only with the square root of the shuffle count. A pipeline that reuses a shuffle count tuned for a 0.05 cutoff at a stricter 0.01 cutoff elsewhere is working with a noisier estimate than the first case.</p>
 </section>
-<section id="controlling-for-a-continuous-confounder-ancova" class="level2" data-number="2.11">
-<h2 data-number="2.11" class="anchored" data-anchor-id="controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.11</span> Controlling for a continuous confounder: ANCOVA</h2>
+<section id="controlling-for-a-continuous-confounder-ancova" class="level2" data-number="2.14">
+<h2 data-number="2.14" class="anchored" data-anchor-id="controlling-for-a-continuous-confounder-ancova"><span class="header-section-number">2.14</span> Controlling for a continuous confounder: ANCOVA</h2>
 <p>Comparing two diets’ effect on weight loss is unfair if one group started out heavier than the other.</p>
 <p>ANCOVA compares group averages while accounting for a starting difference like that, so the comparison is not skewed by something uneven before the diets even began.</p>
 <p><em>Analysis of covariance</em> (ANCOVA) extends ANOVA to control for a continuous confounding variable while comparing group means.</p>
@@ -734,8 +938,8 @@ Warning
 </div>
 </div>
 </section>
-<section id="designing-the-experiment-before-running-it" class="level2" data-number="2.12">
-<h2 data-number="2.12" class="anchored" data-anchor-id="designing-the-experiment-before-running-it"><span class="header-section-number">2.12</span> Designing the experiment before running it</h2>
+<section id="designing-the-experiment-before-running-it" class="level2" data-number="2.15">
+<h2 data-number="2.15" class="anchored" data-anchor-id="designing-the-experiment-before-running-it"><span class="header-section-number">2.15</span> Designing the experiment before running it</h2>
 <p>A science-fair project testing plant growth needs a plan for which plants get sunlight, water, and fertilizer before anyone plants a seed.</p>
 <p>Design of experiments is that planning step: deciding how to assign treatments fairly before any data gets collected, not after.</p>
 <p><em>Design of experiments</em> (DOE) is the discipline of deciding, before collecting any data, how treatments will be assigned so the resulting comparison is fair. Four designs cover most production experiments:</p>
@@ -760,8 +964,8 @@ Warning
 </div>
 </div>
 </section>
-<section id="after-anova-pairwise-post-hoc-tests" class="level2" data-number="2.13">
-<h2 data-number="2.13" class="anchored" data-anchor-id="after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.13</span> After ANOVA: pairwise post-hoc tests</h2>
+<section id="after-anova-pairwise-post-hoc-tests" class="level2" data-number="2.16">
+<h2 data-number="2.16" class="anchored" data-anchor-id="after-anova-pairwise-post-hoc-tests"><span class="header-section-number">2.16</span> After ANOVA: pairwise post-hoc tests</h2>
 <p>If five classrooms’ test scores differ overall, that does not say which classrooms differ from which.</p>
 <p>Post-hoc tests check every classroom pair against every other, while being careful not to rack up false alarms simply from checking so many pairs at once.</p>
 <p>When ANOVA rejects the null hypothesis that regions have equal mean latency, it does not say which regions differ. <em>Pairwise post-hoc tests</em> answer that question by comparing every pair of groups while controlling the overall risk of a false positive across all those comparisons, a risk that grows the more pairs are checked.</p>
@@ -772,8 +976,37 @@ Warning
 </ul>
 <p>Choosing among these is a trade between power and conservatism: a stricter correction lowers the chance of a false positive across many comparisons but raises the chance of missing a difference that exists between any single pair.</p>
 </section>
-<section id="when-the-data-will-not-cooperate-non-parametric-tests" class="level2" data-number="2.14">
-<h2 data-number="2.14" class="anchored" data-anchor-id="when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.14</span> When the data will not cooperate: non-parametric tests</h2>
+<section id="the-multiple-comparisons-problem" class="level2" data-number="2.17">
+<h2 data-number="2.17" class="anchored" data-anchor-id="the-multiple-comparisons-problem"><span class="header-section-number">2.17</span> The multiple-comparisons problem</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">5</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m_tests, alpha <span class="op">=</span> <span class="dv">20</span>, <span class="fl">0.05</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>count_any_significant <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20_000</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    p_values <span class="op">=</span> rng.uniform(<span class="dv">0</span>, <span class="dv">1</span>, m_tests)   <span class="co"># p-values are uniform when every null is true</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.<span class="bu">any</span>(p_values <span class="op">&lt;</span> alpha):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        count_any_significant <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>share <span class="op">=</span> count_any_significant <span class="op">/</span> <span class="dv">20_000</span>   <span class="co"># 0.637</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Running 20,000 simulated dashboards, each checking 20 independent metrics where nothing has changed on any of them, found that 63.7 percent of those dashboards had at least one metric cross the 0.05 threshold anyway. The closed-form probability agrees: <span class="math inline">\(1 - (1 - 0.05)^{20} \approx 0.642\)</span>.</p>
+<p>The post-hoc tests above solve a narrow version of a wider problem: checking many things at once inflates the chance that something looks significant by chance alone, whether those “many things” are pairwise comparisons after ANOVA or twenty unrelated metrics on a monitoring dashboard. The <em>multiple-comparisons problem</em> names this general fact and reaches far beyond ANOVA follow-up testing.</p>
+<p>A team running one hypothesis test accepts a 5 percent chance of a false alarm on that one test. A team running twenty independent tests, each at the same 5 percent threshold, faces close to a 64 percent chance that at least one of them flags a change that is not there, purely from running that many tests. A metrics dashboard checking latency, error rate, throughput, and a dozen other signals across several regions every morning is running this same experiment without recognizing it as one.</p>
+<p>Two corrections handle this differently. The <strong>Bonferroni correction</strong>, introduced earlier in this chapter for post-hoc pairwise tests, divides the significance threshold by the number of tests: checking 20 metrics at a combined 5 percent risk means treating no single metric as significant unless its own p-value clears 0.0025, a considerably stricter bar. The <strong>Benjamini-Hochberg procedure</strong> takes a different approach, controlling the <em>false discovery rate</em> (the expected share of flagged results that are false alarms, rather than the chance of any false alarm at all) instead of the family-wise error rate Bonferroni protects. It is less conservative than Bonferroni and is the more common choice for a dashboard running dozens of tests routinely, where missing a regression is often costlier than tolerating an occasional false alarm among the flagged metrics.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Treating a dashboard’s individual metric thresholds as independent 5 percent risks, with no correction at all, is one of the most common ways a monitoring system generates false alarms. The more metrics a dashboard checks routinely, the more its uncorrected alert rate drifts away from the 5 percent a single test promises.</p>
+</div>
+</div>
+</section>
+<section id="when-the-data-will-not-cooperate-non-parametric-tests" class="level2" data-number="2.18">
+<h2 data-number="2.18" class="anchored" data-anchor-id="when-the-data-will-not-cooperate-non-parametric-tests"><span class="header-section-number">2.18</span> When the data will not cooperate: non-parametric tests</h2>
 <p>Some group-comparison methods need the data to roughly follow a bell curve.</p>
 <p>Non-parametric tests are the backup plan: they compare the order data falls in rather than its precise values, so they still work when the data is lopsided or full of outliers.</p>
 <p>Every test in this chapter, up to this point, assumes the underlying data is close to normal or that the sample is large enough for the Central Limit Theorem to compensate. Recall from Chapter 1 that checkout-API latency is right-skewed with a heavy tail; a small sample of that data can violate the normality assumption badly enough to make a t-test or ANOVA unreliable.</p>
@@ -785,11 +1018,11 @@ Warning
 <iframe src="../_generated/chapter-02-fig-parametric-vs-nonparametric.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nonparametric-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.5: A t-test’s p-value moves more than a Wilcoxon rank-sum test’s as outliers are added to skewed data. The rank-based test barely reacts, since a single extreme value can only move a rank by one position.
+Figure&nbsp;2.8: A t-test’s p-value moves more than a Wilcoxon rank-sum test’s as outliers are added to skewed data. The rank-based test barely reacts, since a single extreme value can only move a rank by one position.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-nonparametric" class="quarto-xref">Figure&nbsp;<span>2.5</span></a> compares a t-test and a Wilcoxon rank-sum test on the same simulated right-skewed latency data as a small number of outlier requests are added, showing the t-test’s p-value swinging with the outliers while the rank-based test stays comparatively stable.</p>
+<p><a href="#fig-nonparametric" class="quarto-xref">Figure&nbsp;<span>2.8</span></a> compares a t-test and a Wilcoxon rank-sum test on the same simulated right-skewed latency data as a small number of outlier requests are added, showing the t-test’s p-value swinging with the outliers while the rank-based test stays comparatively stable.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

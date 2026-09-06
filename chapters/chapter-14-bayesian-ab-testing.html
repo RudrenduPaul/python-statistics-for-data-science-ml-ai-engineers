@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -58,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -364,11 +393,15 @@ window.Quarto = {
   <li><a href="#priors-how-much-to-assume-before-the-data-arrives" id="toc-priors-how-much-to-assume-before-the-data-arrives" class="nav-link" data-scroll-target="#priors-how-much-to-assume-before-the-data-arrives"><span class="header-section-number">14.2</span> Priors: how much to assume before the data arrives</a></li>
   <li><a href="#beta-binomial-conjugacy" id="toc-beta-binomial-conjugacy" class="nav-link" data-scroll-target="#beta-binomial-conjugacy"><span class="header-section-number">14.3</span> Beta-Binomial conjugacy</a></li>
   <li><a href="#two-variants-one-decision" id="toc-two-variants-one-decision" class="nav-link" data-scroll-target="#two-variants-one-decision"><span class="header-section-number">14.4</span> Two variants, one decision</a></li>
-  <li><a href="#expected-loss-as-a-stopping-rule" id="toc-expected-loss-as-a-stopping-rule" class="nav-link" data-scroll-target="#expected-loss-as-a-stopping-rule"><span class="header-section-number">14.5</span> Expected loss as a stopping rule</a></li>
-  <li><a href="#continuous-monitoring-and-the-peeking-problem" id="toc-continuous-monitoring-and-the-peeking-problem" class="nav-link" data-scroll-target="#continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.6</span> Continuous monitoring and the peeking problem</a></li>
-  <li><a href="#a-direct-comparison-against-the-frequentist-result" id="toc-a-direct-comparison-against-the-frequentist-result" class="nav-link" data-scroll-target="#a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.7</span> A direct comparison against the frequentist result</a></li>
-  <li><a href="#beyond-conversion-rates" id="toc-beyond-conversion-rates" class="nav-link" data-scroll-target="#beyond-conversion-rates"><span class="header-section-number">14.8</span> Beyond conversion rates</a></li>
-  <li><a href="#the-limits-of-bayesian-inference" id="toc-the-limits-of-bayesian-inference" class="nav-link" data-scroll-target="#the-limits-of-bayesian-inference"><span class="header-section-number">14.9</span> The limits of Bayesian inference</a></li>
+  <li><a href="#sample-ratio-mismatch-checking-the-split-before-trusting-the-comparison" id="toc-sample-ratio-mismatch-checking-the-split-before-trusting-the-comparison" class="nav-link" data-scroll-target="#sample-ratio-mismatch-checking-the-split-before-trusting-the-comparison"><span class="header-section-number">14.5</span> Sample ratio mismatch: checking the split before trusting the comparison</a></li>
+  <li><a href="#expected-loss-as-a-stopping-rule" id="toc-expected-loss-as-a-stopping-rule" class="nav-link" data-scroll-target="#expected-loss-as-a-stopping-rule"><span class="header-section-number">14.6</span> Expected loss as a stopping rule</a></li>
+  <li><a href="#continuous-monitoring-and-the-peeking-problem" id="toc-continuous-monitoring-and-the-peeking-problem" class="nav-link" data-scroll-target="#continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.7</span> Continuous monitoring and the peeking problem</a></li>
+  <li><a href="#a-direct-comparison-against-the-frequentist-result" id="toc-a-direct-comparison-against-the-frequentist-result" class="nav-link" data-scroll-target="#a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.8</span> A direct comparison against the frequentist result</a></li>
+  <li><a href="#beyond-conversion-rates" id="toc-beyond-conversion-rates" class="nav-link" data-scroll-target="#beyond-conversion-rates"><span class="header-section-number">14.9</span> Beyond conversion rates</a></li>
+  <li><a href="#multiple-metrics-multiple-chances-to-be-wrong" id="toc-multiple-metrics-multiple-chances-to-be-wrong" class="nav-link" data-scroll-target="#multiple-metrics-multiple-chances-to-be-wrong"><span class="header-section-number">14.10</span> Multiple metrics, multiple chances to be wrong</a></li>
+  <li><a href="#hierarchical-ab-testing-partial-pooling-across-segments" id="toc-hierarchical-ab-testing-partial-pooling-across-segments" class="nav-link" data-scroll-target="#hierarchical-ab-testing-partial-pooling-across-segments"><span class="header-section-number">14.11</span> Hierarchical A/B testing: partial pooling across segments</a></li>
+  <li><a href="#latent-subgroups-what-a-mixture-model-finds-when-the-segment-isnt-logged" id="toc-latent-subgroups-what-a-mixture-model-finds-when-the-segment-isnt-logged" class="nav-link" data-scroll-target="#latent-subgroups-what-a-mixture-model-finds-when-the-segment-isnt-logged"><span class="header-section-number">14.12</span> Latent subgroups: what a mixture model finds when the segment isn’t logged</a></li>
+  <li><a href="#the-limits-of-bayesian-inference" id="toc-the-limits-of-bayesian-inference" class="nav-link" data-scroll-target="#the-limits-of-bayesian-inference"><span class="header-section-number">14.13</span> The limits of Bayesian inference</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -417,17 +450,17 @@ window.Quarto = {
 <p>An <em>uninformative prior</em> treats every conversion rate between 0% and 100% as equally plausible. A <span class="math inline">\(\text{Beta}(1, 1)\)</span> distribution is flat, uniform, and equivalent to having observed zero prior data.</p>
 <p>A <em>weakly informative prior</em> nudges the distribution toward plausible values without pretending to certainty. A <span class="math inline">\(\text{Beta}(11, 91)\)</span> distribution behaves like 100 pseudo-observations at a 10% rate, close to what a checkout team would reasonably expect from a button converting around 10% of visitors.</p>
 <p>An <em>informative prior</em> goes further still, behaving like thousands of pseudo-observations concentrated tightly around a known rate.</p>
-<div id="fig-prior-shapes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-ab-prior-shapes" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-ab-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <iframe src="../_generated/chapter-05-fig-beta-prior-shapes.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ab-prior-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.1: Each curve puts the same 10% central belief on the x-axis (conversion rate, 0% to 40%) but spreads that belief differently: the uninformative prior spans almost the full range, while the highly informative prior shown here, built from about 10,000 pseudo-observations, concentrates nearly all its density within a percentage point of 10%. The stronger the prior, the more data it takes to move it.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-prior-shapes" class="quarto-xref">Figure&nbsp;<span>14.1</span></a> shows the same 10% central belief expressed at five different prior strengths, from a flat uninformative prior through an increasingly confident one.</p>
+<p><a href="#fig-ab-prior-shapes" class="quarto-xref">Figure&nbsp;<span>14.1</span></a> shows the same 10% central belief expressed at five different prior strengths, from a flat uninformative prior through an increasingly confident one.</p>
 <p>Stronger priors are not automatically better. Suppose the checkout team used an informative prior built from a redesign three years ago that turned out to be unrepresentative of current traffic.</p>
 <p>That prior would actively resist what the new data is trying to say, and it would take a large sample to overrule it.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -503,8 +536,58 @@ Tip
 </div>
 </div>
 </section>
-<section id="expected-loss-as-a-stopping-rule" class="level2" data-number="14.5">
-<h2 data-number="14.5" class="anchored" data-anchor-id="expected-loss-as-a-stopping-rule"><span class="header-section-number">14.5</span> Expected loss as a stopping rule</h2>
+<section id="sample-ratio-mismatch-checking-the-split-before-trusting-the-comparison" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="sample-ratio-mismatch-checking-the-split-before-trusting-the-comparison"><span class="header-section-number">14.5</span> Sample ratio mismatch: checking the split before trusting the comparison</h2>
+<p>A referee checks that both teams took the field with the agreed number of players before a single point on the scoreboard means anything. A sample ratio check plays the same role for an experiment: confirm the assignment mechanism did what it was told before reading any result it produced.</p>
+<div id="fig-srm-check" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-srm-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-srm-check.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-srm-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.4: Cumulative logged traffic by variant, week over week. Weeks 1 and 2 sit close to the dashed 50% line; a redirect-timeout bug shipped after Week 2 pulls Variant B’s share down every week after, crossing the flag threshold by Week 5.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-srm-check" class="quarto-xref">Figure&nbsp;<span>14.4</span></a> tracks a checkout-button test across five weeks at 15,000 new visitors per week. Assignment stays a clean coin flip the whole time.</p>
+<p>After Week 2, a redirect-timeout bug on Variant B’s page drops roughly 6% of visitors assigned to it from the logging pipeline before a conversion is ever recorded for them. Variant A’s page is untouched, so its logged count always matches its assigned count.</p>
+<p>By the end of Week 4, cumulative logged traffic sits at 29,921 for A against 29,145 for B, a chi-square statistic of 10.19 and a p-value of 0.0014, a split drifting the wrong way but not yet flagged. One more week of the same bug pushes it past the line: 37,430 logged for A against 36,243 for B, chi-square 19.12, p-value near 0.00001.</p>
+<p><em>Sample ratio mismatch</em> (SRM) is what a test has when the traffic that ends up analyzed splits differently from the traffic the randomization mechanism was told to produce. It says nothing yet about which variant converts better. It says the two groups being compared are no longer the two groups the experiment was designed to compare.</p>
+<p>The gap between who was randomized and who got counted is the whole reason SRM deserves a check of its own, separate from every decision rule earlier in this chapter. Win probability, expected loss, and the frequentist p-value all assume the visitors landing in each bucket are a fair, randomized sample. A redirect bug does not touch who gets randomized; it touches who survives to be counted, and that survival is not random. Slower connections and older devices are the ones most likely to time out on a redirect, so the visitors quietly dropped from Variant B’s logs are not a random 5% of Variant B; they skew toward whichever population is slower to load a page.</p>
+<p>Comparing the two groups that remain, then, is not comparing Variant A to Variant B. It is comparing Variant A’s full population to a filtered slice of Variant B’s population, missing the specific visitors most likely to behave differently. A win probability of 93.7% computed on that filtered comparison is a precise answer to a question nobody meant to ask.</p>
+<p>Chapter 2 introduced the <em>goodness of fit</em> test for this shape of question: whether observed category counts still match an expected distribution, using the same chi-squared statistic behind the association test in that chapter,</p>
+<p><span class="math display">\[\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}\]</span></p>
+<p>with <span class="math inline">\(O_i\)</span> the observed logged count for variant <span class="math inline">\(i\)</span> and <span class="math inline">\(E_i\)</span> the count the intended split would produce out of the same total. For a 50/50 design with <span class="math inline">\(n\)</span> total logged visitors, <span class="math inline">\(E_i\)</span> is simply <span class="math inline">\(n / 2\)</span> for each variant.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run the SRM check on cumulative totals throughout the experiment, not once at the end. This chapter’s peeking-problem section warns against optional stopping on the decision metric; checking the split itself carries no such penalty, since it is a validity check on the experiment’s plumbing, not a test of the effect being measured.</p>
+</div>
+</div>
+<p>Kohavi, Tang, and Xu’s practitioner reference on controlled experiments recommends a stricter significance threshold than the conventional 0.05 for this specific check, on the order of <span class="math inline">\(p &lt; 0.001\)</span>, because with tens of thousands of visitors even a trivial, harmless imbalance clears 0.05 routinely; the stricter bar reserves a flag for a split large enough to point to a pipeline problem worth fixing <span class="citation" data-cites="kohavitangxu2020">(<a href="chapter-01-descriptive-statistics.html#ref-kohavitangxu2020" role="doc-biblioref">Kohavi, Tang, and Xu 2020</a>)</span>. A large-scale study of SRM across four production companies catalogs the usual culprits behind that kind of split: assignment bucketing bugs, bot traffic filtered asymmetrically after the fact, and, as in this section’s example, telemetry lost somewhere downstream of assignment <span class="citation" data-cites="fabijan2019">(<a href="chapter-01-descriptive-statistics.html#ref-fabijan2019" role="doc-biblioref">Fabijan et al. 2019</a>)</span>.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An SRM flag stops the analysis cold. Every other number this chapter computes needs to wait until the split is fixed: win probability and expected loss are answers to the wrong question until then.</p>
+</div>
+</div>
+</section>
+<section id="expected-loss-as-a-stopping-rule" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="expected-loss-as-a-stopping-rule"><span class="header-section-number">14.6</span> Expected loss as a stopping rule</h2>
 <p>Imagine picking between two job offers without knowing which pays better long-term. Expected loss asks not just “which looks better” but “if this pick is wrong, how much does that mistake typically cost?”</p>
 <p>Win probability alone can mislead. Two experiments can both report a 95% chance that B wins while carrying sharply different risk: one because A and B are meaningfully far apart, the other because the sample is still small and the estimate is noisy.</p>
 <p>Chris Stucchio’s <em>expected loss</em> framework, developed for the Bayesian testing engine behind the optimization platform VWO, answers a more honest question than “how likely is B to win”: if you choose B and you turn out to be wrong, how much do you lose, on average, in the metric that matters <span class="citation" data-cites="stucchio2015">(<a href="chapter-01-descriptive-statistics.html#ref-stucchio2015" role="doc-biblioref">Stucchio 2015</a>)</span>?</p>
@@ -531,17 +614,17 @@ Tip
 <iframe src="../_generated/chapter-05-fig-decision-metrics.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decision-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14.4: Win probability and expected loss from choosing B, as the sample size grows. Expected loss stays a steadier guide than win probability when the sample is still small.
+Figure&nbsp;14.5: Win probability and expected loss from choosing B, as the sample size grows. Expected loss stays a steadier guide than win probability when the sample is still small.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-decision-metrics" class="quarto-xref">Figure&nbsp;<span>14.4</span></a> tracks both numbers, win probability and expected loss, across the same growing sample sizes as the checkout-button simulation.</p>
+<p><a href="#fig-decision-metrics" class="quarto-xref">Figure&nbsp;<span>14.5</span></a> tracks both numbers, win probability and expected loss, across the same growing sample sizes as the checkout-button simulation.</p>
 <p>Note the jaggedness at small sample sizes. At <span class="math inline">\(n = 50\)</span>, only two of Variant A’s visitors and five of Variant B’s had converted.</p>
 <p>That is enough for the simulation to show an 86.6% win probability for B, driven by a small sample that happened to land unusually far apart (4% versus 10% observed, against true rates of 10% and 12.5%).</p>
 <p>The expected-loss number at that same point, 0.0037, stays the steadier guide: it prices in how thin the evidence still is, even while the win probability alone looks fairly persuasive.</p>
 </section>
-<section id="continuous-monitoring-and-the-peeking-problem" class="level2" data-number="14.6">
-<h2 data-number="14.6" class="anchored" data-anchor-id="continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.6</span> Continuous monitoring and the peeking problem</h2>
+<section id="continuous-monitoring-and-the-peeking-problem" class="level2" data-number="14.7">
+<h2 data-number="14.7" class="anchored" data-anchor-id="continuous-monitoring-and-the-peeking-problem"><span class="header-section-number">14.7</span> Continuous monitoring and the peeking problem</h2>
 <p>A common pitch for Bayesian testing is that a team can watch the dashboard at any point and act on what it shows. A frequentist test, by contrast, inflates its false-positive rate if a team checks the p-value early and stops the moment the p-value clears the significance threshold.</p>
 <p>That pitch needs a qualification. Georgi Georgiev’s direct rebuttal to the strong version of this claim argues that stopping the moment a result looks favorable, and treating that as clean evidence, still changes the question being answered.</p>
 <p>It shifts from “what does this data say” to “what does this data say, given that I stopped here because it looked good.”</p>
@@ -559,17 +642,17 @@ Warning
 <p>Checking a test repeatedly and stopping the moment it looks favorable inflates the false-positive rate, for frequentist and Bayesian analyses alike. Five undisciplined looks can roughly triple the error rate.</p>
 </div>
 </div>
-<div id="fig-peeking" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-ab-peeking" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-ab-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <iframe src="../_generated/chapter-05-fig-peeking-problem.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14.5: False-positive rate under a true null, as the number of times the test is checked grows. A single fixed-horizon check holds the nominal 5%; five checks push it past 14%.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ab-peeking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.6: False-positive rate under a true null, as the number of times the test is checked grows. A single fixed-horizon check holds the nominal 5%; five checks push it past 14%.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-peeking" class="quarto-xref">Figure&nbsp;<span>14.5</span></a> simulates this directly: two identical variants (no true difference, so any rejection is a false positive) checked with a standard significance test at growing numbers of look points.</p>
+<p><a href="#fig-ab-peeking" class="quarto-xref">Figure&nbsp;<span>14.6</span></a> simulates this directly: two identical variants (no true difference, so any rejection is a false positive) checked with a standard significance test at growing numbers of look points.</p>
 <p>Checking once holds the nominal 5% rate, by construction. Checking five times pushes the false-positive rate to roughly 14%, close to three times the nominal level, matching Georgiev’s figure.</p>
 <p>By 40 checks, a team that stops the moment any check looks favorable is wrong roughly three times in ten, not one time in twenty.</p>
 <p>This simulation runs a classical significance test at each check point. A Bayesian posterior does not inflate this way in the same mechanical sense, since each posterior computed is a correct statement of belief at that sample size.</p>
@@ -579,8 +662,8 @@ Figure&nbsp;14.5: False-positive rate under a true null, as the number of times 
 <p>A loss estimate computed on a whim at a favorable-looking moment is a noisier estimate than the same loss computed against a sample size decided in advance.</p>
 <p>Two habits keep the dashboard-watching convenience of Bayesian testing honest: setting a minimum sample size before monitoring begins, and treating the expected-loss threshold as a stopping rule fixed before the experiment starts, not a justification invented after the fact.</p>
 </section>
-<section id="a-direct-comparison-against-the-frequentist-result" class="level2" data-number="14.7">
-<h2 data-number="14.7" class="anchored" data-anchor-id="a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.7</span> A direct comparison against the frequentist result</h2>
+<section id="a-direct-comparison-against-the-frequentist-result" class="level2" data-number="14.8">
+<h2 data-number="14.8" class="anchored" data-anchor-id="a-direct-comparison-against-the-frequentist-result"><span class="header-section-number">14.8</span> A direct comparison against the frequentist result</h2>
 <p>The opening of this chapter quoted a two-proportion z-test on a checkout-button experiment at the same 10% and 12.5% true rates used throughout this chapter, at <span class="math inline">\(n = 1{,}000\)</span> per variant: 95 conversions out of 1,000 for A (9.5%), 116 out of 1,000 for B (11.6%), <span class="math inline">\(z = 1.53\)</span>, <span class="math inline">\(p = 0.126\)</span>.</p>
 <p>Under a standard 0.05 threshold, that result does not reject the null hypothesis that A and B convert at the same rate.</p>
 <p>The Bayesian posterior at that same sample size puts the win probability for B at 93.7%, with an expected loss from choosing B of 0.038 percentage points.</p>
@@ -606,8 +689,8 @@ Note
 <p>The Bayesian approach gives a direct probability statement about which variant is better and a decision rule priced in business-relevant units, and it tolerates a team checking the results early without inflating the false-positive rate the way repeated frequentist peeking does.</p>
 <p>It requires choosing and defending a prior, a step a frequentist test never asks for. And a stakeholder unfamiliar with posterior distributions will need the win-probability-and-expected-loss framing translated into plain terms before it sticks.</p>
 </section>
-<section id="beyond-conversion-rates" class="level2" data-number="14.8">
-<h2 data-number="14.8" class="anchored" data-anchor-id="beyond-conversion-rates"><span class="header-section-number">14.8</span> Beyond conversion rates</h2>
+<section id="beyond-conversion-rates" class="level2" data-number="14.9">
+<h2 data-number="14.9" class="anchored" data-anchor-id="beyond-conversion-rates"><span class="header-section-number">14.9</span> Beyond conversion rates</h2>
 <p>Combining a prior guess with new data works like a weighted average: the more trustworthy source, whichever one carries less uncertainty, pulls the final answer closer to itself.</p>
 <p>The checkout-button test almost certainly has a second question behind the first: does the redesign also change how much a converting visitor spends, not just whether they convert at all?</p>
 <p>Average order value is continuous, not binary, so Beta-Binomial conjugacy does not apply directly. A different conjugate pairing fills the same role.</p>
@@ -640,19 +723,251 @@ Warning
 <iframe src="../_generated/chapter-05-fig-normal-normal-update.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-normal-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14.6: The average-order-value posterior narrows and slides from the $42 prior toward the observed $44.10 sample mean as converting visitors accumulate. Move the slider.
+Figure&nbsp;14.7: The average-order-value posterior narrows and slides from the $42 prior toward the observed $44.10 sample mean as converting visitors accumulate. Move the slider.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-normal-normal-update" class="quarto-xref">Figure&nbsp;<span>14.6</span></a> shows the same narrowing-and-settling behavior <a href="#fig-posterior-update" class="quarto-xref">Figure&nbsp;<span>14.2</span></a> showed for a Beta posterior, this time for the Normal-Normal pairing: at <span class="math inline">\(n = 0\)</span> the curve is just the prior, centered on $42.</p>
+<p><a href="#fig-normal-normal-update" class="quarto-xref">Figure&nbsp;<span>14.7</span></a> shows the same narrowing-and-settling behavior <a href="#fig-posterior-update" class="quarto-xref">Figure&nbsp;<span>14.2</span></a> showed for a Beta posterior, this time for the Normal-Normal pairing: at <span class="math inline">\(n = 0\)</span> the curve is just the prior, centered on $42.</p>
 <p>By <span class="math inline">\(n = 500\)</span> the posterior has both narrowed and shifted almost entirely onto the observed $44.10, since 500 observations at a precision of <span class="math inline">\(1/18^2\)</span> each outweigh the prior’s single pseudo-observation-equivalent of precision by a wide margin.</p>
 <p>That said, plenty of continuous metrics do not stay this well behaved. Order value tends to be right-skewed in the same way the latency data from Chapter 1 was, carries outliers from bulk orders, and often needs a model structure the simple Normal-Normal pairing cannot express.</p>
 <p>This includes cases such as separate effects per customer segment or a likelihood that is not normal at all. This is where conjugacy runs out and numerical methods take over.</p>
 <p><code>pymc</code> and <code>arviz</code>, both listed among this book’s dependencies, exist to draw posterior samples via Markov chain Monte Carlo once a model no longer has a closed-form answer.</p>
 <p>Every figure in this chapter needed nothing more than arithmetic, because Beta-Binomial and Normal-Normal conjugacy both had closed-form solutions. A model with correlated segment-level effects or a skewed, non-normal outcome usually will not.</p>
 </section>
-<section id="the-limits-of-bayesian-inference" class="level2" data-number="14.9">
-<h2 data-number="14.9" class="anchored" data-anchor-id="the-limits-of-bayesian-inference"><span class="header-section-number">14.9</span> The limits of Bayesian inference</h2>
+<section id="multiple-metrics-multiple-chances-to-be-wrong" class="level2" data-number="14.10">
+<h2 data-number="14.10" class="anchored" data-anchor-id="multiple-metrics-multiple-chances-to-be-wrong"><span class="header-section-number">14.10</span> Multiple metrics, multiple chances to be wrong</h2>
+<p>Buying ten lottery tickets instead of one does not raise any single ticket’s odds, but it does raise the odds that at least one of them pays out. Watching ten metrics on a dashboard works the same way: each one gets its own chance to look like a win purely by luck.</p>
+<div id="fig-multiple-metrics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-multiple-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-multiple-metrics.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-multiple-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.8: The probability that at least one of <span class="math inline">\(k\)</span> metrics clears a 95% win-probability bar, with no true difference behind any of them. The uncorrected rate climbs past 60% by twenty metrics; a per-metric threshold adjusted for <span class="math inline">\(k\)</span> holds it near 5% throughout.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-multiple-metrics" class="quarto-xref">Figure&nbsp;<span>14.8</span></a> runs the checkout-button test’s own setup, 2,000 visitors per variant, both arms at a true 10% conversion rate, so any flagged metric is by construction a false one, across a growing number of simultaneously tracked metrics.</p>
+<p>At <span class="math inline">\(k = 1\)</span>, a metric flagged as a winner (win probability above 97.5% or below 2.5%) by chance alone happens 4.8% of the time, close to the 5% a single well-calibrated test should produce. At <span class="math inline">\(k = 5\)</span> metrics, that rises to 22.6%. At <span class="math inline">\(k = 20\)</span>, it reaches 64.4%, close to the 64.2% the closed-form probability <span class="math inline">\(1 - (1 - 0.05)^{20}\)</span> predicts.</p>
+<p>The same arithmetic, <span class="math inline">\(1 - (1 - \alpha)^k\)</span>, applied to a different threshold rule, produces the identical 64.2% figure Chapter 2 found for twenty p-value-based dashboard metrics. A win-probability cutoff and a p-value cutoff are both single-metric decision rules applied independently across metrics, with no correction for how many chances each experiment gets.</p>
+<p>A Bayesian framing changes what is being estimated, a full posterior instead of a point estimate and a p-value, but it changes nothing about this specific arithmetic. Nineteen metrics with no true effect and one metric carrying a true 3-point lift still produce, on average, several false alarms alongside the one true finding, whether the flagging rule is <span class="math inline">\(p &lt; 0.05\)</span> or win probability above 97.5%.</p>
+<p>The frequentist fix from Chapter 2, dividing the significance threshold by the number of metrics tracked, has a direct analogue here: instead of flagging a metric at a 97.5%/2.5% win-probability cutoff, raise the bar to <span class="math inline">\(1 - \alpha / (2k)\)</span> on the correct side, the same Bonferroni logic applied to a probability threshold instead of a p-value. <a href="#fig-multiple-metrics" class="quarto-xref">Figure&nbsp;<span>14.8</span></a> shows this correction holding the false-alarm rate near 5% at every value of <span class="math inline">\(k\)</span> tested.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nothing about computing a posterior instead of a p-value removes the multiple-comparisons problem. A win-probability threshold checked independently across many metrics inflates its false-alarm rate the same way a p-value threshold does, because the underlying arithmetic is the same regardless of which framework produced the threshold.</p>
+</div>
+</div>
+<p>A hierarchical model offers a more natural Bayesian-native answer than a narrower Bonferroni-style correction. Treating each metric’s effect as drawn from a shared distribution pulls a noisy metric’s estimate toward the group’s pattern; a Bonferroni correction only raises the bar the metric has to clear. The next section builds that same kind of partial-pooling model, applied to segments of an experiment’s traffic instead of metrics, and the shrinkage mechanism carries over directly.</p>
+</section>
+<section id="hierarchical-ab-testing-partial-pooling-across-segments" class="level2" data-number="14.11">
+<h2 data-number="14.11" class="anchored" data-anchor-id="hierarchical-ab-testing-partial-pooling-across-segments"><span class="header-section-number">14.11</span> Hierarchical A/B testing: partial pooling across segments</h2>
+<p>A retail chain trusts its flagship store’s weekly numbers on their own, treats a brand-new kiosk’s first week with more caution, and still lets what it has learned across every other store inform its guess about that kiosk. Hierarchical modeling formalizes that same instinct: each segment gets its own estimate, but small or noisy segments lean on the pattern the other segments share.</p>
+<p>Chapter 10 introduced PSIS-LOO and <code>az.compare()</code> with a promise attached: this chapter would use both to check whether adding a segment-level effect to an experiment’s model earns its keep, or only adds machinery without adding predictive accuracy. This section keeps that promise on the checkout-button test itself, split across four traffic-source segments: organic search, paid search, referral links, and email.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Segment</th>
+<th style="text-align: right;"><span class="math inline">\(n_A\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(n_B\)</span></th>
+<th style="text-align: right;">Observed lift (pp)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Organic</td>
+<td style="text-align: right;">6,000</td>
+<td style="text-align: right;">6,000</td>
+<td style="text-align: right;">+0.80</td>
+</tr>
+<tr class="even">
+<td>Paid search</td>
+<td style="text-align: right;">4,000</td>
+<td style="text-align: right;">4,000</td>
+<td style="text-align: right;">+1.88</td>
+</tr>
+<tr class="odd">
+<td>Referral</td>
+<td style="text-align: right;">1,200</td>
+<td style="text-align: right;">1,200</td>
+<td style="text-align: right;">+0.08</td>
+</tr>
+<tr class="even">
+<td>Email</td>
+<td style="text-align: right;">350</td>
+<td style="text-align: right;">350</td>
+<td style="text-align: right;">+0.57</td>
+</tr>
+</tbody>
+</table>
+<p>Three models fit that same table three different ways. <em>No pooling</em> estimates each segment’s lift on its own data alone, as if the other three segments did not exist. <em>Complete pooling</em> collapses all four segments into a single shared lift, as if traffic source made no difference at all. <em>Hierarchical</em> partial pooling sits between the two: each segment keeps its own lift parameter, but those four parameters are drawn from a shared Normal distribution whose own mean and spread the model also estimates from the data.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit_segment_model(n_a, k_a, n_b, k_b, pooling):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    segments <span class="op">=</span> [<span class="st">"organic"</span>, <span class="st">"paid_search"</span>, <span class="st">"referral"</span>, <span class="st">"email"</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pm.Model(coords<span class="op">=</span>{<span class="st">"segment"</span>: segments}) <span class="im">as</span> model:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        alpha <span class="op">=</span> pm.Normal(<span class="st">"alpha"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="fl">1.5</span>, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> pooling <span class="op">==</span> <span class="st">"no_pooling"</span>:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            delta <span class="op">=</span> pm.Normal(<span class="st">"delta"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="fl">1.5</span>, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> pooling <span class="op">==</span> <span class="st">"complete_pooling"</span>:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            delta_shared <span class="op">=</span> pm.Normal(<span class="st">"delta_shared"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            delta <span class="op">=</span> pm.Deterministic(<span class="st">"delta"</span>, delta_shared <span class="op">*</span> pm.math.ones(<span class="dv">4</span>), dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            mu_delta <span class="op">=</span> pm.Normal(<span class="st">"mu_delta"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            sigma_delta <span class="op">=</span> pm.HalfNormal(<span class="st">"sigma_delta"</span>, sigma<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            offset <span class="op">=</span> pm.Normal(<span class="st">"offset"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            delta <span class="op">=</span> pm.Deterministic(<span class="st">"delta"</span>, mu_delta <span class="op">+</span> offset <span class="op">*</span> sigma_delta, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        p_a <span class="op">=</span> pm.math.invlogit(alpha)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        p_b <span class="op">=</span> pm.math.invlogit(alpha <span class="op">+</span> delta)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        pm.Binomial(<span class="st">"obs_a"</span>, n<span class="op">=</span>n_a, p<span class="op">=</span>p_a, observed<span class="op">=</span>k_a, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        pm.Binomial(<span class="st">"obs_b"</span>, n<span class="op">=</span>n_b, p<span class="op">=</span>p_b, observed<span class="op">=</span>k_b, dims<span class="op">=</span><span class="st">"segment"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        idata <span class="op">=</span> pm.sample(<span class="dv">1000</span>, tune<span class="op">=</span><span class="dv">1000</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> idata</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>comparison <span class="op">=</span> az.compare({</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"no_pooling"</span>: fit_segment_model(n_a, k_a, n_b, k_b, <span class="st">"no_pooling"</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"complete_pooling"</span>: fit_segment_model(n_a, k_a, n_b, k_b, <span class="st">"complete_pooling"</span>),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hierarchical"</span>: fit_segment_model(n_a, k_a, n_b, k_b, <span class="st">"hierarchical"</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The hierarchical branch above uses the same non-centered parameterization, an offset drawn from a standard Normal and scaled afterward, that Chapter 9 introduced for the horseshoe prior. Sampling a segment’s lift directly from <code>Normal(mu_delta, sigma_delta)</code> couples that segment’s value to <code>sigma_delta</code> in a way that produces a narrow, hard-to-sample funnel whenever a segment’s own data is too sparse to pin its lift down; the offset form breaks that coupling.</p>
+</div>
+</div>
+<p>Fitting this model can still log divergent transitions if <code>sigma_delta</code> gets sampled with a step size too large for how tight the funnel’s neck becomes, even with the offset form above. <a href="chapter-09-bayesian-regression.html#sec-divergences-funnel" class="quarto-xref"><span>Section 9.10</span></a> in Chapter 9 builds the diagnostic for this shape of problem: plotting a population-level scale against a group’s deviation, and marking where a fixed step size stops working. Applied here, that same picture would put <code>sigma_delta</code> on one axis and a sparse segment’s <code>delta_offset</code>, Referral or Email, the two segments with the least data to pin down their own lift, on the other; divergences would cluster where <code>sigma_delta</code> gets pulled small by the other segments while these two still carry plenty of individual uncertainty. Running this model’s own trace through <code>az.plot_pair(idata, var_names=["sigma_delta", "delta_offset"], coords={"segment": "referral"}, divergences=True)</code> gives the same diagnostic Chapter 9 builds, pointed at this chapter’s own segment-level parameters instead of a regression coefficient’s population-level scale.</p>
+<p>Running the equivalent computation directly from posterior draws, the same reproducibility choice Chapter 10 made for its own figure, produces the table <code>az.compare()</code> would print:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Model</th>
+<th style="text-align: right;">elpd_loo</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: right;">d_elpd</th>
+<th style="text-align: right;">dSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>complete_pooling</td>
+<td style="text-align: right;">-33.8</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+</tr>
+<tr class="even">
+<td>hierarchical</td>
+<td style="text-align: right;">-34.0</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">-0.2</td>
+<td style="text-align: right;">0.35</td>
+</tr>
+<tr class="odd">
+<td>no_pooling</td>
+<td style="text-align: right;">-36.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">-3.0</td>
+<td style="text-align: right;">1.15</td>
+</tr>
+</tbody>
+</table>
+<div id="fig-hierarchical-segments" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hierarchical-segments-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-hierarchical-segments.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hierarchical-segments-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.9: Left: the same elpd_loo comparison as the table, best model first. Right: each segment’s true lift against what no pooling and partial pooling recovered from the data. Referral’s near-zero no-pooling estimate, driven by a small sample landing close to even, moves toward the group pattern under partial pooling and lands close to its true 0.5-point lift; Email, the smallest segment, gets pulled the same direction even though its own true lift ran the other way.
+</figcaption>
+</figure>
+</div>
+<p>Read the table the way Chapter 10 recommended: against <code>d_elpd</code> and <code>dSE</code>, not the plain <code>SE</code> column. The hierarchical model’s gap from complete pooling, -0.2, sits well inside its own 0.35-point standard error, so this dataset cannot distinguish the two on predictive accuracy alone. No pooling’s gap, -3.0 against a 1.15-point standard error, is a clearer, roughly three-standard-error loss: estimating four segments from scratch, with no sharing of information, costs more than it buys here.</p>
+<p>That leaves an honest, unglamorous answer to Chapter 10’s question: adding the segment-level effect does not measurably improve this model’s predictions over ignoring segments entirely. <code>az.compare()</code> is not refusing to reward the segment structure out of excess caution; with only eight aggregated observations, four segments times two arms, several of them carry a Pareto <span class="math inline">\(\hat{k}\)</span> diagnostic above 0.70, the same warning sign Chapter 10’s own diagnostic flags, so this particular elpd comparison is closer to suggestive than decisive.</p>
+<p>What the elpd table cannot show, and the right-hand panel of <a href="#fig-hierarchical-segments" class="quarto-xref">Figure&nbsp;<span>14.9</span></a> does, is what partial pooling buys at the level of a single segment’s estimate instead of the model’s aggregate fit. Referral’s no-pooling lift came out to essentially zero, an artifact of a small sample happening to split nearly even; partial pooling pulled it toward the other segments’ generally positive pattern and closer to its true 0.5-point lift. Email tells the harder version of the same story: partial pooling pulled its estimate toward that same shared pattern too, but Email’s own underlying lift ran negative, so here the shared pattern pulled a small, noisy segment further from the truth, not closer to it.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Partial pooling borrows strength from segments that resemble each other, and most of the time that borrowing helps a noisy, small segment more than it hurts. It is not free. A segment whose underlying effect truly differs from its peers, combined with too little data of its own to prove that difference, can still end up pulled the wrong direction. Treat hierarchical structure as a default worth reaching for, and still check what each segment’s own estimate says on its own.</p>
+</div>
+</div>
+</section>
+<section id="latent-subgroups-what-a-mixture-model-finds-when-the-segment-isnt-logged" class="level2" data-number="14.12">
+<h2 data-number="14.12" class="anchored" data-anchor-id="latent-subgroups-what-a-mixture-model-finds-when-the-segment-isnt-logged"><span class="header-section-number">14.12</span> Latent subgroups: what a mixture model finds when the segment isn’t logged</h2>
+<p>A restaurant’s average four-star rating can hide two different dining rooms behind it: one table that loved the meal and rated it five stars, another that sent a dish back and rated it two. The average is correct and describes neither table. An experiment’s average effect can hide the same split.</p>
+<p>The hierarchical section above handles a version of this problem where the split is a column the dataset provides: four traffic sources, each one countable and nameable ahead of time. This section handles the harder version, where a split is there but the experiment platform never logged it.</p>
+<p>Consider the same checkout redesign, now measured on a different metric: seconds spent on the checkout page, from arrival to a completed order, under Variant B. A visitor who has used the redesigned layout before moves through it quickly, since a new layout only slows someone down the first time they see it. A first-time visitor, still expecting the old flow, spends longer finding each field. Whether a given visitor is seeing the redesign for the first time is the kind of detail an experiment platform often does not capture: the logging pipeline behind this chapter’s own sample-ratio-mismatch section records a conversion and a timestamp. A visitor’s prior exposure to the page never makes it into that log.</p>
+<div id="fig-latent-mixture" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-latent-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-ab-testing-fig-latent-mixture.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-latent-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.10: Left: the pooled checkout-time change fit as one effect, a single Normal curve sitting between the data’s two humps and matching neither well. Right: the same data fit as a two-component mixture. One cluster, 62% of simulated visitors, checks out about nine seconds faster; the other, 38%, checks out about six seconds slower.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-latent-mixture" class="quarto-xref">Figure&nbsp;<span>14.10</span></a> fits both views to the same 2,400 simulated Variant B visitors. The left panel’s single-Normal fit reports one number: checkout time changed by 3.4 seconds on average (positive means faster), with a standard deviation of 8.1 seconds. That standard deviation is doing more work than a single-effect summary usually admits. A wide spread like this can look like ordinary noise around one typical visitor’s experience. Here it describes something else: the gap between two different experiences that got averaged together.</p>
+<p><strong>What it is.</strong> A finite mixture model treats an outcome, here each visitor’s change in checkout time, as a blend of <span class="math inline">\(K\)</span> component distributions. Each visitor belongs to one component, but which one stays unobserved; the model sees only the outcome and infers a weight for each component (what share of visitors belong to it), alongside that component’s own mean and spread. Fitting a mixture at <span class="math inline">\(K = 2\)</span> asks a specific question of the data: does a single Normal curve explain this outcome, or does the outcome look like two effects stacked on top of each other?</p>
+<p><strong>Why it matters.</strong> The right panel’s two-component fit recovers a weight of 38% for a cluster centered near -5.8 seconds, checkouts that got slower, and a weight of 62% for a cluster centered near +9.0 seconds, checkouts that got faster. A team watching only the aggregate 3.4-second improvement would ship Variant B and call it a clear win. Both numbers matter for what happens next: close to 900 visitors out of every 2,400 reaching this checkout page spend roughly six additional seconds every time they check out, and the aggregate number hides that cost entirely. Whether that 38% lines up with first-time buyers, a specific device class, or something else unrecorded is a question this mixture model leaves open, since it never observed group membership. What it can do is tell a team that a second effect is there to go looking for, a signal the single win-probability number from earlier in this chapter never provides.</p>
+<p><strong>How to compute it.</strong> Fitting a two-component Normal mixture in PyMC needs one piece of care beyond the models built earlier in this chapter: without a constraint, the two components are not identifiable from each other. Swap “component 0” and “component 1” everywhere in a set of posterior draws and the mixture still describes the same distribution, so nothing in the model favors one labeling over the other. Label switching describes this risk: an MCMC sampler left alone can flip which component it calls “0” partway through a chain, and averaging posterior draws across that flip corrupts every summary statistic computed from them, even though each individual draw is a valid fit <span class="citation" data-cites="stephens2000">(<a href="chapter-01-descriptive-statistics.html#ref-stephens2000" role="doc-biblioref">Stephens 2000</a>)</span>. The <code>ordered</code> transform on <code>means</code> below closes that gap: it forces component 0’s mean to sit below component 1’s mean at every draw, so the sampler always commits to one fixed labeling. Left unconstrained, two equally valid labelings sit side by side, and the chain can wander between them.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model() <span class="im">as</span> mixture_model:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> pm.Dirichlet(<span class="st">"weights"</span>, a<span class="op">=</span>np.ones(<span class="dv">2</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> pm.Normal(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"means"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>, shape<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        transform<span class="op">=</span>pm.distributions.transforms.ordered,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        initval<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">6.0</span>, <span class="fl">6.0</span>]),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    sigmas <span class="op">=</span> pm.HalfNormal(<span class="st">"sigmas"</span>, sigma<span class="op">=</span><span class="dv">6</span>, shape<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    pm.NormalMixture(<span class="st">"checkout_time_change"</span>, w<span class="op">=</span>weights, mu<span class="op">=</span>means, sigma<span class="op">=</span>sigmas,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                      observed<span class="op">=</span>checkout_time_delta)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    idata <span class="op">=</span> pm.sample(<span class="dv">1500</span>, tune<span class="op">=</span><span class="dv">1500</span>, chains<span class="op">=</span><span class="dv">2</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Each visitor’s checkout-time change <span class="math inline">\(\delta_i\)</span> is modeled as a weighted blend of <span class="math inline">\(K\)</span> Normal components:</p>
+<p><span class="math display">\[p(\delta_i) = \sum_{c=1}^{K} w_c \, \mathcal{N}(\delta_i \mid \mu_c, \sigma_c^2), \qquad
+\sum_{c=1}^{K} w_c = 1\]</span></p>
+<p>with the weights <span class="math inline">\(w_c\)</span> drawn from a Dirichlet prior, so every visitor’s outcome is a blend of <span class="math inline">\(K\)</span> possible experiences.</p>
+<p>Choosing <span class="math inline">\(K\)</span> is itself a model-comparison question. Chapter 10’s <code>az.compare()</code> machinery, used earlier in this chapter to check whether a segment-level effect earned its keep, applies here too: fit the mixture at <span class="math inline">\(K = 1\)</span> (which collapses to the single-Normal fit in the left panel), <span class="math inline">\(K = 2\)</span>, and <span class="math inline">\(K = 3\)</span>, and let <code>elpd_loo</code> say whether an extra component pays for itself.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A mixture model finds a split in the data. Confirming what causes that split takes independent evidence: a login flag, a device ID, something this experiment left unlogged. The two clusters recovered here look like they map onto first-time versus returning visitors; treat that mapping as a hypothesis for that evidence to confirm, and treat the mixture result itself as a reason to go find the missing column.</p>
+</div>
+</div>
+<p>The checks earlier in this chapter still apply here. A sample-ratio-mismatch problem still invalidates every posterior computed from the affected data, mixture or not. Logging the segment that explains the split, once that becomes cheap enough to add, still beats inferring it from a mixture fit.</p>
+</section>
+<section id="the-limits-of-bayesian-inference" class="level2" data-number="14.13">
+<h2 data-number="14.13" class="anchored" data-anchor-id="the-limits-of-bayesian-inference"><span class="header-section-number">14.13</span> The limits of Bayesian inference</h2>
 <p>Nothing in this chapter repairs the confounding problem from Chapter 1’s kidney-stone study. If the checkout-button experiment happened to assign more mobile visitors to Variant B, and mobile visitors convert differently regardless of button design, a Bayesian analysis of the combined results is exposed to the identical Simpson’s-paradox reversal a frequentist analysis would be.</p>
 <p>Conjugate priors, closed-form win probabilities, and expected loss all assume the underlying experiment was designed well: randomized assignment, a stable population, and no lurking variable steering which visitors saw which variant.</p>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -673,11 +988,20 @@ Important
 <section id="references" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-fabijan2019" class="csl-entry" role="listitem">
+Fabijan, Aleksander, Jayant Gupchup, Somit Gupta, Jeff Omhover, Wen Qin, Lukas Vermeer, and Pavel A. Dmitriev. 2019. <span>“Diagnosing Sample Ratio Mismatch in Online Controlled Experiments: A Taxonomy and Rules of Thumb for Practitioners.”</span> In <em>Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining</em>, 2156–64. <a href="https://doi.org/10.1145/3292500.3330722">https://doi.org/10.1145/3292500.3330722</a>.
+</div>
 <div id="ref-georgiev2017" class="csl-entry" role="listitem">
 Georgiev, Georgi. 2017. <span>“Bayesian AB Testing Is Not Immune to Optional Stopping Issues.”</span> Analytics-Toolkit.com blog. <a href="https://blog.analytics-toolkit.com/2017/bayesian-ab-testing-not-immune-to-optional-stopping-issues/">https://blog.analytics-toolkit.com/2017/bayesian-ab-testing-not-immune-to-optional-stopping-issues/</a>.
 </div>
+<div id="ref-kohavitangxu2020" class="csl-entry" role="listitem">
+Kohavi, Ron, Diane Tang, and Ya Xu. 2020. <em>Trustworthy Online Controlled Experiments: A Practical Guide to a/b Testing</em>. Cambridge University Press.
+</div>
 <div id="ref-miller2014" class="csl-entry" role="listitem">
 Miller, Evan. 2014. <span>“Formulas for Bayesian a/b Testing.”</span> evanmiller.org. <a href="https://www.evanmiller.org/bayesian-ab-testing.html">https://www.evanmiller.org/bayesian-ab-testing.html</a>.
+</div>
+<div id="ref-stephens2000" class="csl-entry" role="listitem">
+Stephens, Matthew. 2000. <span>“Dealing with Label Switching in Mixture Models.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 62 (4): 795–809. <a href="https://doi.org/10.1111/1467-9868.00265">https://doi.org/10.1111/1467-9868.00265</a>.
 </div>
 <div id="ref-stucchio2015" class="csl-entry" role="listitem">
 Stucchio, Chris. 2015. <span>“Bayesian a/b Testing at VWO.”</span> Visual Website Optimizer technical whitepaper. <a href="https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf">https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf</a>.

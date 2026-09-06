@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +206,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -366,7 +361,12 @@ window.Quarto = {
   <li><a href="#regression-splines-piecewise-polynomials-joined-at-knots" id="toc-regression-splines-piecewise-polynomials-joined-at-knots" class="nav-link" data-scroll-target="#regression-splines-piecewise-polynomials-joined-at-knots"><span class="header-section-number">6.4</span> Regression splines: piecewise polynomials joined at knots</a></li>
   <li><a href="#natural-cubic-splines-constraining-the-boundaries" id="toc-natural-cubic-splines-constraining-the-boundaries" class="nav-link" data-scroll-target="#natural-cubic-splines-constraining-the-boundaries"><span class="header-section-number">6.5</span> Natural cubic splines: constraining the boundaries</a></li>
   <li><a href="#smoothing-splines-a-penalty-instead-of-a-knot-count" id="toc-smoothing-splines-a-penalty-instead-of-a-knot-count" class="nav-link" data-scroll-target="#smoothing-splines-a-penalty-instead-of-a-knot-count"><span class="header-section-number">6.6</span> Smoothing splines: a penalty instead of a knot count</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">6.7</span> A Bayesian perspective</a></li>
+  <li><a href="#local-regression-smoothing-without-choosing-knots" id="toc-local-regression-smoothing-without-choosing-knots" class="nav-link" data-scroll-target="#local-regression-smoothing-without-choosing-knots"><span class="header-section-number">6.7</span> Local regression: smoothing without choosing knots</a></li>
+  <li><a href="#generalized-additive-models-splines-with-more-than-one-predictor" id="toc-generalized-additive-models-splines-with-more-than-one-predictor" class="nav-link" data-scroll-target="#generalized-additive-models-splines-with-more-than-one-predictor"><span class="header-section-number">6.8</span> Generalized additive models: splines with more than one predictor</a>
+  <ul class="collapse">
+  <li><a href="#the-partial-residual-plot-reading-a-spline-terms-contribution" id="toc-the-partial-residual-plot-reading-a-spline-terms-contribution" class="nav-link" data-scroll-target="#the-partial-residual-plot-reading-a-spline-terms-contribution">The partial residual plot: reading a spline term’s contribution</a></li>
+  </ul></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">6.9</span> A Bayesian perspective</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -402,6 +402,8 @@ window.Quarto = {
 <li><em>What is a basis function, and why does almost every fix in this chapter use one?</em> Step functions, polynomials, and splines are all the same idea in different clothing.</li>
 <li><em>What is a regression spline, and how many knots does it need?</em> Piecewise polynomials joined smoothly at chosen points, with a meaningful trade-off in how many points to choose.</li>
 <li><em>What does a smoothing spline buy that a hand-placed knot cannot?</em> A penalty term, the same idea Chapter 4 used for Lasso and Ridge, applied to curve roughness instead of coefficient size.</li>
+<li><em>Is there a way to smooth a curve without choosing knots or a penalty at all?</em> Local regression fits a small model at every point instead of one model for the whole range, at a cost that shows up when it comes time to serve predictions.</li>
+<li><em>What happens once a second predictor needs the same curve-fitting treatment as the first?</em> A generalized additive model sums one function per predictor, and a partial residual plot checks whether each function is earning its keep.</li>
 </ol>
 <section id="why-a-straight-line-breaks-down-concurrent-load-and-latency" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="why-a-straight-line-breaks-down-concurrent-load-and-latency"><span class="header-section-number">6.1</span> Why a straight line breaks down: concurrent load and latency</h2>
@@ -575,7 +577,7 @@ Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A model that swings unpredictably past the edge of its training data is a poor choice for the region an operator is most likely to page someone about. The natural boundary constraint exists specifically to prevent that failure mode.</p>
+<p>A model that swings unpredictably past the edge of its training data is a poor choice for the region an operator is most likely to page someone about. The natural boundary constraint exists specifically to prevent that kind of swing.</p>
 </div>
 </div>
 </section>
@@ -587,7 +589,7 @@ Important
 <iframe src="../_generated/chapter-splines-fig-smoothing-lambda.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-smoothing-lambda-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.6: A small lambda produces a wiggly curve that chases individual points, and a large lambda flattens the fit back toward a straight line, recovering something close to the OLS fit that opened this chapter.
+Figure&nbsp;6.6: A small lambda produces a wiggly curve that chases individual points. A large lambda smooths that noise-chasing away, leaving a simple curve that keeps the gentle bend of the saturation shape all the way to the high-load edge.
 </figcaption>
 </figure>
 </div>
@@ -596,11 +598,128 @@ Figure&nbsp;6.6: A small lambda produces a wiggly curve that chases individual p
 <p><span class="math display">\[\sum_{i=1}^{n} (y_i - f(x_i))^2 + \lambda \int f''(t)^2 \, dt\]</span></p>
 <p>where the first term is the usual sum of squared errors and the second term penalizes how much the fitted function curves, since a large second derivative means the function is bending sharply.</p>
 <p>This is the same idea Chapter 4 used for Lasso and Ridge regression: a tuning parameter <span class="math inline">\(\lambda\)</span> trades fit against complexity, except here the penalty targets the curvature of an entire function rather than the size of a fixed set of coefficients.</p>
-<p><a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows the smoothing spline at several values of <span class="math inline">\(\lambda\)</span>, tracing the path from near-interpolation of every point at small <span class="math inline">\(\lambda\)</span> to a nearly straight line at large <span class="math inline">\(\lambda\)</span>.</p>
+<p><a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows the smoothing spline at several values of <span class="math inline">\(\lambda\)</span>, tracing the path from near-interpolation of every point at small <span class="math inline">\(\lambda\)</span> to a smooth, simple curve at large <span class="math inline">\(\lambda\)</span> that keeps the saturation bend the data itself carries. The penalty targets how sharply the function bends from point to point. Push <span class="math inline">\(\lambda\)</span> high enough and the fit settles at a single global cubic curve, the least flexible shape this basis can take, and that shape still rises to track the saturation curve at high utilization.</p>
 <p>Recall from Chapter 5’s discussion of cross-validation that a tuning parameter like <span class="math inline">\(\lambda\)</span> should not be picked by eye. In practice, <span class="math inline">\(\lambda\)</span> is chosen the same way the regularization strength for Lasso or Ridge was chosen: by cross-validating over a range of candidate values and picking the one that minimizes estimated test error, not training error.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="6.7">
-<h2 data-number="6.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">6.7</span> A Bayesian perspective</h2>
+<section id="local-regression-smoothing-without-choosing-knots" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="local-regression-smoothing-without-choosing-knots"><span class="header-section-number">6.7</span> Local regression: smoothing without choosing knots</h2>
+<div id="fig-loess-span" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-loess-span-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-splines-fig-loess-span.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-loess-span-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.7: At a span of 0.08, the local fit reaches roughly 270 ms at the high-load edge, close behind the saturation curve; widen the span to 0.7 and the same edge tops out near 170 ms, more than 100 ms short, because the wider window is now borrowing points from the flatter middle of the range to compute the fit at the edge.
+</figcaption>
+</figure>
+</div>
+<p>Every technique so far in this chapter commits to something before the curve gets fit: a knot count, a set of knot locations, or a roughness penalty. Local regression, usually called LOESS, skips that commitment. Instead of fitting one curve to the whole range at once, it fits a small, disposable regression near every point where a prediction is wanted, using only the data closest to that point, then discards the small fit and moves on to the next point.</p>
+<p>Picture reading a street map by covering everything outside a two-block radius of wherever you stand: what sits ten blocks away does not help cross the next intersection, and it may not even belong to the same neighborhood. Local regression treats a scatter plot the same way. It answers “what does latency look like right here” using only the load values nearby, then answers the same question ten load-levels over with a different local neighborhood built from scratch.</p>
+<p>Local regression’s cost in production runs opposite to every spline in this chapter. A regression spline’s basis functions get evaluated once against a fixed set of coefficients, so the model that ships to a serving layer is a short list of numbers: cheap to store, cheap to evaluate at 2 a.m. Local regression has no such list to ship. Every prediction re-solves a small weighted regression against a slice of the training data, so the training data itself has to sit somewhere reachable at prediction time, in addition to sitting there during fitting. A spline can run on a device with no memory of the data that trained it. Local regression, by construction, keeps that data on hand for the life of the deployment.</p>
+<p>Fitting a local regression at a query point <span class="math inline">\(x_0\)</span> follows four steps:</p>
+<ol type="1">
+<li>Pick a <em>span</em>: the fraction of the data that counts as nearby, for instance 0.3, meaning the closest 30% of points by distance in <span class="math inline">\(X\)</span>.</li>
+<li>Weight those nearby points with a kernel that falls to zero at the edge of the window, most commonly the tricube weight <span class="math inline">\(w_i = \left(1 - \left(\frac{|x_i - x_0|}{d}\right)^3\right)^3\)</span>, where <span class="math inline">\(d\)</span> is the distance to the farthest point still inside the span.</li>
+<li>Fit a weighted least-squares regression, usually a straight line or a quadratic, using those weights.</li>
+<li>Read the fitted value at <span class="math inline">\(x_0\)</span> off that local regression, then discard the fit and repeat for the next <span class="math inline">\(x_0\)</span>.</li>
+</ol>
+<p>Formally, the local fit at <span class="math inline">\(x_0\)</span> minimizes</p>
+<p><span class="math display">\[\sum_{i=1}^{n} w_i(x_0) \left(y_i - \beta_0 - \beta_1 x_i\right)^2,\]</span></p>
+<p>a weighted version of ordinary least squares where the weights shift with every query point <span class="citation" data-cites="cleveland1979">(<a href="chapter-01-descriptive-statistics.html#ref-cleveland1979" role="doc-biblioref">Cleveland 1979</a>)</span>.</p>
+<p><a href="#fig-loess-span" class="quarto-xref">Figure&nbsp;<span>6.7</span></a> fits local regression to the load-latency data at four span values.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A LOESS span plays the role a spline’s knot count or a smoothing spline’s <span class="math inline">\(\lambda\)</span> plays: a narrow span chases individual points the way too many knots do, and a wide span oversmooths the way too large a <span class="math inline">\(\lambda\)</span> does. Cross-validate the span the same way Chapter 5 cross-validated a knot count or a penalty, rather than picking one by eye.</p>
+</div>
+</div>
+<p>A narrow span stays close to the data near each query point and follows the saturation curve into the high-load region, since only nearby points get a vote there. A wide span borrows points from the flatter middle of the range to smooth the edge, and ends up cutting the top of the curve off, understating the load level where a false sense of headroom costs the most.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Local regression and a smoothing spline solve the same problem from opposite directions. A smoothing spline keeps every observation as a candidate knot and fits one global penalized function in a single pass. Local regression answers one query point at a time and keeps no global function at all. Both remove the knot-count decision, and both replace it with their own tuning knob: span for local regression, <span class="math inline">\(\lambda\)</span> for the smoothing spline.</p>
+</div>
+</div>
+</section>
+<section id="generalized-additive-models-splines-with-more-than-one-predictor" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="generalized-additive-models-splines-with-more-than-one-predictor"><span class="header-section-number">6.8</span> Generalized additive models: splines with more than one predictor</h2>
+<div id="fig-gam-components" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gam-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-splines-fig-gam-components.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gam-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.8: The payload term comes out as a straight line, matching Chapter 4’s own finding that payload size and latency move together in close to a fixed ratio. The load term keeps the saturating bend every figure in this chapter has shown so far. One model, two predictors, and each keeps the shape that fits it.
+</figcaption>
+</figure>
+</div>
+<p>Every spline built in this chapter so far has depended on one predictor: load. Chapter 4’s own regression model used two, payload size and concurrent load, fit together as a single straight-line surface. Neither chapter has shown how to give a second predictor the same curve-fitting treatment the first one just got.</p>
+<p>A <em>generalized additive model</em>, or GAM, is what happens when a regression sums a separate function per predictor instead of a separate coefficient per predictor:</p>
+<p><span class="math display">\[Y = \beta_0 + f_1(X_1) + f_2(X_2) + \dots + f_p(X_p) + \varepsilon,\]</span></p>
+<p>where each <span class="math inline">\(f_j\)</span> can be a straight line, a step function, or a spline, chosen on a predictor-by-predictor basis rather than forced to be the same shape for every column in the model.</p>
+<p>Chapter 4’s regression had to pick one shape, a line, and apply it to both payload size and load at once, because ordinary least squares fits one global linear surface. That worked for payload size, since Chapter 4 found the two moved together in close to a fixed ratio, but it is the wrong shape for load, which this chapter has spent several sections showing bends sharply as utilization climbs. A GAM removes the requirement to pick one shape for every predictor: keep the cheap, interpretable line where a predictor earns it, and reserve a spline for the one predictor whose relationship needs the extra flexibility, instead of spending that flexibility everywhere by default.</p>
+<p>A GAM is fit by <em>backfitting</em>, an iterative procedure that estimates one term at a time against whatever the other terms have not yet explained:</p>
+<ol type="1">
+<li>Start with every non-intercept term at zero.</li>
+<li>Pick one term, say the payload term. Compute the residual left over once every other term’s current estimate is subtracted from <span class="math inline">\(y\)</span>, then fit that one term (a line, in this case) against the residual.</li>
+<li>Center the newly fit term to a mean of zero across the training data, so the intercept alone carries the overall average and the terms stay identifiable against each other.</li>
+<li>Move to the next term, say the load term. Compute the residual left over once the (now updated) payload term is subtracted from <span class="math inline">\(y\)</span>, then fit a regression spline against that residual, using the same quantile-placed knots this chapter has used throughout.</li>
+<li>Repeat steps 2 through 4 until the term estimates stop moving.</li>
+</ol>
+<p>For the load-payload-latency data behind <a href="#fig-gam-components" class="quarto-xref">Figure&nbsp;<span>6.8</span></a>, ten backfitting passes recover a payload coefficient of 8.90 ms per kilobyte, within a tenth of a millisecond of the 9.0 ms/KB value built into the simulation, while the load term settles into the same saturating shape shown earlier in <a href="#fig-knot-count" class="quarto-xref">Figure&nbsp;<span>6.4</span></a> and <a href="#fig-smoothing-lambda" class="quarto-xref">Figure&nbsp;<span>6.6</span></a>. Two terms converge fast because each update is a short calculation, an OLS slope for the line and a spline fit for the curve; a GAM with more predictors needs correspondingly more passes.</p>
+<section id="the-partial-residual-plot-reading-a-spline-terms-contribution" class="level3">
+<h3 class="anchored" data-anchor-id="the-partial-residual-plot-reading-a-spline-terms-contribution">The partial residual plot: reading a spline term’s contribution</h3>
+<div id="fig-gam-partial-residual" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gam-partial-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-splines-fig-gam-partial-residual.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gam-partial-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.9: Subtract the payload term’s straight-line contribution and the intercept from every observation, and what remains lines up with the load term’s own fitted spline almost point for point, evidence that the leftover pattern is the saturating bend the load term is meant to capture, and not just whatever noise the payload term failed to absorb.
+</figcaption>
+</figure>
+</div>
+<p>A GAM’s summary output reports one fitted curve per term, but a curve on its own does not say whether that curve tracks a pattern in the data or chases noise the rest of the model left behind. A <em>partial residual plot</em> answers that question for one term at a time, holding every other term fixed.</p>
+<p>The consequence of skipping this check shows up whenever a GAM’s coefficient or curve shape changes after a new predictor gets added. Without a per-term diagnostic, there is no way to tell whether the change reflects a different relationship in the data or the new predictor simply absorbing variation the old term used to soak up on its own. A partial residual plot gives each term a way to defend its own shape, term by term, instead of trusting the model’s overall fit statistic to vouch for every term at once.</p>
+<p>Computing a partial residual for one term, say the load spline term <span class="math inline">\(f_{\text{load}}\)</span>, takes two steps once the full model is fit:</p>
+<ol type="1">
+<li>Remove every other term’s fitted contribution from each observation, but leave the term under inspection out of the subtraction: <span class="math inline">\(r_i = y_i - \hat\beta_0 - \hat{f}_{\text{payload}}(x_i)\)</span>.</li>
+<li>Plot <span class="math inline">\(r_i\)</span> against load, and overlay the fitted curve <span class="math inline">\(\hat{f}_{\text{load}}(\text{load})\)</span> on the same axes. If the term is capturing something in the data, the scattered points should track the curve; if the term is fitting noise the other terms left behind, the points scatter around the curve without following its shape.</li>
+</ol>
+<p><a href="#fig-gam-partial-residual" class="quarto-xref">Figure&nbsp;<span>6.9</span></a> runs this check on the load term from the model above. The partial residuals trace the same saturating bend the fitted spline term shows, evidence that the spline is earning its added flexibility rather than absorbing leftover noise the linear payload term could not explain.</p>
+<p>The partial residual plot is a paraphrase of a general diagnostic used across regression modeling wherever a model sums more than one predictor’s effect together: isolate one term by removing the rest, then check whether what remains matches what that term claims to be doing. Applied to the load-payload-latency data here, the same check works for any spline term a GAM adds, not only the one worked through in this section.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A spline term with no partial residual check behind it is an unverified claim about the data. Run this plot on every spline term in a GAM before shipping it, especially a term added after an earlier version of the model passed review.</p>
+</div>
+</div>
+<p>The backfitting-plus-partial-residual pattern generalizes past two terms without changing shape: add a third predictor, give it its own <span class="math inline">\(f_3\)</span>, and the same iterative procedure and the same per-term diagnostic apply unchanged. What does change is compute: each additional spline term adds another knot-selection and cross-validation decision, and a GAM with a dozen predictors needs a dozen of those decisions made and checked, one term at a time, per <span class="citation" data-cites="hastietibshirani1990">(<a href="chapter-01-descriptive-statistics.html#ref-hastietibshirani1990" role="doc-biblioref">Hastie and Tibshirani 1990</a>)</span>.</p>
+</section>
+</section>
+<section id="a-bayesian-perspective" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">6.9</span> A Bayesian perspective</h2>
 <p>Every spline in this chapter produces a single fitted curve: one best estimate of the relationship between load and latency, with no built-in statement of how much that curve might have looked different under a slightly different sample of requests.</p>
 <p>Gaussian process regression takes the smoothing-spline idea and gives it a full probability distribution instead of a point estimate.</p>
 <p>Instead of settling on one curve through the data, imagine sketching hundreds of plausible curves by hand, keeping only the ones that pass close to the known points, and looking at how much the surviving curves still disagree with each other elsewhere. A Gaussian process turns that intuition into math.</p>
@@ -627,12 +746,12 @@ Tip
 <iframe src="../_generated/chapter-splines-fig-gp-posterior.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.7: The credible band widens noticeably at the high-load edge, where observations are sparser, an honest signal that the model is least certain in the region that matters most, something a single fitted spline curve cannot say about itself.
+Figure&nbsp;6.10: The credible band widens noticeably at the high-load edge, where observations are sparser, an honest signal that the model is least certain in the region that matters most, something a single fitted spline curve cannot say about itself.
 </figcaption>
 </figure>
 </div>
 <p>That posterior also provides something the smoothing spline does not offer on its own: a credible band around the curve at every load level, wide where data is sparse or noisy and narrow where the model has seen consistent evidence.</p>
-<p><a href="#fig-gp-posterior" class="quarto-xref">Figure&nbsp;<span>6.7</span></a> shows a Gaussian process fit to the load-latency data at several length-scales, with the 95% credible band shaded around the posterior mean. Watch what happens at the high-load edge: the band widens, right where a single fitted spline curve would stay quiet about its own uncertainty.</p>
+<p><a href="#fig-gp-posterior" class="quarto-xref">Figure&nbsp;<span>6.10</span></a> shows a Gaussian process fit to the load-latency data at several length-scales, with the 95% credible band shaded around the posterior mean. Watch what happens at the high-load edge: the band widens, right where a single fitted spline curve would stay quiet about its own uncertainty.</p>
 <p>The credible band is not free. A Gaussian process’s computational cost grows roughly with the cube of the number of observations, since fitting one requires inverting an <span class="math inline">\(n \times n\)</span> matrix.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -653,6 +772,12 @@ Note
 <section id="references" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-cleveland1979" class="csl-entry" role="listitem">
+Cleveland, William S. 1979. <span>“Robust Locally Weighted Regression and Smoothing Scatterplots.”</span> <em>Journal of the American Statistical Association</em> 74 (368): 829–36.
+</div>
+<div id="ref-hastietibshirani1990" class="csl-entry" role="listitem">
+Hastie, Trevor J., and Robert J. Tibshirani. 1990. <em>Generalized Additive Models</em>. Monographs on Statistics and Applied Probability. Chapman; Hall/CRC.
+</div>
 <div id="ref-rasmussenwilliams2006" class="csl-entry" role="listitem">
 Rasmussen, Carl Edward, and Christopher K. I. Williams. 2006. <em>Gaussian Processes for Machine Learning</em>. The MIT Press. <a href="http://www.gaussianprocess.org/gpml/">http://www.gaussianprocess.org/gpml/</a>.
 </div>

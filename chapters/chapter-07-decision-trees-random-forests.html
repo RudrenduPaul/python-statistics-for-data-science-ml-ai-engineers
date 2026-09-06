@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +206,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -370,8 +365,10 @@ window.Quarto = {
   <li><a href="#out-of-bag-error-estimation" id="toc-out-of-bag-error-estimation" class="nav-link" data-scroll-target="#out-of-bag-error-estimation"><span class="header-section-number">7.8</span> Out-of-bag error estimation</a></li>
   <li><a href="#evaluating-a-classifier-precision-recall-and-the-roc-curve" id="toc-evaluating-a-classifier-precision-recall-and-the-roc-curve" class="nav-link" data-scroll-target="#evaluating-a-classifier-precision-recall-and-the-roc-curve"><span class="header-section-number">7.9</span> Evaluating a classifier: precision, recall, and the ROC curve</a></li>
   <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance"><span class="header-section-number">7.10</span> Variable importance</a></li>
-  <li><a href="#when-to-reach-for-a-single-tree-a-forest-or-boosting" id="toc-when-to-reach-for-a-single-tree-a-forest-or-boosting" class="nav-link" data-scroll-target="#when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.11</span> When to reach for a single tree, a forest, or boosting</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">7.12</span> A Bayesian perspective</a></li>
+  <li><a href="#sec-importance-comparison" id="toc-sec-importance-comparison" class="nav-link" data-scroll-target="#sec-importance-comparison"><span class="header-section-number">7.11</span> Permutation importance, and where Gini and entropy importance mislead</a></li>
+  <li><a href="#sec-decision-boundaries" id="toc-sec-decision-boundaries" class="nav-link" data-scroll-target="#sec-decision-boundaries"><span class="header-section-number">7.12</span> Decision boundaries: a tree, a forest, and logistic regression compared</a></li>
+  <li><a href="#when-to-reach-for-a-single-tree-a-forest-or-boosting" id="toc-when-to-reach-for-a-single-tree-a-forest-or-boosting" class="nav-link" data-scroll-target="#when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.13</span> When to reach for a single tree, a forest, or boosting</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">7.14</span> A Bayesian perspective</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -719,20 +716,83 @@ Figure&nbsp;7.7: Variable importance for the rollback classifier: canary error r
 </figcaption>
 </figure>
 </div>
-<p><a href="chapter-12-bayesian-bart.html#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.6</span></a> ranks the four rollback features by importance. Canary error rate dominates, which matches intuition.</p>
+<p><a href="#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>7.7</span></a> ranks the four rollback features by importance. Canary error rate dominates, which matches intuition.</p>
 <p>But service dependency count carries more signal than hour of day, a finding worth acting on: a deployment touching many downstream services is meaningfully riskier at a given error rate than a deployment with few dependencies. That is the kind of interaction a human reviewer skimming a dashboard of raw error rates would likely miss.</p>
 </section>
-<section id="when-to-reach-for-a-single-tree-a-forest-or-boosting" class="level2" data-number="7.11">
-<h2 data-number="7.11" class="anchored" data-anchor-id="when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.11</span> When to reach for a single tree, a forest, or boosting</h2>
+<section id="sec-importance-comparison" class="level2" data-number="7.11">
+<h2 data-number="7.11" class="anchored" data-anchor-id="sec-importance-comparison"><span class="header-section-number">7.11</span> Permutation importance, and where Gini and entropy importance mislead</h2>
+<div id="fig-importance-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-importance-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-trees-fig-importance-comparison.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-importance-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.8: Permutation, Gini, and entropy importance for the rollback forest, with a fifth feature added on purpose: a deployment batch ID with no relationship to rollback risk. Gini and entropy rank it third of five, ahead of dependency count and hour of day. Permutation importance ranks it last of the five, behind every other feature including the two it just outranked.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-importance-comparison" class="quarto-xref">Figure&nbsp;<span>7.8</span></a> adds one feature to the rollback dataset that never appeared in the worked examples above: a deployment batch ID, a number assigned in sequence to every deployment and otherwise unconnected to whether that deployment needed a rollback. The forest still reports a Gini importance score for it, 0.141, ahead of both dependency count (0.074) and hour of day (0.089). Entropy importance tells the same story: 0.150, again ahead of both. Permutation importance disagrees outright. It scores the batch ID at -0.006, the lowest score of all five features, trailing dependency count, hour of day, and even payload size: shuffling the batch ID costs the forest nothing, which is the tell that the forest never depended on it to predict well in the first place.</p>
+<p>That disagreement is the point of the figure, and it is worth understanding before trusting either kind of importance score on a dataset with predictors of differing cardinality.</p>
+<p>Permutation importance measures how much a fitted model’s accuracy drops when one feature’s column is shuffled at random on a held-out validation split, breaking that feature’s link to the outcome while leaving the fitted model and every other column untouched <span class="citation" data-cites="breiman2001randomforests">(<a href="chapter-01-descriptive-statistics.html#ref-breiman2001randomforests" role="doc-biblioref">Breiman 2001</a>)</span>. A feature whose shuffled version costs the model nothing was carrying no predictive weight inside the model.</p>
+<p>Gini and entropy importance measure something different: how much a predictor decreased impurity, summed across every split that used it, while the forest was being built. A predictor gets credit each time it wins a split, whether or not that split turns out to matter on data the forest has never seen.</p>
+<p>The batch ID wins splits for a mechanical reason that has nothing to do with rollback risk: it has roughly 2,000 distinct values in a dataset with only a few thousand rows, so a tree searching for the best threshold on that column has thousands of candidate cut points to try, each one a fresh chance to carve out a small region that happens to look purer than it should by chance. Canary error rate is also continuous, but the split search finds its strongest signal early and keeps reusing it; dependency count and hour of day are lower-cardinality integers with far fewer candidate thresholds to search in the first place. Cardinality, not predictive value, is driving the gap.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Gini and entropy importance are biased toward high-cardinality and continuous predictors, a result formalized by the same source cited above for the correlated-predictor bias <span class="citation" data-cites="strobl2007bias">(<a href="chapter-01-descriptive-statistics.html#ref-strobl2007bias" role="doc-biblioref">Strobl et al. 2007</a>)</span>. A field like a request ID, a timestamp cast to an integer, or a high-cardinality categorical code (zip code, SKU, session ID) can rank as an important predictor by Gini or entropy importance for no reason beyond how many places it gives the tree to search, not because it carries a signal that will hold up on new data.</p>
+</div>
+</div>
+<p>Computing permutation importance takes more work than reading <code>feature_importances_</code> off a fitted forest: it needs a held-out split the forest never trained on, and enough repeats of the shuffle-and-rescore loop (twenty, in the figure above) to average out the noise a single random shuffle introduces. <code>sklearn.inspection.permutation_importance</code> runs that loop directly and hands back both the mean importance and its spread across repeats.</p>
+<p>The practical rule this figure earns: when predictors differ a lot in cardinality, which is common the moment a dataset includes anything like an ID field, a date broken into components, or a mix of binary flags and continuous measurements, reach for permutation importance before trusting a Gini or entropy ranking. Treat Gini and entropy importance as a first look, since the forest is computing them for free during training anyway, then confirm anything that ranking suggests is worth acting on against a permutation-based check before removing a feature or building a monitoring dashboard around it.</p>
+</section>
+<section id="sec-decision-boundaries" class="level2" data-number="7.12">
+<h2 data-number="7.12" class="anchored" data-anchor-id="sec-decision-boundaries"><span class="header-section-number">7.12</span> Decision boundaries: a tree, a forest, and logistic regression compared</h2>
+<div id="fig-decision-boundaries" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-decision-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-trees-fig-decision-boundaries.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decision-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.9: A single tree, a random forest, and logistic regression, each fit on the same two features (canary error rate and service dependency count) and shaded by predicted rollback probability. The tree’s boundary is a set of rectangles; the forest’s is a smoother version of the same shape; logistic regression’s is a single straight line.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-decision-boundaries" class="quarto-xref">Figure&nbsp;<span>7.9</span></a> answers a question the earlier sections in this chapter answered only in prose: what shape does the boundary between “rollback” and “no rollback” take, on the same data, once a tree, a forest, and a linear classifier each draw their own version of it?</p>
+<p>A decision boundary is the line, or in a tree’s case the set of rectangular edges, separating the region of feature space where a classifier predicts one class from the region where it predicts the other. The single tree’s boundary is visibly blocky: a handful of straight, axis-aligned edges, each one a leftover from a single split on canary error rate or dependency count. The forest’s boundary traces roughly the same shape but with the corners softened, since it is an average over hundreds of slightly different trees, each with its own slightly different split thresholds. Logistic regression’s boundary is a single straight line, tilted, because it can only ever draw one line through two-dimensional feature space no matter how the data curves.</p>
+<p>The gap between these boundaries matters for a concrete reason beyond aesthetics. If the relationship between error rate, dependency count, and rollback risk bends the way the tree and forest panels suggest, for instance if risk rises sharply once both error rate and dependency count cross their own thresholds together, a straight decision boundary will misclassify a describable band of deployments sitting on the wrong side of that line: the ones where a single linear combination of the two features cannot capture the joint effect. If the underlying relationship were close to linear instead, logistic regression would need far less training data to estimate that one line than a forest needs to approximate the same line out of many small rectangles stacked together, since the forest is not told the boundary is a line and has to discover its shape from splits.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Each boundary here is one plausible read of this simulated dataset: any of the three could sit closest to the rule that generated it. The value of the comparison is in seeing how differently each model class carves up the same feature space, not in picking a winner from the picture alone.</p>
+</div>
+</div>
+<p>Building this figure only takes a fitted model and a grid: fit each of the three classifiers on the same two-column feature matrix, predict the probability of rollback across a fine grid spanning the observed range of both features, reshape those predictions back into the grid’s two-dimensional shape, and shade each cell by the predicted probability. Overlaying the deployments on top of each shaded panel shows how each boundary relates to where the data sits, rather than leaving the boundary as an abstract shape with no anchor to the observations that produced it.</p>
+</section>
+<section id="when-to-reach-for-a-single-tree-a-forest-or-boosting" class="level2" data-number="7.13">
+<h2 data-number="7.13" class="anchored" data-anchor-id="when-to-reach-for-a-single-tree-a-forest-or-boosting"><span class="header-section-number">7.13</span> When to reach for a single tree, a forest, or boosting</h2>
 <p>Four different tree-based tools have appeared across this chapter, and it is worth being explicit about when each earns its place, since defaulting to the fanciest available option is its own kind of mistake.</p>
-<p>A single pruned tree is the right choice when the audience for the model needs to see the reasoning behind a prediction, not just trust a number. A compliance reviewer asking why a particular deployment was auto-rolled-back wants an answer like “canary error rate exceeded 2% and the deployment touched more than 6 downstream services,” which only a small, interpretable tree delivers directly. A 400-tree forest cannot be read that way at all.</p>
+<p>A single pruned tree is the right choice when the audience for the model needs to see the reasoning behind a prediction, not just trust a number. A compliance reviewer asking why a particular deployment was auto-rolled-back wants an answer like “canary error rate exceeded 2% and the deployment touched more than 6 downstream services,” which only a small, interpretable tree delivers directly. A 400-tree forest cannot be read that way at all, even though <a href="#fig-decision-boundaries" class="quarto-xref">Figure&nbsp;<span>7.9</span></a> shows its predictions land close to the same shape a single tree draws.</p>
 <p>A random forest is the right default for most production prediction problems where accuracy matters more than a fully traceable explanation. It trains fast, tunes with almost no effort (the number of trees and the number of features sampled per split are close to the only knobs), and gives OOB error and variable importance essentially for free.</p>
 <p>The rollback classifier in this chapter is a clear case of this kind of problem: nobody needs to explain each individual prediction. They need the aggregate error rate low enough to trust the automation.</p>
 <p>Gradient boosting, the subject of the next chapter, usually edges out a random forest on raw predictive accuracy on structured, tabular data like this one, at the cost of being more sensitive to hyperparameter choices and slower to reason about informally. It fits trees sequentially, each one correcting the errors of the ensemble built so far, rather than fitting many independent trees in parallel the way bagging and random forests do.</p>
 <p>BART is worth the added compute specifically when a wrong prediction is costly enough that the team needs to know how much to trust each individual prediction, not just the aggregate error rate. An automated rollback system with no human review is a much stronger candidate for BART’s credible intervals, the per-prediction uncertainty ranges the next section works through, than a dashboard a human glances at before making the final call.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="7.12">
-<h2 data-number="7.12" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">7.12</span> A Bayesian perspective</h2>
+<section id="a-bayesian-perspective" class="level2" data-number="7.14">
+<h2 data-number="7.14" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">7.14</span> A Bayesian perspective</h2>
 <p>Picture asking a group of cautious forecasters for a prediction, where no single one is allowed to move the answer far from where the group started. Their small, careful adjustments add up to both a final guess and a sense of how much the group agrees, which is what BART delivers below.</p>
 <p>Random forests give a point prediction and, through OOB error, a rough sense of how often the forest is wrong overall. <em>Bayesian Additive Regression Trees</em> (BART), introduced by Chipman, George, and McCulloch, go further and treat the sum of trees itself as the object of Bayesian inference rather than a black box averaged after the fact. That produces a full uncertainty interval around each individual prediction <span class="citation" data-cites="chipman2010bart">(<a href="chapter-01-descriptive-statistics.html#ref-chipman2010bart" role="doc-biblioref">Chipman, George, and McCulloch 2010</a>)</span>.</p>
 <p>That interval tends to be well calibrated in practice, but calibration is not automatic: it depends on the priors chosen for tree structure and leaf values and on the MCMC chain having converged, the kind of check Chapter 9 introduces for diagnosing a model fit by MCMC.</p>
@@ -760,11 +820,11 @@ Note
 <iframe src="../_generated/chapter-trees-fig-bart-vs-rf.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bart-vs-rf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.8: A random forest’s point predictions next to BART’s posterior mean and credible interval for the same eight deployments. BART’s interval width is not constant: it flags which predictions rest on thin evidence.
+Figure&nbsp;7.10: A random forest’s point predictions next to BART’s posterior mean and credible interval for the same eight deployments. BART’s interval width is not constant: it flags which predictions rest on thin evidence.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-bart-vs-rf" class="quarto-xref">Figure&nbsp;<span>7.8</span></a> lines the two models up on the same eight held-out deployments. The point predictions mostly agree, but BART’s credible intervals are not the same width from deployment to deployment: the model is honest about which predictions rest on thin evidence and which ones it can stand behind.</p>
+<p><a href="#fig-bart-vs-rf" class="quarto-xref">Figure&nbsp;<span>7.10</span></a> lines the two models up on the same eight held-out deployments. The point predictions mostly agree, but BART’s credible intervals are not the same width from deployment to deployment: the model is honest about which predictions rest on thin evidence and which ones it can stand behind.</p>
 <p>The trade-off is computational. Fitting a random forest of several hundred trees is fast and trivially parallel across trees; fitting BART requires running an MCMC chain to convergence, which is slower and does not parallelize the same way, since each MCMC iteration depends on the last.</p>
 <p>For the rollback classifier, a random forest retrained nightly on the latest deployment data is a reasonable production choice. BART is worth reaching for when the cost of an overconfident prediction, not just an incorrect one, is high enough to justify the extra compute, for instance when the rollback decision feeds directly into an automated action with no human in the loop.</p>
 </section>

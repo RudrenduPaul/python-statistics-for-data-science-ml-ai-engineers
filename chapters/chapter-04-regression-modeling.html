@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +206,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -362,11 +357,17 @@ window.Quarto = {
   <ul>
   <li><a href="#ordinary-least-squares-regression" id="toc-ordinary-least-squares-regression" class="nav-link active" data-scroll-target="#ordinary-least-squares-regression"><span class="header-section-number">4.1</span> Ordinary least squares regression</a></li>
   <li><a href="#confidence-intervals-and-prediction-intervals" id="toc-confidence-intervals-and-prediction-intervals" class="nav-link" data-scroll-target="#confidence-intervals-and-prediction-intervals"><span class="header-section-number">4.2</span> Confidence intervals and prediction intervals</a></li>
-  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression"><span class="header-section-number">4.3</span> Logistic regression</a></li>
-  <li><a href="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" id="toc-measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="nav-link" data-scroll-target="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.4</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</a></li>
-  <li><a href="#model-interpretation-statistical-significance-versus-practical-significance" id="toc-model-interpretation-statistical-significance-versus-practical-significance" class="nav-link" data-scroll-target="#model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.5</span> Model interpretation: statistical significance versus practical significance</a></li>
-  <li><a href="#regularization-lasso-ridge-and-elastic-net" id="toc-regularization-lasso-ridge-and-elastic-net" class="nav-link" data-scroll-target="#regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.6</span> Regularization: Lasso, Ridge, and Elastic Net</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">4.7</span> A Bayesian perspective</a></li>
+  <li><a href="#multiple-regression-more-than-one-predictor-at-a-time" id="toc-multiple-regression-more-than-one-predictor-at-a-time" class="nav-link" data-scroll-target="#multiple-regression-more-than-one-predictor-at-a-time"><span class="header-section-number">4.3</span> Multiple regression: more than one predictor at a time</a></li>
+  <li><a href="#categorical-predictors-and-dummy-encoding" id="toc-categorical-predictors-and-dummy-encoding" class="nav-link" data-scroll-target="#categorical-predictors-and-dummy-encoding"><span class="header-section-number">4.4</span> Categorical predictors and dummy encoding</a></li>
+  <li><a href="#binning-high-cardinality-categorical-predictors-by-residual" id="toc-binning-high-cardinality-categorical-predictors-by-residual" class="nav-link" data-scroll-target="#binning-high-cardinality-categorical-predictors-by-residual"><span class="header-section-number">4.5</span> Binning high-cardinality categorical predictors by residual</a></li>
+  <li><a href="#interaction-terms" id="toc-interaction-terms" class="nav-link" data-scroll-target="#interaction-terms"><span class="header-section-number">4.6</span> Interaction terms</a></li>
+  <li><a href="#multicollinearity-and-the-variance-inflation-factor" id="toc-multicollinearity-and-the-variance-inflation-factor" class="nav-link" data-scroll-target="#multicollinearity-and-the-variance-inflation-factor"><span class="header-section-number">4.7</span> Multicollinearity and the variance inflation factor</a></li>
+  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression"><span class="header-section-number">4.8</span> Logistic regression</a></li>
+  <li><a href="#classification-metrics-accuracy-precision-and-recall" id="toc-classification-metrics-accuracy-precision-and-recall" class="nav-link" data-scroll-target="#classification-metrics-accuracy-precision-and-recall"><span class="header-section-number">4.9</span> Classification metrics: accuracy, precision, and recall</a></li>
+  <li><a href="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" id="toc-measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="nav-link" data-scroll-target="#measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.10</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</a></li>
+  <li><a href="#model-interpretation-statistical-significance-versus-practical-significance" id="toc-model-interpretation-statistical-significance-versus-practical-significance" class="nav-link" data-scroll-target="#model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.11</span> Model interpretation: statistical significance versus practical significance</a></li>
+  <li><a href="#regularization-lasso-ridge-and-elastic-net" id="toc-regularization-lasso-ridge-and-elastic-net" class="nav-link" data-scroll-target="#regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.12</span> Regularization: Lasso, Ridge, and Elastic Net</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">4.13</span> A Bayesian perspective</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -395,11 +396,13 @@ window.Quarto = {
 
 <p>Recall from Chapter 1 that payload size and checkout-API latency showed a strong positive correlation, and that correlation alone could not say how much of the relationship was causal.</p>
 <p><em>Regression modeling</em> is the tool that goes one step further: instead of a single number summarizing how two variables move together, it produces a formula that predicts one variable from another, and a set of diagnostics that say how much to trust that formula.</p>
-<p>This chapter works through six questions that come up whenever a prediction needs to be backed by more than intuition:</p>
+<p>This chapter works through eight questions that come up whenever a prediction needs to be backed by more than intuition:</p>
 <ol type="1">
 <li><em>How do I fit a line through the data, and what does “best” mean?</em> Ordinary least squares answers both, along with the assumptions that make the answer trustworthy.</li>
 <li><em>How uncertain is a prediction, and does that uncertainty shrink with more data?</em> Confidence intervals and prediction intervals answer two different versions of that question.</li>
+<li><em>What changes once more than one predictor, or a category instead of a number, joins the model?</em> Multiple regression, dummy encoding, and interaction terms turn one straight line into something that can represent a fleet of servers and a workload at once, and the variance inflation factor flags when two of those predictors have started saying the same thing.</li>
 <li><em>What happens when the outcome is a category instead of a number?</em> Logistic regression extends the same machinery to binary outcomes.</li>
+<li><em>Once a model predicts a category, how is it graded?</em> Accuracy, precision, and recall turn a fitted threshold into a scorecard.</li>
 <li><em>How do I know if a model is a good fit, and not just a complicated one?</em> R-squared, adjusted R-squared, AIC, and BIC each answer a version of that question.</li>
 <li><em>What does a coefficient mean, and when does a significant one not matter?</em> Statistical significance and practical significance are not the same thing.</li>
 <li><em>What happens when there are more predictors than the data can support?</em> Regularization techniques trade a small amount of bias for a model that generalizes.</li>
@@ -434,7 +437,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Multicollinearity does not bias the coefficient estimates themselves; it inflates their standard errors, so an individual predictor’s coefficient can look statistically insignificant even when the group of correlated predictors together explains a meaningful share of the variance. Ridge regression, covered later in this chapter, addresses that instability directly by shrinking correlated coefficients together instead of letting one absorb an unstable share of the effect.</p>
+<p>Multicollinearity does not bias the coefficient estimates themselves; it inflates their standard errors, so an individual predictor’s coefficient can look statistically insignificant even when the group of correlated predictors together explains a meaningful share of the variance. Ridge regression, covered later in this chapter, addresses that instability directly by shrinking correlated coefficients together instead of letting one absorb an unstable share of the effect. The variance inflation factor section further down this chapter gives a direct way to measure how much multicollinearity is inflating a given predictor’s standard error, before deciding whether Ridge, or simply dropping a redundant predictor, is the fix a given model needs.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -484,8 +487,169 @@ Note
 </div>
 </div>
 </section>
-<section id="logistic-regression" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="logistic-regression"><span class="header-section-number">4.3</span> Logistic regression</h2>
+<section id="multiple-regression-more-than-one-predictor-at-a-time" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="multiple-regression-more-than-one-predictor-at-a-time"><span class="header-section-number">4.3</span> Multiple regression: more than one predictor at a time</h2>
+<p>The OLS section above ties latency to a single suspect, payload size. An on-call engineer diagnosing a slow endpoint rarely gets that luxury: payload size, concurrent load, and deployment region all move at once, and blaming the one variable a single-predictor model can see risks pointing at the wrong knob to turn.</p>
+<div id="fig-multiple-regression" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-multiple-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-multiple-regression.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-multiple-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: The estimated coefficient on payload size across three models fit to the same 300 requests, with a dotted reference line at the 9 ms/KB effect this chapter’s simulation was built to produce. A payload-only model overstates that effect; adding concurrent load and then region pulls the estimate back toward the reference line.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-multiple-regression" class="quarto-xref">Figure&nbsp;<span>4.3</span></a> fits three models to the same 300 simulated requests, adding one predictor at a time. A model that sees only payload size estimates its effect at 9.95 ms per additional kilobyte. Adding concurrent load to the model pulls that estimate down to 9.26 ms. Adding the two region indicators on top moves it to 9.20 ms, close to the 9 ms per kilobyte relationship this chapter’s simulation was built to produce.</p>
+<p><em>Multiple regression</em> extends ordinary least squares from one predictor to several, fitting a single equation that estimates each predictor’s own contribution to the outcome while holding the others fixed:</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p + \varepsilon\]</span></p>
+<p>Each <span class="math inline">\(\beta_j\)</span> answers a narrower question than the simple-regression slope did: not “how does <span class="math inline">\(Y\)</span> change as <span class="math inline">\(X_j\)</span> changes,” but “how does <span class="math inline">\(Y\)</span> change as <span class="math inline">\(X_j\)</span> changes, with every other predictor in the equation held at a fixed value.” Fitting proceeds the same way OLS always does, minimizing the sum of squared residuals, just over more coefficients at once.</p>
+<p>Concurrent load and payload size move together in this simulation, with a correlation of 0.78, since heavier payloads tend to arrive during the same high-load batch windows. A payload-only model has no predictor to credit for load’s own share of the slowdown, so it folds that share into payload’s coefficient instead. A chunk of the 9.95 ms the single-predictor model reports is load’s own effect, showing up under payload’s name because the two move together in this sample. A capacity-planning decision that trims payload size expecting the full 9.95 ms per kilobyte in savings would come up short, closer to the 9.20 ms the fuller model estimates.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recall Chapter 2’s treatment of confounding variables: a coefficient’s value can shift once the right control joins the model. Payload’s coefficient shifting from 9.95 to 9.20 ms as concurrent load and region enter the equation above is the same phenomenon, now inside a regression instead of a group comparison.</p>
+</div>
+</div>
+</section>
+<section id="categorical-predictors-and-dummy-encoding" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="categorical-predictors-and-dummy-encoding"><span class="header-section-number">4.4</span> Categorical predictors and dummy encoding</h2>
+<p>Deployment region is not a number a regression can multiply by a coefficient. There is no meaningful sense in which “eu-west” is twice “us-east,” so a categorical predictor needs a different encoding before it can enter the equation above at all.</p>
+<div id="fig-region-dummy-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-region-dummy-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-region-dummy-effect.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-region-dummy-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Gray bars show each region’s raw average latency; blue bars show what the full model from the section above predicts for that region once payload size and concurrent load are held at their sample averages. The two views mostly agree for eu-west but diverge for us-west, where the raw gap overstates region’s own contribution.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-region-dummy-effect" class="quarto-xref">Figure&nbsp;<span>4.4</span></a> compares two views of the same three regions. For us-east, both bars read about 142 ms, since us-east serves as the reference level and contributes nothing beyond the intercept. For us-west, the raw group average runs 16.3 ms above us-east’s, but the model’s own coefficient on the us-west indicator is only 8.3 ms. For eu-west, the raw gap (18.6 ms) and the model’s coefficient (17.9 ms) land close together.</p>
+<p>The gap between us-west’s two bars traces back to the sample itself: the us-west requests in this draw happen to carry a slightly higher average payload (11.8 KB against us-east’s 11.0 KB) and slightly higher average load (55.4 against 53.4), so part of us-west’s raw latency gap comes from payload and load, not region. Once the model holds those two predictors fixed, only 8.3 ms of the 16.3 ms raw gap is left for the region indicator to explain.</p>
+<p>A <em>dummy variable</em> recodes a <span class="math inline">\(k\)</span>-level categorical predictor into <span class="math inline">\(k-1\)</span> binary indicator columns, each equal to 1 when an observation belongs to that level and 0 otherwise, with one level chosen as the reference against which every other level is compared:</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \gamma_1 D_{\text{us-west}} + \gamma_2 D_{\text{eu-west}} +
+\varepsilon\]</span></p>
+<p>Here <span class="math inline">\(D_{\text{us-west}}\)</span> equals 1 for a request served from us-west and 0 otherwise, and <span class="math inline">\(D_{\text{eu-west}}\)</span> works the same way for eu-west; us-east, with no indicator of its own, is the reference level baked into the intercept <span class="math inline">\(\beta_0\)</span>. In other words, <span class="math inline">\(\gamma_1\)</span> and <span class="math inline">\(\gamma_2\)</span> state how much higher or lower latency runs for each named region compared to us-east, holding payload size and load fixed, the same reading the figure above puts numbers to.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Encoding a <span class="math inline">\(k\)</span>-level category with all <span class="math inline">\(k\)</span> indicator columns, instead of <span class="math inline">\(k-1\)</span>, creates a new column fully determined by the others: every request’s set of indicators sums to 1. Paired with an intercept, that is a perfect multicollinearity problem the fitting routine cannot resolve, sometimes called the dummy variable trap. Dropping one level as the reference avoids it.</p>
+</div>
+</div>
+</section>
+<section id="binning-high-cardinality-categorical-predictors-by-residual" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="binning-high-cardinality-categorical-predictors-by-residual"><span class="header-section-number">4.5</span> Binning high-cardinality categorical predictors by residual</h2>
+<p>Deployment region only has three levels. A checkout API’s endpoint path is a different kind of categorical predictor: dozens of distinct routes, from <code>/api/v1/checkout</code> to <code>/api/v1/fraud/score</code>, each called a different number of times. Dummy-encoding every one of them means one coefficient per endpoint, several estimated from a handful of requests or fewer.</p>
+<div id="fig-endpoint-residual-binning" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-endpoint-residual-binning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-endpoint-residual-binning.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-endpoint-residual-binning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5: Endpoints sorted left to right by their median residual from a payload-only model, colored by the bin they fall into. Slide the bin count and the same sorted bars regroup into more or fewer color-coded clusters, without changing any endpoint’s underlying position.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-endpoint-residual-binning" class="quarto-xref">Figure&nbsp;<span>4.5</span></a> sorts 24 endpoints that appear in a sample of 350 requests by their median residual from a payload-only latency model, then groups them into four color-coded bins by cumulative request count. The endpoints that run fastest for their payload size, <code>/api/v1/inventory/reserve</code> and <code>/api/v1/checkout</code> among them, land in the leftmost bin, roughly 20 ms below the payload-only model’s prediction. The ones that run slowest, including <code>/api/v1/fraud/score</code>, <code>/api/v1/notifications/subscribe</code>, and <code>/api/v1/auth/refresh</code>, land in the rightmost bin, roughly 18 ms above it.</p>
+<p>The technique behind that figure fits a control model without the endpoint predictor at all, extracts each request’s residual, computes the median residual for every endpoint that shows up in the sample, sorts endpoints by that median from most negative to most positive, then bins the sorted list into a small number of groups by cumulative row count rather than by an arbitrary cutoff:</p>
+<p><span class="math display">\[e_i = y_i - \hat{y}_i, \qquad \tilde{e}_g = \text{median}\{e_i : \text{endpoint}(i) = g\}\]</span></p>
+<p>where <span class="math inline">\(e_i\)</span> is request <span class="math inline">\(i\)</span>’s residual from the control model and <span class="math inline">\(\tilde{e}_g\)</span> is endpoint <span class="math inline">\(g\)</span>’s median residual. In other words, an endpoint’s median residual measures how much slower or faster that endpoint runs than a request’s payload size alone would predict, and sorting by that number before binning groups endpoints that behave alike, whatever each route happens to be called.</p>
+<p>Some endpoints in this sample of 350 requests show up only once or twice, <code>/api/v1/payments/verify</code> and <code>/api/v1/pricing/quote</code> each appear a single time, and four of the catalog’s 28 endpoints do not appear at all. A coefficient estimated from one observation would move wildly from one sample to the next; refitting with the four-bin grouping instead of 27 individual endpoint dummies raises this model’s R-squared from 0.66 to 0.83, with the slowest bin’s coefficient landing at 31.6 ms above the fastest bin’s baseline, a stable, interpretable summary a single rare endpoint’s own noisy coefficient could not offer on its own.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The same residual-then-bin technique applies to any high-cardinality categorical predictor with uneven traffic across levels, product SKU codes, device model IDs, or sensor IDs, not only endpoint paths. The predictor does not need to be about location for the method to work; it needs only a control model to compute residuals against and a category with more levels than the data can support one coefficient each for.</p>
+</div>
+</div>
+</section>
+<section id="interaction-terms" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="interaction-terms"><span class="header-section-number">4.6</span> Interaction terms</h2>
+<p>Suppose eu-west runs on a leaner fleet than us-east, fewer machines behind a comparable amount of client traffic, so a given rise in concurrent load costs eu-west more latency than it costs us-east. A model with one common load coefficient for every region has no way to represent “load matters more in one region than another.”</p>
+<div id="fig-interaction-slopes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-interaction-slopes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-interaction-slopes.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-interaction-slopes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Observed latency by concurrent load, split by region, with a dashed common-slope line ignoring region entirely and two solid lines from a model that lets each region carry its own slope. As the slider raises eu-west’s load sensitivity, the dashed line increasingly misses both regions while the two solid lines keep tracking each one.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-interaction-slopes" class="quarto-xref">Figure&nbsp;<span>4.6</span></a> fits four versions of this scenario, each drawing eu-west’s servers as more load-sensitive than us-east’s by a growing multiplier. At the smallest multiplier, where the two regions barely differ, a single common slope and two region-specific slopes fit almost identically: 29,039 against 29,038 in summed squared residuals. At the largest multiplier, the two regions’ slopes have pulled apart to 0.35 ms per point of load in us-east against 0.97 ms per point in eu-west, and the common-slope model’s fit has degraded to 47,537 against the interaction model’s steady 29,038.</p>
+<p>An <em>interaction term</em> multiplies two predictors together, letting one predictor’s slope depend on the level of another instead of forcing a single shared slope across every group:</p>
+<p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \gamma D + \delta (X_1 \times D) + \varepsilon\]</span></p>
+<p>Here <span class="math inline">\(D\)</span> is 1 for a eu-west request and 0 for us-east, so the fitted slope on load works out to <span class="math inline">\(\beta_1\)</span> in us-east and <span class="math inline">\(\beta_1 + \delta\)</span> in eu-west. In other words, <span class="math inline">\(\delta\)</span> is not an adjustment to the intercept the way <span class="math inline">\(\gamma\)</span> is; it is an adjustment to the slope itself, active only for the group the indicator flags.</p>
+<p>A single shared load coefficient, fit without the interaction term, reports one average slope that under-predicts eu-west’s load sensitivity and over-predicts us-east’s once the two regions diverge enough, understating the risk a capacity-planning decision for eu-west’s fleet would need to see.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An interaction term adds a parameter to the model the same way any predictor does, and the Measuring fit section later in this chapter’s caution about noise predictors inflating R-squared applies to interaction terms just as much as to plain ones. Add an interaction because a mechanism explains why one predictor’s effect should depend on another, not because trying one more term is easy.</p>
+</div>
+</div>
+</section>
+<section id="multicollinearity-and-the-variance-inflation-factor" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="multicollinearity-and-the-variance-inflation-factor"><span class="header-section-number">4.7</span> Multicollinearity and the variance inflation factor</h2>
+<p>Two rulers that always agree cannot tell a carpenter anything a single cut did not establish on its own. Two predictors that move together carry much of the same information, and separating their individual effects gets harder the more closely they agree, the same “no multicollinearity” assumption named earlier in this chapter, now with a way to check it.</p>
+<div id="fig-vif" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-vif-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-vif.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-vif-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: Variance inflation factor for three predictors on a log scale, as payload size and a stand-in response-size field are pushed to move together more tightly. Dotted and dashed reference lines mark the conventional VIF cutoffs of 5 and 10; concurrent load, unrelated to either one, barely moves off the floor.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-vif" class="quarto-xref">Figure&nbsp;<span>4.7</span></a> tracks the variance inflation factor for three predictors, payload size, concurrent load, and a response-size field, as payload size and response size are pushed to move together more tightly. At a correlation of 0.32, both hover at 1.12, indistinguishable from three unrelated predictors. At a correlation of 0.91, both climb past 5, the conventional threshold marked by the dotted line. By a correlation of 1.00, both predictors’ VIF has climbed above 1,300. Concurrent load, uncorrelated with either one throughout, holds at 1.02 the entire time.</p>
+<p>The <em>variance inflation factor</em> for predictor <span class="math inline">\(j\)</span>, a diagnostic introduced by Marquardt (1970) <span class="citation" data-cites="marquardt1970">(<a href="chapter-01-descriptive-statistics.html#ref-marquardt1970" role="doc-biblioref">Marquardt 1970</a>)</span> alongside his work on ridge regression, is computed by regressing that predictor on every other predictor in the model and reading off the resulting R-squared:</p>
+<p><span class="math display">\[\text{VIF}_j = \frac{1}{1 - R_j^2}\]</span></p>
+<p>where <span class="math inline">\(R_j^2\)</span> is the R-squared from that auxiliary regression, not from the model predicting the outcome. In other words, a VIF of 5 for payload size means payload’s coefficient carries a standard error five times larger than it would carry if payload size were completely uncorrelated with every other predictor in the model, the concrete cost of multicollinearity named earlier in this chapter’s OLS assumptions.</p>
+<p>A high VIF does not mean a predictor lacks a meaningful relationship with the outcome; it means the data cannot cleanly separate that predictor’s effect from a correlated one’s, so the coefficient on either could shift substantially with a different sample. Shipping a model that reports payload’s effect as reliable, when its VIF sits above 1,300, would overstate how confidently that coefficient’s specific value can be trusted.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>VIF thresholds of 5 and 10 are conventions, not fixed rules, the same way Chapter 2 treats alpha of 0.05 and power of 0.8 as defaults rather than requirements. A VIF just above 5 on a predictor central to the question a model exists to answer deserves more scrutiny than the same VIF on a predictor headed for removal regardless.</p>
+</div>
+</div>
+</section>
+<section id="logistic-regression" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="logistic-regression"><span class="header-section-number">4.8</span> Logistic regression</h2>
 <p><em>Logistic regression</em> models a binary outcome, success or failure, timeout or no timeout, rather than a continuous one. Think of a dimmer switch instead of an on-off light switch: probability slides smoothly from near-zero to near-certain along an S-shaped curve instead of jumping straight from 0% to 100%.</p>
 <p>That shape also keeps every predicted probability between 0 and 1. Logistic regression applies the <em>logistic function</em> to map any input to a value between 0 and 1, interpreted as a probability:</p>
 <p><span class="math display">\[p(x) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x)}}\]</span></p>
@@ -499,11 +663,11 @@ Note
 <iframe src="../_generated/chapter-04-fig-logistic-timeout.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-logistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.3: P(timeout) against concurrent load: dots along the top and bottom edges are individual observed requests (timed out or not), and the S-shaped curve is the fitted probability. A steeper curve flips the service from healthy to overwhelmed over a narrower band of load; a shallower curve spreads that same transition across a wider range.
+Figure&nbsp;4.8: P(timeout) against concurrent load: dots along the top and bottom edges are individual observed requests (timed out or not), and the S-shaped curve is the fitted probability. A steeper curve flips the service from healthy to overwhelmed over a narrower band of load; a shallower curve spreads that same transition across a wider range.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-logistic" class="quarto-xref">Figure&nbsp;<span>4.3</span></a> shows the fitted curve at several steepness values: at low load the probability of a timeout sits near zero, and beyond the midpoint of the curve timeouts become close to certain.</p>
+<p><a href="#fig-logistic" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> shows the fitted curve at several steepness values: at low load the probability of a timeout sits near zero, and beyond the midpoint of the curve timeouts become close to certain.</p>
 <p>Logistic regression’s coefficients are estimated by maximum likelihood rather than by minimizing squared error, and they are interpreted differently than an OLS coefficient: <span class="math inline">\(\beta_1\)</span> represents the change in the log-odds of the outcome for a one-unit increase in <span class="math inline">\(x\)</span>, not a direct change in probability.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -518,10 +682,44 @@ Warning
 <p>Reading <span class="math inline">\(\beta_1\)</span> as if it were a direct probability shift is the most common misreading of a logistic coefficient. Because the curve is flat near 0 and 1 and steepest near its midpoint, the same one-unit increase in load can move the timeout probability by a fraction of a percentage point near the tails or by ten or more percentage points near the midpoint.</p>
 </div>
 </div>
-<p>A single coefficient cannot report “the” change in probability without saying where on the curve the service currently sits. Recall Chapter 2’s Type I and Type II error framework: choosing where along this curve to draw the “predict timeout” threshold is the same trade-off between false positives and false negatives that any classification decision has to make.</p>
+<p>A single coefficient cannot report “the” change in probability without saying where on the curve the service currently sits. Recall Chapter 2’s Type I and Type II error framework: choosing where along this curve to draw the “predict timeout” threshold is the same trade-off between false positives and false negatives that any classification decision has to make. The next section puts numbers on that trade-off directly.</p>
 </section>
-<section id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.4</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</h2>
+<section id="classification-metrics-accuracy-precision-and-recall" class="level2" data-number="4.9">
+<h2 data-number="4.9" class="anchored" data-anchor-id="classification-metrics-accuracy-precision-and-recall"><span class="header-section-number">4.9</span> Classification metrics: accuracy, precision, and recall</h2>
+<p>Fitting the logistic curve above is only half the job. A fitted model still needs a threshold, a probability above which it predicts a timeout, and once that threshold is set, some way to grade how well its predictions matched what happened.</p>
+<div id="fig-confusion-threshold" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-04-fig-confusion-threshold.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.9: Counts of the four possible outcomes for 400 requests at a chosen threshold: correctly flagged timeouts, wrongly flagged healthy requests, correctly cleared healthy requests, and missed timeouts. Raising the threshold shrinks the false-positive bar and grows the false-negative bar, while accuracy, shown in the corner, barely moves.
+</figcaption>
+</figure>
+</div>
+<p><a href="chapter-07-decision-trees-random-forests.html#fig-confusion-threshold" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> counts those four outcomes for the same 400 requests at five different timeout-prediction thresholds. At a loose threshold of 0.20, the model catches 149 of 155 timeouts (a recall of 0.961) but wrongly flags 61 healthy requests along the way (a precision of 0.710). At a strict threshold of 0.80, precision climbs to 0.933, but recall falls to 0.626, now missing 58 timeouts to avoid raising 7 false alarms.</p>
+<p>A <em>confusion matrix</em> organizes every prediction into four counts: a true positive is a timeout the model predicted and the request confirmed, a false positive is a timeout the model predicted that the request did not confirm, a true negative is a healthy request the model correctly cleared, and a false negative is a timeout the model missed entirely. From those four counts, three summary metrics follow:</p>
+<p><span class="math display">\[\text{accuracy} = \frac{TP + TN}{TP + TN + FP + FN}, \qquad
+\text{precision} = \frac{TP}{TP + FP}, \qquad
+\text{recall} = \frac{TP}{TP + FN}\]</span></p>
+<p>In other words, accuracy is the share of every prediction that matched what happened; precision is, of every request the model flagged as a timeout, the share that confirmed; and recall is, of every request that confirmed as a timeout, the share the model caught. This use of “precision” names a share of correct positive predictions, a different sense from the estimation precision discussed earlier in this chapter, where the word described how tightly a confidence interval clustered around a parameter.</p>
+<p>A false positive here means paging an on-call engineer or triggering a failover for a request that would have completed on its own, wasted effort and, repeated often enough, alert fatigue that makes the next legitimate page easier to miss. A false negative means a timeout goes unflagged, so no fallback kicks in and a user-facing request hangs with nothing catching it. A team that only tracks accuracy, 0.833 at the loosest threshold in the figure above and 0.838 at the strictest, would conclude the threshold barely matters, missing that precision and recall each swing by more than twenty percentage points across that same range.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This section covers only the introductory vocabulary a logistic regression’s threshold needs. Chapter 7 builds the fuller classification-diagnostics toolkit, receiver operating characteristic curves and the area under them, on top of the confusion matrix defined here.</p>
+</div>
+</div>
+</section>
+<section id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic" class="level2" data-number="4.10">
+<h2 data-number="4.10" class="anchored" data-anchor-id="measuring-fit-r-squared-adjusted-r-squared-aic-and-bic"><span class="header-section-number">4.10</span> Measuring fit: R-squared, adjusted R-squared, AIC, and BIC</h2>
 <p><em>R-squared</em> is the share of variance in the outcome that the model explains, ranging from 0 (no explanatory power) to 1 (the model explains every observed difference). Adding predictors to a model can only raise R-squared or leave it unchanged, even when those predictors are pure noise, since OLS will always find some small, spurious pattern to exploit in a finite sample.</p>
 <p>Think of a science-fair judge who docks a point for every extra gadget bolted onto a display, even ones that did not help the demonstration. <em>Adjusted R-squared</em> corrects for this by penalizing additional predictors:</p>
 <p><span class="math display">\[\bar{R}^2 = 1 - (1 - R^2) \frac{n-1}{n-p-1}\]</span></p>
@@ -532,11 +730,11 @@ Warning
 <iframe src="../_generated/chapter-04-fig-r2-vs-adjusted.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-r2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.4: Value (0 to 1) against the number of random noise predictors added to the model. R-squared (blue) always rises as predictors are added, even useless ones. Adjusted R-squared (red) penalizes that added complexity, flattening and then declining once the noise predictors stop paying for themselves.
+Figure&nbsp;4.10: Value (0 to 1) against the number of random noise predictors added to the model. R-squared (blue) always rises as predictors are added, even useless ones. Adjusted R-squared (red) penalizes that added complexity, flattening and then declining once the noise predictors stop paying for themselves.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-r2" class="quarto-xref">Figure&nbsp;<span>4.4</span></a> adds twenty random, unrelated noise predictors to a latency model one at a time and tracks both metrics: R-squared climbs the whole way, while adjusted R-squared flattens and then declines once the noise predictors stop paying for the complexity they add.</p>
+<p><a href="#fig-r2" class="quarto-xref">Figure&nbsp;<span>4.10</span></a> adds twenty random, unrelated noise predictors to a latency model one at a time and tracks both metrics: R-squared climbs the whole way, while adjusted R-squared flattens and then declines once the noise predictors stop paying for the complexity they add.</p>
 <p><em>AIC</em> (Akaike’s Information Criterion) and <em>BIC</em> (Bayesian Information Criterion) address the same overfitting risk from a different angle, useful for comparing entirely different candidate models rather than only tracking one model as terms are added:</p>
 <p><span class="math display">\[\text{AIC} = -2 \ln(\hat{L}) + 2k, \qquad \text{BIC} = -2 \ln(\hat{L}) + k \ln(n)\]</span></p>
 <p>where <span class="math inline">\(\hat{L}\)</span> is the model’s maximized likelihood and <span class="math inline">\(k\)</span> is the number of parameters. In other words, <span class="math inline">\(-2\ln(\hat{L})\)</span> measures how poorly the model fits: a model that assigns a higher likelihood to the observed data produces a smaller value here, so this term shrinks as fit improves.</p>
@@ -563,16 +761,16 @@ Tip
 <iframe src="../_generated/chapter-04-fig-aic-bic.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aic-bic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.5: Both AIC and BIC reward adding region, which carries a measurable effect, but BIC penalizes the noise predictor, time of day, more heavily than AIC does, and that gap widens as the sample size grows.
+Figure&nbsp;4.11: Both AIC and BIC reward adding region, which carries a measurable effect, but BIC penalizes the noise predictor, time of day, more heavily than AIC does, and that gap widens as the sample size grows.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-aic-bic" class="quarto-xref">Figure&nbsp;<span>4.5</span></a> ranks those three candidate models, where region carries a measurable effect on latency and time of day is pure noise, and tracks AIC and BIC for each as the sample size grows.</p>
+<p><a href="#fig-aic-bic" class="quarto-xref">Figure&nbsp;<span>4.11</span></a> ranks those three candidate models, where region carries a measurable effect on latency and time of day is pure noise, and tracks AIC and BIC for each as the sample size grows.</p>
 <p>Drag the slider from a small sample toward a large one and watch the gap open up: at n=30, AIC and BIC mostly agree on which model looks best.</p>
 <p>By n=400, BIC has pulled further away from rewarding the model with the noise predictor added. That is the same “BIC penalizes complexity more heavily as sample size grows” claim made above, now shown concretely instead of merely asserted.</p>
 </section>
-<section id="model-interpretation-statistical-significance-versus-practical-significance" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.5</span> Model interpretation: statistical significance versus practical significance</h2>
+<section id="model-interpretation-statistical-significance-versus-practical-significance" class="level2" data-number="4.11">
+<h2 data-number="4.11" class="anchored" data-anchor-id="model-interpretation-statistical-significance-versus-practical-significance"><span class="header-section-number">4.11</span> Model interpretation: statistical significance versus practical significance</h2>
 <p>A regression coefficient states how much the outcome changes for a one-unit change in a predictor, holding everything else in the model constant. A coefficient of 9 on payload size means each additional kilobyte of payload is associated with roughly 9 additional milliseconds of latency, on average.</p>
 <p>Whether that coefficient is <em>statistically significant</em> is a question Chapter 2 covered: compute a p-value for the coefficient and compare it against a threshold.</p>
 <p>Recall from Chapter 2’s discussion of the ASA statement on p-values that statistical significance says nothing about the size of an effect. The same caution applies directly here: a coefficient can be statistically significant, with a p-value far below 0.05, while representing a change too small to act on.</p>
@@ -583,11 +781,11 @@ Figure&nbsp;4.5: Both AIC and BIC reward adding region, which carries a measurab
 <iframe src="../_generated/chapter-04-fig-significance-vs-sample-size.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-significance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.6: The estimated effect (0.1 ms) never moves. Only its 95% confidence interval does: wide and straddling zero at small sample sizes, narrow and clear of zero once the sample is large enough. The marker turns red the moment the p-value crosses 0.05, at a sample size where 0.1 ms is still too small to act on.
+Figure&nbsp;4.12: The estimated effect (0.1 ms) never moves. Only its 95% confidence interval does: wide and straddling zero at small sample sizes, narrow and clear of zero once the sample is large enough. The marker turns red the moment the p-value crosses 0.05, at a sample size where 0.1 ms is still too small to act on.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-significance" class="quarto-xref">Figure&nbsp;<span>4.6</span></a> holds that same 0.1 ms effect fixed and grows only the sample size. Between 100,000 and 500,000 requests the confidence interval pulls away from zero and the p-value drops below 0.05, so the effect becomes statistically significant without becoming any larger. Nothing about the effect changed; only the precision of the estimate did.</p>
+<p><a href="#fig-significance" class="quarto-xref">Figure&nbsp;<span>4.12</span></a> holds that same 0.1 ms effect fixed and grows only the sample size. Between 100,000 and 500,000 requests the confidence interval pulls away from zero and the p-value drops below 0.05, so the effect becomes statistically significant without becoming any larger. Nothing about the effect changed; only the precision of the estimate did.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -602,8 +800,8 @@ Tip
 </div>
 </div>
 </section>
-<section id="regularization-lasso-ridge-and-elastic-net" class="level2" data-number="4.6">
-<h2 data-number="4.6" class="anchored" data-anchor-id="regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.6</span> Regularization: Lasso, Ridge, and Elastic Net</h2>
+<section id="regularization-lasso-ridge-and-elastic-net" class="level2" data-number="4.12">
+<h2 data-number="4.12" class="anchored" data-anchor-id="regularization-lasso-ridge-and-elastic-net"><span class="header-section-number">4.12</span> Regularization: Lasso, Ridge, and Elastic Net</h2>
 <p>Suppose the latency model grows to include payload size, deployment region, time of day, and endpoint identity, several of which move together because larger payloads cluster in certain regions or certain endpoints.</p>
 <p><em>Regularization</em> adds a penalty term to the OLS objective that shrinks coefficients, trading a small amount of bias for a model that generalizes better to new data.</p>
 <p>Packing a suitcase with a rule that charges a fee per item keeps only the items worth their weight; Lasso’s fee is steep enough to drop an item to zero, Ridge’s just makes every item lighter.</p>
@@ -634,11 +832,11 @@ Warning
 <iframe src="../_generated/chapter-04-fig-regularization-paths.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.7: Coefficient value for each predictor, comparing Lasso (red) against Ridge (blue) as the regularization strength grows. As regularization strengthens, Lasso zeroes out the noise predictor and one of the two correlated region indicators, while Ridge only shrinks every coefficient toward zero without eliminating any of them.
+Figure&nbsp;4.13: Coefficient value for each predictor, comparing Lasso (red) against Ridge (blue) as the regularization strength grows. As regularization strengthens, Lasso zeroes out the noise predictor and one of the two correlated region indicators, while Ridge only shrinks every coefficient toward zero without eliminating any of them.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-regularization" class="quarto-xref">Figure&nbsp;<span>4.7</span></a> fits both to a latency model with two region indicators correlated with payload size and one pure noise predictor (time of day), tracking every coefficient as the regularization strength <span class="math inline">\(\lambda\)</span> grows.</p>
+<p><a href="#fig-regularization" class="quarto-xref">Figure&nbsp;<span>4.13</span></a> fits both to a latency model with two region indicators correlated with payload size and one pure noise predictor (time of day), tracking every coefficient as the regularization strength <span class="math inline">\(\lambda\)</span> grows.</p>
 <p>This is because the two penalties shrink coefficients differently. Ridge’s squared penalty shrinks every coefficient smoothly, which handles multicollinearity well: correlated predictors end up sharing the credit for their combined effect.</p>
 <p>But it never removes a variable from the model entirely, which can make the model harder to read when many predictors are involved. Lasso’s absolute-value penalty can drive a coefficient to zero once <span class="math inline">\(\lambda\)</span> is large enough, effectively performing feature selection as part of fitting the model.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -657,8 +855,8 @@ Note
 <p>Regularization comes at a cost: shrinking coefficients toward zero introduces bias, trading some fit on the training data for a model that is less likely to have memorized noise specific to that sample.</p>
 <p>The section below approaches that same trade-off from a different angle, by treating a coefficient not as a single fixed number to estimate but as a quantity with its own probability distribution, updated as evidence accumulates.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="4.7">
-<h2 data-number="4.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">4.7</span> A Bayesian perspective</h2>
+<section id="a-bayesian-perspective" class="level2" data-number="4.13">
+<h2 data-number="4.13" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">4.13</span> A Bayesian perspective</h2>
 <p>Every model in this chapter has produced a single best-fitting number for each coefficient: an OLS slope, a logistic-regression weight, a Lasso or Ridge estimate shrunk toward zero.</p>
 <p><em>Bayesian linear regression</em> asks a different question: instead of one number, what is the full range of coefficient values consistent with the data, and how much more likely are some values than others?</p>
 <p>Guessing a stranger’s age before meeting them gives a wide starting range; hearing they have kids in college narrows that range sharply. The wide starting guess is a prior, the narrowed one after new evidence is a posterior.</p>
@@ -687,11 +885,11 @@ Note
 <iframe src="../_generated/chapter-04-fig-bayesian-ridge.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayesian-ridge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.8: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the fitted line on the left visibly flattens away from the fixed, dashed OLS reference, while the posterior on the right narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
+Figure&nbsp;4.14: As the prior variance shrinks, equivalent to <span class="math inline">\(\lambda\)</span> growing, the fitted line on the left visibly flattens away from the fixed, dashed OLS reference, while the posterior on the right narrows and its center moves toward zero, tracing the same shrinkage Ridge regression’s penalty term produces.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> shows this pattern from two angles at once: the left panel grounds it in the fitted line itself, which pulls away from the OLS reference as the prior tightens, and the right panel shows the full distribution behind that line, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
+<p><a href="#fig-bayesian-ridge" class="quarto-xref">Figure&nbsp;<span>4.14</span></a> shows this pattern from two angles at once: the left panel grounds it in the fitted line itself, which pulls away from the OLS reference as the prior tightens, and the right panel shows the full distribution behind that line, instead of one point estimate, tracing out the same shrinkage Ridge regression produces as the prior tightens.</p>
 <p>Logistic regression does not offer the same clean arithmetic. Because the logistic function is nonlinear, the posterior over its coefficients has no closed form the way Ridge and Lasso’s Gaussian and Laplace posteriors do.</p>
 <p>Fitting a Bayesian logistic regression means approximating that posterior instead, typically with Markov chain Monte Carlo sampling or a Laplace approximation around the posterior mode.</p>
 <p>The added computational cost buys something a point estimate cannot: a <em>credible interval</em> on each coefficient, a range that directly states the probability the true effect falls inside it. A standard error, by contrast, is only as trustworthy as the model’s specification, and its validity also depends on the sample being large enough for its asymptotic guarantees to hold.</p>
@@ -705,6 +903,9 @@ Akaike, Hirotugu. 1974. <span>“A New Look at the Statistical Model Identificat
 </div>
 <div id="ref-hoerlkennard1970" class="csl-entry" role="listitem">
 Hoerl, Arthur E., and Robert W. Kennard. 1970. <span>“Ridge Regression: Biased Estimation for Nonorthogonal Problems.”</span> <em>Technometrics</em> 12 (1): 55–67. <a href="https://doi.org/10.1080/00401706.1970.10488634">https://doi.org/10.1080/00401706.1970.10488634</a>.
+</div>
+<div id="ref-marquardt1970" class="csl-entry" role="listitem">
+Marquardt, Donald W. 1970. <span>“Generalized Inverses, Ridge Regression, Biased Linear Estimation, and Nonlinear Estimation.”</span> <em>Technometrics</em> 12 (3): 591–612. <a href="https://doi.org/10.1080/00401706.1970.10488699">https://doi.org/10.1080/00401706.1970.10488699</a>.
 </div>
 <div id="ref-parkcasella2008" class="csl-entry" role="listitem">
 Park, Trevor, and George Casella. 2008. <span>“The Bayesian Lasso.”</span> <em>Journal of the American Statistical Association</em> 103 (482): 681–86. <a href="https://doi.org/10.1198/016214508000000337">https://doi.org/10.1198/016214508000000337</a>.

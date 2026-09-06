@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +206,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -362,13 +357,15 @@ window.Quarto = {
   <ul>
   <li><a href="#measures-of-central-tendency-mean-median-and-mode" id="toc-measures-of-central-tendency-mean-median-and-mode" class="nav-link active" data-scroll-target="#measures-of-central-tendency-mean-median-and-mode"><span class="header-section-number">1.1</span> Measures of central tendency: mean, median, and mode</a></li>
   <li><a href="#measures-of-spread-variance-and-standard-deviation" id="toc-measures-of-spread-variance-and-standard-deviation" class="nav-link" data-scroll-target="#measures-of-spread-variance-and-standard-deviation"><span class="header-section-number">1.2</span> Measures of spread: variance and standard deviation</a></li>
-  <li><a href="#covariance-and-correlation" id="toc-covariance-and-correlation" class="nav-link" data-scroll-target="#covariance-and-correlation"><span class="header-section-number">1.3</span> Covariance and correlation</a></li>
-  <li><a href="#skewness-and-kurtosis" id="toc-skewness-and-kurtosis" class="nav-link" data-scroll-target="#skewness-and-kurtosis"><span class="header-section-number">1.4</span> Skewness and kurtosis</a></li>
-  <li><a href="#population-and-sample" id="toc-population-and-sample" class="nav-link" data-scroll-target="#population-and-sample"><span class="header-section-number">1.5</span> Population and sample</a></li>
-  <li><a href="#data-types-nominal-ordinal-continuous-and-discrete" id="toc-data-types-nominal-ordinal-continuous-and-discrete" class="nav-link" data-scroll-target="#data-types-nominal-ordinal-continuous-and-discrete"><span class="header-section-number">1.6</span> Data types: nominal, ordinal, continuous, and discrete</a></li>
-  <li><a href="#selection-bias" id="toc-selection-bias" class="nav-link" data-scroll-target="#selection-bias"><span class="header-section-number">1.7</span> Selection bias</a></li>
-  <li><a href="#missing-values-and-mean-imputation" id="toc-missing-values-and-mean-imputation" class="nav-link" data-scroll-target="#missing-values-and-mean-imputation"><span class="header-section-number">1.8</span> Missing values and mean imputation</a></li>
-  <li><a href="#simpsons-paradox" id="toc-simpsons-paradox" class="nav-link" data-scroll-target="#simpsons-paradox"><span class="header-section-number">1.9</span> Simpson’s paradox</a></li>
+  <li><a href="#robust-statistics-trimmed-mean-iqr-and-mad" id="toc-robust-statistics-trimmed-mean-iqr-and-mad" class="nav-link" data-scroll-target="#robust-statistics-trimmed-mean-iqr-and-mad"><span class="header-section-number">1.3</span> Robust statistics: trimmed mean, IQR, and MAD</a></li>
+  <li><a href="#covariance-and-correlation" id="toc-covariance-and-correlation" class="nav-link" data-scroll-target="#covariance-and-correlation"><span class="header-section-number">1.4</span> Covariance and correlation</a></li>
+  <li><a href="#spearman-correlation-and-correlation-across-many-metrics" id="toc-spearman-correlation-and-correlation-across-many-metrics" class="nav-link" data-scroll-target="#spearman-correlation-and-correlation-across-many-metrics"><span class="header-section-number">1.5</span> Spearman correlation and correlation across many metrics</a></li>
+  <li><a href="#skewness-and-kurtosis" id="toc-skewness-and-kurtosis" class="nav-link" data-scroll-target="#skewness-and-kurtosis"><span class="header-section-number">1.6</span> Skewness and kurtosis</a></li>
+  <li><a href="#population-and-sample" id="toc-population-and-sample" class="nav-link" data-scroll-target="#population-and-sample"><span class="header-section-number">1.7</span> Population and sample</a></li>
+  <li><a href="#data-types-nominal-ordinal-continuous-and-discrete" id="toc-data-types-nominal-ordinal-continuous-and-discrete" class="nav-link" data-scroll-target="#data-types-nominal-ordinal-continuous-and-discrete"><span class="header-section-number">1.8</span> Data types: nominal, ordinal, continuous, and discrete</a></li>
+  <li><a href="#selection-bias" id="toc-selection-bias" class="nav-link" data-scroll-target="#selection-bias"><span class="header-section-number">1.9</span> Selection bias</a></li>
+  <li><a href="#missing-values-and-mean-imputation" id="toc-missing-values-and-mean-imputation" class="nav-link" data-scroll-target="#missing-values-and-mean-imputation"><span class="header-section-number">1.10</span> Missing values and mean imputation</a></li>
+  <li><a href="#simpsons-paradox" id="toc-simpsons-paradox" class="nav-link" data-scroll-target="#simpsons-paradox"><span class="header-section-number">1.11</span> Simpson’s paradox</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -454,7 +451,7 @@ Tip
 <p>The mean is sensitive to every value in the dataset, including the extreme ones. The median only cares about which value sits in the middle. A single request that takes 30 seconds instead of 40 milliseconds pulls the mean toward it; the median does not notice.</p>
 </div>
 </div>
-<p>This is why on-call dashboards that show “average response time” are trusted less than dashboards that show median and tail percentiles side by side. The mean alone hides the failure mode (a growing slow tail) that engineers most need to catch early.</p>
+<p>This is why on-call dashboards that show “average response time” are trusted less than dashboards that show median and tail percentiles side by side. The mean alone hides the one thing engineers most need to catch early: a growing slow tail.</p>
 </section>
 <section id="measures-of-spread-variance-and-standard-deviation" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="measures-of-spread-variance-and-standard-deviation"><span class="header-section-number">1.2</span> Measures of spread: variance and standard deviation</h2>
@@ -509,8 +506,161 @@ Important
 <p>Percentiles carry a cost of their own, though. The 99th percentile and higher need enough requests in a given window to mean anything.</p>
 <p>A low-traffic endpoint or a narrow time window can make a reported p99 swing from one minute to the next for reasons that have nothing to do with how the service is performing. That is why teams that lean on tail percentiles also have to watch request volume per window, not just the percentile line itself.</p>
 </section>
-<section id="covariance-and-correlation" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="covariance-and-correlation"><span class="header-section-number">1.3</span> Covariance and correlation</h2>
+<section id="robust-statistics-trimmed-mean-iqr-and-mad" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="robust-statistics-trimmed-mean-iqr-and-mad"><span class="header-section-number">1.3</span> Robust statistics: trimmed mean, IQR, and MAD</h2>
+<p>A judged competition, an Olympic dive or a gymnastics routine, drops the highest and the lowest scores before averaging the rest, so one score from an unusually harsh or generous judge cannot swing the final result. That is the same idea behind a family of statistics built to resist a handful of extreme values instead of bending around them.</p>
+<p>Before any formula, the same simulated checkout-API latency data used throughout this chapter shows what happens to the mean, the standard deviation, and three alternatives built to resist outliers, as a growing share of requests turns slow:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Slow-request share</th>
+<th>Mean</th>
+<th>Trimmed mean (10%)</th>
+<th>Median</th>
+<th>Std. deviation</th>
+<th>IQR</th>
+<th>MAD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0%</td>
+<td>47.5 ms</td>
+<td>45.9 ms</td>
+<td>44.9 ms</td>
+<td>17.2 ms</td>
+<td>20.8 ms</td>
+<td>15.2 ms</td>
+</tr>
+<tr class="even">
+<td>5%</td>
+<td>78.5 ms</td>
+<td>48.0 ms</td>
+<td>45.6 ms</td>
+<td>158.3 ms</td>
+<td>23.5 ms</td>
+<td>16.6 ms</td>
+</tr>
+<tr class="odd">
+<td>20%</td>
+<td>172.9 ms</td>
+<td>96.4 ms</td>
+<td>49.6 ms</td>
+<td>295.9 ms</td>
+<td>39.7 ms</td>
+<td>22.4 ms</td>
+</tr>
+</tbody>
+</table>
+<p>By 20% contamination, the mean has moved more than three and a half times past its clean-traffic value, and the standard deviation has grown more than seventeen-fold. The median, the trimmed mean, the interquartile range, and the median absolute deviation all move too, since a fifth of requests are slower now, but every one of them stays within a few multiples of where it started instead of running away.</p>
+<p><em>Robust statistics</em> are built specifically to behave this way: to track a shift in the underlying data without being pulled far off course by a minority of extreme values.</p>
+<p>The <em>trimmed mean</em> sorts the data, discards a fixed percentage of the smallest and largest values, and averages what is left. Dropping the most extreme 10 percent from each end, as the table above does, keeps the middle 80 percent of requests and throws out the slow-tail contamination that pulled the ordinary mean from 47.5 ms to 172.9 ms. A dashboard built on the 10 percent trimmed mean instead of the plain mean would have reported 96.4 ms at the same moment, a number much closer to what most requests were experiencing.</p>
+<p>To compute a trimmed mean by hand: sort the <span class="math inline">\(n\)</span> observations, remove the <span class="math inline">\(k = \lfloor np
+\rfloor\)</span> smallest and the <span class="math inline">\(k\)</span> largest, and average the remaining <span class="math inline">\(n - 2k\)</span> values.</p>
+<p><span class="math display">\[\bar{x}_{tr(p)} = \frac{1}{n - 2k}\sum_{i=k+1}^{n-k} x_{(i)}, \qquad k = \lfloor np \rfloor\]</span></p>
+<p>Here <span class="math inline">\(x_{(i)}\)</span> denotes the <span class="math inline">\(i\)</span>-th smallest value once the data is sorted. In other words, the trimmed mean is an ordinary mean computed after the most extreme values on both ends have been discarded.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The mean and standard deviation have a <em>breakdown point</em> of zero: a single sufficiently extreme value can pull either one arbitrarily far from where it started. The median and MAD have a breakdown point near 50 percent, since roughly half the data would need to be replaced with extreme values before either statistic moves without bound.</p>
+</div>
+</div>
+<p>Recall the percentile from earlier in this chapter, the value below which a given share of observations falls. The <em>interquartile range</em>, or IQR, is the width of the middle half of the data: the 75th percentile (<span class="math inline">\(Q_3\)</span>) minus the 25th percentile (<span class="math inline">\(Q_1\)</span>).</p>
+<p><span class="math display">\[\text{IQR} = Q_3 - Q_1\]</span></p>
+<p>In other words, the IQR answers how spread out the middle half of the requests is, ignoring the fastest and slowest quarters entirely. That is why it barely moved in the table above (20.8 ms to 39.7 ms, under a two-fold increase) while the standard deviation, which factors in every value including the slow-tail requests, moved more than seventeen-fold over the same range.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The IQR is the basis of Tukey’s classic outlier fence: flag any value below <span class="math inline">\(Q_1 - 1.5 \times
+\text{IQR}\)</span> or above <span class="math inline">\(Q_3 + 1.5 \times \text{IQR}\)</span>. It requires no assumption about the shape of the distribution, unlike a mean-plus-standard-deviation rule.</p>
+</div>
+</div>
+<p>The <em>median absolute deviation</em>, or MAD, measures spread the same way the median measures center: by taking the median of how far each value sits from the overall median, then scaling that number so it lines up with the standard deviation on data that follows a normal distribution.</p>
+<p><span class="math display">\[\text{MAD} = 1.4826 \times \text{median}_i\left(|x_i - \tilde{x}|\right)\]</span></p>
+<p>Here <span class="math inline">\(\tilde{x}\)</span> denotes the median, and 1.4826 is the constant that makes MAD estimate the standard deviation consistently when the data is normally distributed. In other words, MAD asks how far a value typically sits from the middle, using the median twice instead of using the mean once.</p>
+<p>The alert-threshold problem from the previous section resurfaces here. A mean-plus-standard-deviation rule and a MAD-based rule (the <em>modified z-score</em>, <span class="math inline">\(M_i = (x_i -
+\tilde{x}) / \text{MAD}\)</span>, flagging anything with <span class="math inline">\(|M_i| &gt; 3.5\)</span>) start out close together on clean traffic and diverge sharply once contamination sets in:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Slow-request share</th>
+<th>mean + 3·std threshold</th>
+<th>Requests flagged</th>
+<th>median + 3.5·MAD threshold</th>
+<th>Requests flagged</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0%</td>
+<td>99 ms</td>
+<td>1.3%</td>
+<td>98 ms</td>
+<td>1.4%</td>
+</tr>
+<tr class="even">
+<td>5%</td>
+<td>553 ms</td>
+<td>2.7%</td>
+<td>104 ms</td>
+<td>5.9%</td>
+</tr>
+<tr class="odd">
+<td>20%</td>
+<td>1,060 ms</td>
+<td>2.8%</td>
+<td>128 ms</td>
+<td>20.1%</td>
+</tr>
+</tbody>
+</table>
+<p>At 20 percent contamination, the standard-deviation-based threshold has climbed to 1,060 ms, chasing the slow requests it exists to catch, and still flags barely more traffic than it did on clean data. The MAD-based threshold barely moves and flags almost the same share of traffic that has slowed. An alerting system built on the first rule would miss most of an ongoing degradation event; one built on the second would catch it.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Iglewicz and Hoaglin chose 3.5 as the flagging threshold because it gives the modified z-score roughly the same false-positive rate on normally distributed data that a classical threshold of 3 gives the ordinary z-score <span class="citation" data-cites="iglewiczhoaglin1993">(<a href="chapter-01-descriptive-statistics.html#ref-iglewiczhoaglin1993" role="doc-biblioref">Iglewicz and Hoaglin 1993</a>)</span>. It holds up under contamination because the median and MAD do not move much even when a large share of the data is contaminated, the same breakdown-point property described above.</p>
+</div>
+</div>
+</section>
+<section id="covariance-and-correlation" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="covariance-and-correlation"><span class="header-section-number">1.4</span> Covariance and correlation</h2>
 <p>Think about height and shoe size. Taller people tend to have bigger feet, though not perfectly: there are tall people with small feet and short people with large ones.</p>
 <p>Covariance and correlation measure how strongly two things tend to move together, without saying anything about which one, if either, is causing the other.</p>
 <p>Suppose the same engineer suspects that larger request payloads are driving the slow tail. <em>Covariance</em> measures whether two variables move together: positive when they rise and fall together, negative when one rises as the other falls, and near zero when they move independently.</p>
@@ -559,8 +709,70 @@ Warning
 </div>
 <p>Part 3 returns to this problem directly, because untangling correlation from causation is the entire reason controlled experiments and Bayesian A/B testing exist.</p>
 </section>
-<section id="skewness-and-kurtosis" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="skewness-and-kurtosis"><span class="header-section-number">1.4</span> Skewness and kurtosis</h2>
+<section id="spearman-correlation-and-correlation-across-many-metrics" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="spearman-correlation-and-correlation-across-many-metrics"><span class="header-section-number">1.5</span> Spearman correlation and correlation across many metrics</h2>
+<p>A driver pressing harder on the accelerator does not need to know how many more kilometers per hour each extra bit of pedal pressure produces to know that pressing harder always means going faster. Some relationships are best captured by a narrower question: do the two quantities always move in the same direction, whatever the size of each step?</p>
+<p>Suppose the same engineering team studies how request-queue utilization affects tail latency as a service approaches its capacity limit. Utilization and latency were simulated for 400 observation windows, following the shape queuing theory predicts: latency stays fairly flat while utilization is low, then bends sharply upward as utilization climbs past roughly two-thirds. Computed on that data, the ordinary Pearson correlation from the previous section comes out to <span class="math inline">\(r = 0.69\)</span>. Ranking each observation instead of using its raw value, then correlating the ranks, gives <span class="math inline">\(\rho = 0.93\)</span>.</p>
+<p>The relationship is strong: every increase in utilization corresponds to a consistent increase in latency across the simulated range, and a perfectly monotonic relationship, one that never reverses direction, would score <span class="math inline">\(\rho = 1\)</span>. Pearson’s <span class="math inline">\(r\)</span> understates that consistency because it only measures how closely two variables track a straight line, and this relationship bends.</p>
+<p><em>Spearman’s rank correlation</em> replaces each value of each variable with its rank, then computes the ordinary Pearson correlation on those ranks instead of on the raw values.</p>
+<p><span class="math display">\[\rho = 1 - \frac{6\sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}\]</span></p>
+<p>Here <span class="math inline">\(d_i\)</span> is the difference between the ranks of the two values in the <span class="math inline">\(i\)</span>-th pair, and this simplified form holds when no two observations share a rank. In other words, Spearman correlation asks whether the request with the second-highest utilization also tends to have the second-highest latency, ignoring how large the gap between first and second happens to be.</p>
+<p>A capacity-planning dashboard reporting only the Pearson correlation between utilization and latency would understate the relationship where it matters most, near the saturation point, because the ordinary correlation formula was never built to detect a bend, only a straight line.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Kendall’s tau is a second rank-based correlation measure. It counts concordant and discordant pairs directly rather than computing a correlation on ranks, tends to be more stable in small samples, and is slower to compute as the sample size grows.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Spearman correlation only requires that a relationship move consistently in one direction; it never requires that movement to follow a straight line. It can still miss a relationship entirely if the relationship is not monotonic: a U-shaped curve where latency first falls and then rises as utilization increases would score close to zero on both Pearson and Spearman correlation, despite a strong underlying pattern.</p>
+</div>
+</div>
+<p>Correlation rarely stops at two variables in production. A single service typically exposes a dozen or more health metrics at once, and the more interesting question is often how several of them move together.</p>
+<div id="fig-metric-correlations" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-metric-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-01-fig-metric-correlation-ellipses.html" width="100%" height="580" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-metric-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.4: Correlation among five cluster health metrics, by traffic regime. Under normal traffic, every pairwise correlation sits close to zero; by full incident-level overload, nearly every pair has climbed into the 0.5 to 0.85 range at once.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-metric-correlations" class="quarto-xref">Figure&nbsp;<span>1.4</span></a> draws this cluster’s correlation matrix as an ellipse for each pair of metrics instead of a single heatmap cell. Color still communicates strength (a darker fill for a stronger correlation in either direction), but the ellipse’s shape carries the same information a second way: a shape close to a circle signals a correlation near zero, and the ellipse flattens into a thin diagonal line as the correlation strengthens, tilted toward the upper right for a positive relationship and the upper left for a negative one. That second channel matters for the same reason the SRE book’s percentile recommendation mattered earlier: a black-and-white printout or a colorblind-unfriendly dashboard still communicates the finding correctly, because the shape is doing work the color alone was doing.</p>
+<p>Drag the slider from normal traffic toward incident-level overload and watch every ellipse flatten and rotate at close to the same rate. CPU utilization, memory utilization, queue depth, error rate, and p99 latency carry almost no relationship to each other under normal load, then move into the 0.5 to 0.85 range together as the system saturates.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A single metric spiking is common and often means little on its own. Five metrics that are usually loosely related suddenly moving together is a stronger, more specific signal: some shared upstream cause, most often resource saturation, is now driving the whole cluster at once. The correlation section above named this confounding-variable pattern for two variables; here it plays out across five at the same time.</p>
+</div>
+</div>
+</section>
+<section id="skewness-and-kurtosis" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="skewness-and-kurtosis"><span class="header-section-number">1.6</span> Skewness and kurtosis</h2>
 <p>Picture a class’s test scores: most students land near 80, but a couple score near 20. That low pair pulls a “tail” down toward the low end.</p>
 <p>Skewness measures which way that tail points and how stretched it is. Kurtosis measures something different: how often extreme scores, high or low, show up compared to a normal bell-curve class.</p>
 <p>A mean, a median, and a standard deviation summarize a distribution with three numbers, but two distributions can share all three and still look nothing alike.</p>
@@ -572,11 +784,11 @@ Warning
 <iframe src="../_generated/chapter-01-fig-skewness-kurtosis.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-skew-kurt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.4: A simulated distribution morphing from nearly symmetric to heavily right-skewed. Both skewness and kurtosis climb together as the tail stretches, since a longer tail is, by construction, also a heavier one.
+Figure&nbsp;1.5: A simulated distribution morphing from nearly symmetric to heavily right-skewed. Both skewness and kurtosis climb together as the tail stretches, since a longer tail is, by construction, also a heavier one.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-skew-kurt" class="quarto-xref">Figure&nbsp;<span>1.4</span></a> reports both statistics live as the shape changes. Watch the skewness number climb as the tail stretches out, and watch kurtosis climb with it.</p>
+<p><a href="#fig-skew-kurt" class="quarto-xref">Figure&nbsp;<span>1.5</span></a> reports both statistics live as the shape changes. Watch the skewness number climb as the tail stretches out, and watch kurtosis climb with it.</p>
 <p>This is because skewness and kurtosis are not two independent knobs; they are both consequences of the same underlying shape.</p>
 <p>Recall the latency data from the first section. It is right-skewed for the same structural reason the simulation is: a hard floor near zero (a request cannot finish in negative time) paired with an unbounded upside (nothing stops a request from taking ten seconds).</p>
 <p>Any variable with that shape, whether it is latency, income, or wait times, will show positive skewness for the same reason.</p>
@@ -594,8 +806,8 @@ Tip
 </div>
 </div>
 </section>
-<section id="population-and-sample" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="population-and-sample"><span class="header-section-number">1.5</span> Population and sample</h2>
+<section id="population-and-sample" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="population-and-sample"><span class="header-section-number">1.7</span> Population and sample</h2>
 <p>Measuring the average height of every student in a country would be the population. Measuring just one classroom and using that as a stand-in for the whole country is a sample.</p>
 <p>A sample is faster and cheaper to collect, but it only works if it represents the population it stands in for.</p>
 <p><em>Population</em> refers to each unit you are ultimately interested in; <em>sample</em> refers to the subset you observed and computed statistics from. If a checkout API serves ten million requests a day, the population is all ten million; the hour of logs an engineer happened to pull is a sample.</p>
@@ -617,8 +829,8 @@ Note
 </div>
 </div>
 </section>
-<section id="data-types-nominal-ordinal-continuous-and-discrete" class="level2" data-number="1.6">
-<h2 data-number="1.6" class="anchored" data-anchor-id="data-types-nominal-ordinal-continuous-and-discrete"><span class="header-section-number">1.6</span> Data types: nominal, ordinal, continuous, and discrete</h2>
+<section id="data-types-nominal-ordinal-continuous-and-discrete" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="data-types-nominal-ordinal-continuous-and-discrete"><span class="header-section-number">1.8</span> Data types: nominal, ordinal, continuous, and discrete</h2>
 <p>You can average a list of temperatures, but you cannot average a list of favorite colors.</p>
 <p>Statisticians sort data into a few basic types because the type determines which math is allowed on it: some data can be ranked or averaged, some can only be counted or labeled.</p>
 <p>The API log line behind each figure in this chapter carries four different kinds of fields, and each kind constrains which statistics are meaningful to compute on it.</p>
@@ -644,8 +856,8 @@ Important
 </div>
 </div>
 </section>
-<section id="selection-bias" class="level2" data-number="1.7">
-<h2 data-number="1.7" class="anchored" data-anchor-id="selection-bias"><span class="header-section-number">1.7</span> Selection bias</h2>
+<section id="selection-bias" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="selection-bias"><span class="header-section-number">1.9</span> Selection bias</h2>
 <p>Imagine judging how popular a school lunch is by only asking the students who complained about it. You would conclude almost nobody likes it, even if most students were fine with it.</p>
 <p>The complainers were never a fair cross-section of the whole cafeteria in the first place.</p>
 <p>Suppose an engineering team wants to know the typical latency their users experience, and pulls that number exclusively from traces flagged as errors, because those are the traces the on-call system happened to retain in detail.</p>
@@ -670,11 +882,11 @@ Note
 <iframe src="../_generated/chapter-01-fig-literary-digest.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-literary-digest-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.5: Predicted vote share vs.&nbsp;the election result, from a ten-million-person sample: a 24-point reversal too large to blame on ordinary sampling noise.
+Figure&nbsp;1.6: Predicted vote share vs.&nbsp;the election result, from a ten-million-person sample: a 24-point reversal too large to blame on ordinary sampling noise.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-literary-digest" class="quarto-xref">Figure&nbsp;<span>1.5</span></a> tells the story in numbers. In 1936, the magazine <em>Literary Digest</em> mailed ten million presidential-election questionnaires and got about 2.3 million back, an enormous sample by any standard.</p>
+<p><a href="#fig-literary-digest" class="quarto-xref">Figure&nbsp;<span>1.6</span></a> tells the story in numbers. In 1936, the magazine <em>Literary Digest</em> mailed ten million presidential-election questionnaires and got about 2.3 million back, an enormous sample by any standard.</p>
 <p>It predicted Alf Landon would beat Franklin Roosevelt with 57% of the vote. Roosevelt won with almost 61% of the popular vote.</p>
 <p>The magazine had built its mailing list from telephone directories, car registrations, and its own subscriber rolls, all of which skewed toward wealthier households in the middle of the Great Depression, a group that leaned Republican. On top of that, the people who bothered to mail back a postcard were not a random subset of the people who received one <span class="citation" data-cites="squire1988">(<a href="chapter-01-descriptive-statistics.html#ref-squire1988" role="doc-biblioref">Squire 1988</a>)</span>.</p>
 <p>Ten million questionnaires could not fix a sampling frame that excluded most of the country.</p>
@@ -700,8 +912,8 @@ Important
 </div>
 </div>
 </section>
-<section id="missing-values-and-mean-imputation" class="level2" data-number="1.8">
-<h2 data-number="1.8" class="anchored" data-anchor-id="missing-values-and-mean-imputation"><span class="header-section-number">1.8</span> Missing values and mean imputation</h2>
+<section id="missing-values-and-mean-imputation" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="missing-values-and-mean-imputation"><span class="header-section-number">1.10</span> Missing values and mean imputation</h2>
 <p>Suppose a teacher is missing three students’ test scores because they were absent on test day. One fix is to give those three students the class average as a stand-in score.</p>
 <p>That is mean imputation: filling a gap with the average of the numbers you do have, so nothing gets thrown out, even though the fill-in value is a guess.</p>
 <p>Production datasets have gaps: an instrumentation library that fails to emit a trace, a dropped log line, or a schema field added partway through a rollout, so that some requests were logged under the old schema and some under the new one.</p>
@@ -712,11 +924,11 @@ Important
 <iframe src="../_generated/chapter-01-fig-mean-imputation.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mean-imputation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.6: Mean imputation narrows the spread of the dataset as the missing share grows. By the time a third of the values are missing, the imputed dataset’s standard deviation sits well below the original.
+Figure&nbsp;1.7: Mean imputation narrows the spread of the dataset as the missing share grows. By the time a third of the values are missing, the imputed dataset’s standard deviation sits well below the original.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-mean-imputation" class="quarto-xref">Figure&nbsp;<span>1.6</span></a> applies mean imputation to the simulated latency data at increasing shares of missing values and tracks what happens to the spread of the resulting dataset.</p>
+<p><a href="#fig-mean-imputation" class="quarto-xref">Figure&nbsp;<span>1.7</span></a> applies mean imputation to the simulated latency data at increasing shares of missing values and tracks what happens to the spread of the resulting dataset.</p>
 <p>At even a modest missing share, the standard deviation after imputation drops well below the original.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -735,8 +947,8 @@ Warning
 <p>Data is not always missing at random. A slow request, for instance, is more likely to hit a client-side timeout before it finishes writing its trace, so slow requests are the ones most likely to be dropped from the logs in the first place.</p>
 <p>When that happens, more careful approaches such as multiple imputation, which fills each gap with a range of plausible values drawn from the data’s own distribution instead of one fixed number, are worth the extra effort.</p>
 </section>
-<section id="simpsons-paradox" class="level2" data-number="1.9">
-<h2 data-number="1.9" class="anchored" data-anchor-id="simpsons-paradox"><span class="header-section-number">1.9</span> Simpson’s paradox</h2>
+<section id="simpsons-paradox" class="level2" data-number="1.11">
+<h2 data-number="1.11" class="anchored" data-anchor-id="simpsons-paradox"><span class="header-section-number">1.11</span> Simpson’s paradox</h2>
 <p>Suppose one baseball player has a higher batting average than another in both the first half of the season and the second half, yet a lower average for the season combined.</p>
 <p>That sounds impossible, but it can happen if the two halves had sharply different numbers of at-bats.</p>
 <p>Each statistic in this chapter has been building toward a single warning: a pattern that holds within each group can reverse itself when the groups are combined.</p>
@@ -746,11 +958,11 @@ Warning
 <iframe src="../_generated/chapter-01-fig-simpsons-paradox.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-simpsons-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.7: Success rate by treatment, split by stone size vs.&nbsp;combined (Charig et al.&nbsp;1986). Drag the slider from an even case mix toward the study’s own mix: Treatment A wins both subgroups yet loses once each treatment’s own share of small and large cases is applied.
+Figure&nbsp;1.8: Success rate by treatment, split by stone size vs.&nbsp;combined (Charig et al.&nbsp;1986). Drag the slider from an even case mix toward the study’s own mix: Treatment A wins both subgroups yet loses once each treatment’s own share of small and large cases is applied.
 </figcaption>
 </figure>
 </div>
-<p>This is <em>Simpson’s paradox</em>, and <a href="#fig-simpsons" class="quarto-xref">Figure&nbsp;<span>1.7</span></a> shows the clearest documented case of it: a 1986 study in the <em>British Medical Journal</em> comparing two treatments for kidney stones <span class="citation" data-cites="charig1986">(<a href="chapter-01-descriptive-statistics.html#ref-charig1986" role="doc-biblioref">Charig et al. 1986</a>)</span>.</p>
+<p>This is <em>Simpson’s paradox</em>, and <a href="#fig-simpsons" class="quarto-xref">Figure&nbsp;<span>1.8</span></a> shows the clearest documented case of it: a 1986 study in the <em>British Medical Journal</em> comparing two treatments for kidney stones <span class="citation" data-cites="charig1986">(<a href="chapter-01-descriptive-statistics.html#ref-charig1986" role="doc-biblioref">Charig et al. 1986</a>)</span>.</p>
 <p>Across 700 patients, split evenly between open surgery (Treatment A) and percutaneous nephrolithotomy (Treatment B), the combined success rate favored Treatment B: 83% versus 78% for Treatment A. On that number alone, Treatment B looks like the better choice.</p>
 <p>But the study also recorded stone size, and once the results are split by stone size, the ranking flips in both groups. Among patients with small stones, Treatment A succeeded 93% of the time versus 87% for Treatment B. Among patients with large stones, Treatment A succeeded 73% of the time versus 69% for Treatment B.</p>
 <p>Treatment A wins in each subgroup and still loses overall.</p>
@@ -814,6 +1026,11 @@ Chipman, Hugh A., Edward I. George, and Robert E. McCulloch. 2010.
 <span>“<span>BART</span>: Bayesian Additive Regression Trees.”</span>
 <em>Annals of Applied Statistics</em> 4 (1): 266–98. <a href="https://doi.org/10.1214/09-AOAS285">https://doi.org/10.1214/09-AOAS285</a>.
 </div>
+<div id="ref-cleveland1979" class="csl-entry" role="listitem">
+Cleveland, William S. 1979. <span>“Robust Locally Weighted Regression
+and Smoothing Scatterplots.”</span> <em>Journal of the American
+Statistical Association</em> 74 (368): 829–36.
+</div>
 <div id="ref-cwigoogle2017" class="csl-entry" role="listitem">
 CWI Amsterdam and Google Research. 2017. <span>“Announcing the First
 SHA-1 Collision.”</span> CWI news release. <a href="https://www.cwi.nl/en/news/cwi-and-google-announce-first-collision-for-industry-security-standard-sha-1/">https://www.cwi.nl/en/news/cwi-and-google-announce-first-collision-for-industry-security-standard-sha-1/</a>.
@@ -825,10 +1042,29 @@ Natural Gradient Boosting for Probabilistic Prediction.”</span> In
 <em>Proceedings of the 37th International Conference on Machine Learning
 (ICML 2020)</em>, 119:2690–700.
 </div>
+<div id="ref-fabijan2019" class="csl-entry" role="listitem">
+Fabijan, Aleksander, Jayant Gupchup, Somit Gupta, Jeff Omhover, Wen Qin,
+Lukas Vermeer, and Pavel A. Dmitriev. 2019. <span>“Diagnosing Sample
+Ratio Mismatch in Online Controlled Experiments: A Taxonomy and Rules of
+Thumb for Practitioners.”</span> In <em>Proceedings of the 25th ACM
+SIGKDD International Conference on Knowledge Discovery &amp; Data
+Mining</em>, 2156–64. <a href="https://doi.org/10.1145/3292500.3330722">https://doi.org/10.1145/3292500.3330722</a>.
+</div>
 <div id="ref-friedman2001" class="csl-entry" role="listitem">
 Friedman, Jerome H. 2001. <span>“Greedy Function Approximation: A
 Gradient Boosting Machine.”</span> <em>The Annals of Statistics</em> 29
 (5): 1189–1232. <a href="https://doi.org/10.1214/aos/1013203451">https://doi.org/10.1214/aos/1013203451</a>.
+</div>
+<div id="ref-gabrysimpsonvehtaribetancourtgelman2019" class="csl-entry" role="listitem">
+Gabry, Jonah, Daniel Simpson, Aki Vehtari, Michael Betancourt, and
+Andrew Gelman. 2019. <span>“Visualization in <span>B</span>ayesian
+Workflow.”</span> <em>Journal of the Royal Statistical Society Series A:
+Statistics in Society</em> 182 (2): 389–402. <a href="https://doi.org/10.1111/rssa.12378">https://doi.org/10.1111/rssa.12378</a>.
+</div>
+<div id="ref-gelmanhill2007" class="csl-entry" role="listitem">
+Gelman, Andrew, and Jennifer Hill. 2007. <em>Data Analysis Using
+Regression and Multilevel/Hierarchical Models</em>. New York, NY:
+Cambridge University Press.
 </div>
 <div id="ref-gelmanmengstern1996" class="csl-entry" role="listitem">
 Gelman, Andrew, Xiao-Li Meng, and Hal Stern. 1996. <span>“Posterior
@@ -843,10 +1079,36 @@ Optional Stopping Issues.”</span> Analytics-Toolkit.com blog. <a href="https:/
 Google SRE. 2017. <span>“Service Level Objectives.”</span> Site
 Reliability Engineering, Chapter 4. <a href="https://sre.google/sre-book/service-level-objectives/">https://sre.google/sre-book/service-level-objectives/</a>.
 </div>
+<div id="ref-hastietibshirani1990" class="csl-entry" role="listitem">
+Hastie, Trevor J., and Robert J. Tibshirani. 1990. <em>Generalized
+Additive Models</em>. Monographs on Statistics and Applied Probability.
+Chapman; Hall/CRC.
+</div>
+<div id="ref-hastings1970" class="csl-entry" role="listitem">
+Hastings, W. Keith. 1970. <span>“Monte Carlo Sampling Methods Using
+Markov Chains and Their Applications.”</span> <em>Biometrika</em> 57
+(1): 97–109. <a href="https://doi.org/10.1093/biomet/57.1.97">https://doi.org/10.1093/biomet/57.1.97</a>.
+</div>
 <div id="ref-hoerlkennard1970" class="csl-entry" role="listitem">
 Hoerl, Arthur E., and Robert W. Kennard. 1970. <span>“Ridge Regression:
 Biased Estimation for Nonorthogonal Problems.”</span>
 <em>Technometrics</em> 12 (1): 55–67. <a href="https://doi.org/10.1080/00401706.1970.10488634">https://doi.org/10.1080/00401706.1970.10488634</a>.
+</div>
+<div id="ref-hoffmangelman2014" class="csl-entry" role="listitem">
+Hoffman, Matthew D., and Andrew Gelman. 2014. <span>“The <span>No-U-Turn
+Sampler</span>: Adaptively Setting Path Lengths in
+<span>H</span>amiltonian <span>M</span>onte <span>C</span>arlo.”</span>
+<em>Journal of Machine Learning Research</em> 15 (1): 1593–623.
+</div>
+<div id="ref-iglewiczhoaglin1993" class="csl-entry" role="listitem">
+Iglewicz, Boris, and David C. Hoaglin. 1993. <em>How to Detect and
+Handle Outliers</em>. The ASQC Basic References in Quality Control:
+Statistical Techniques, Vol. 16. Milwaukee, WI: ASQC Quality Press.
+</div>
+<div id="ref-kassraftery1995" class="csl-entry" role="listitem">
+Kass, Robert E., and Adrian E. Raftery. 1995. <span>“<span>B</span>ayes
+Factors.”</span> <em>Journal of the American Statistical
+Association</em> 90 (430): 773–95. <a href="https://doi.org/10.1080/01621459.1995.10476572">https://doi.org/10.1080/01621459.1995.10476572</a>.
 </div>
 <div id="ref-ke2017lightgbm" class="csl-entry" role="listitem">
 Ke, Guolin, Qi Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma,
@@ -855,15 +1117,44 @@ Efficient Gradient Boosting Decision Tree.”</span> In <em>Advances in
 Neural Information Processing Systems 30 (NeurIPS 2017)</em>, 3146–54.
 <a href="https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb676fa-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb676fa-Paper.pdf</a>.
 </div>
+<div id="ref-koenkerbassett1978" class="csl-entry" role="listitem">
+Koenker, Roger, and Jr. Bassett Gilbert. 1978. <span>“Regression
+Quantiles.”</span> <em>Econometrica</em> 46 (1): 33–50. <a href="https://doi.org/10.2307/1913643">https://doi.org/10.2307/1913643</a>.
+</div>
+<div id="ref-kohavitangxu2020" class="csl-entry" role="listitem">
+Kohavi, Ron, Diane Tang, and Ya Xu. 2020. <em>Trustworthy Online
+Controlled Experiments: A Practical Guide to a/b Testing</em>. Cambridge
+University Press.
+</div>
 <div id="ref-kumar2019arviz" class="csl-entry" role="listitem">
 Kumar, Ravin, Colin Carroll, Ari Hartikainen, and Osvaldo Martin. 2019.
 <span>“<span>ArviZ</span>: A Unified Library for Exploratory Analysis of
 <span>B</span>ayesian Models in <span>P</span>ython.”</span> <em>Journal
 of Open Source Software</em> 4 (33): 1143. <a href="https://doi.org/10.21105/joss.01143">https://doi.org/10.21105/joss.01143</a>.
 </div>
+<div id="ref-lange1989" class="csl-entry" role="listitem">
+Lange, Kenneth L., Roderick J. A. Little, and Jeremy M. G. Taylor. 1989.
+<span>“Robust Statistical Modeling Using the <span class="nocase">t</span> Distribution.”</span> <em>Journal of the
+American Statistical Association</em> 84 (408): 881–96. <a href="https://doi.org/10.1080/01621459.1989.10478852">https://doi.org/10.1080/01621459.1989.10478852</a>.
+</div>
+<div id="ref-marquardt1970" class="csl-entry" role="listitem">
+Marquardt, Donald W. 1970. <span>“Generalized Inverses, Ridge
+Regression, Biased Linear Estimation, and Nonlinear Estimation.”</span>
+<em>Technometrics</em> 12 (3): 591–612. <a href="https://doi.org/10.1080/00401706.1970.10488699">https://doi.org/10.1080/00401706.1970.10488699</a>.
+</div>
+<div id="ref-metropolis1953" class="csl-entry" role="listitem">
+Metropolis, Nicholas, Arianna W. Rosenbluth, Marshall N. Rosenbluth,
+Augusta H. Teller, and Edward Teller. 1953. <span>“Equation of State
+Calculations by Fast Computing Machines.”</span> <em>The Journal of
+Chemical Physics</em> 21 (6): 1087–92. <a href="https://doi.org/10.1063/1.1699114">https://doi.org/10.1063/1.1699114</a>.
+</div>
 <div id="ref-miller2014" class="csl-entry" role="listitem">
 Miller, Evan. 2014. <span>“Formulas for Bayesian a/b Testing.”</span>
 evanmiller.org. <a href="https://www.evanmiller.org/bayesian-ab-testing.html">https://www.evanmiller.org/bayesian-ab-testing.html</a>.
+</div>
+<div id="ref-neal2003" class="csl-entry" role="listitem">
+Neal, Radford M. 2003. <span>“Slice Sampling.”</span> <em>The Annals of
+Statistics</em> 31 (3): 705–67. <a href="https://doi.org/10.1214/aos/1056562461">https://doi.org/10.1214/aos/1056562461</a>.
 </div>
 <div id="ref-parkcasella2008" class="csl-entry" role="listitem">
 Park, Trevor, and George Casella. 2008. <span>“The Bayesian
@@ -873,6 +1164,11 @@ Lasso.”</span> <em>Journal of the American Statistical Association</em>
 <div id="ref-rasmussenwilliams2006" class="csl-entry" role="listitem">
 Rasmussen, Carl Edward, and Christopher K. I. Williams. 2006.
 <em>Gaussian Processes for Machine Learning</em>. The MIT Press. <a href="http://www.gaussianprocess.org/gpml/">http://www.gaussianprocess.org/gpml/</a>.
+</div>
+<div id="ref-romanopattersoncandes2019" class="csl-entry" role="listitem">
+Romano, Yaniv, Evan Patterson, and Emmanuel J. Candès. 2019.
+<span>“Conformalized Quantile Regression.”</span> In <em>Advances in
+Neural Information Processing Systems 32 (NeurIPS 2019)</em>, 3543–53.
 </div>
 <div id="ref-runge1901" class="csl-entry" role="listitem">
 Runge, Carl. 1901. <span>“<span>Ü</span>ber Empirische Funktionen Und
@@ -892,6 +1188,11 @@ Model.”</span> <em>The Annals of Statistics</em> 6 (2): 461–64. <a href="htt
 <div id="ref-squire1988" class="csl-entry" role="listitem">
 Squire, Peverill. 1988. <span>“Why the 1936 Literary Digest Poll
 Failed.”</span> <em>Public Opinion Quarterly</em> 52 (1): 125–33. <a href="https://doi.org/10.1086/269085">https://doi.org/10.1086/269085</a>.
+</div>
+<div id="ref-stephens2000" class="csl-entry" role="listitem">
+Stephens, Matthew. 2000. <span>“Dealing with Label Switching in Mixture
+Models.”</span> <em>Journal of the Royal Statistical Society Series B:
+Statistical Methodology</em> 62 (4): 795–809. <a href="https://doi.org/10.1111/1467-9868.00265">https://doi.org/10.1111/1467-9868.00265</a>.
 </div>
 <div id="ref-stone1974" class="csl-entry" role="listitem">
 Stone, M. 1974. <span>“Cross-Validatory Choice and Assessment of
@@ -919,10 +1220,26 @@ Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical
 Cross-Validation and <span>WAIC</span>.”</span> <em>Statistics and
 Computing</em> 27 (5): 1413–32. <a href="https://doi.org/10.1007/s11222-016-9696-4">https://doi.org/10.1007/s11222-016-9696-4</a>.
 </div>
+<div id="ref-vovkgammermanshafer2005" class="csl-entry" role="listitem">
+Vovk, Vladimir, Alexander Gammerman, and Glenn Shafer. 2005.
+<em>Algorithmic Learning in a Random World</em>. New York, NY: Springer.
+<a href="https://doi.org/10.1007/b106715">https://doi.org/10.1007/b106715</a>.
+</div>
 <div id="ref-asa2016" class="csl-entry" role="listitem">
 Wasserstein, Ronald L., and Nicole A. Lazar. 2016. <span>“The ASA’s
 Statement on p-Values: Context, Process, and Purpose.”</span> <em>The
 American Statistician</em> 70 (2): 129–33. <a href="https://doi.org/10.1080/00031305.2016.1154108">https://doi.org/10.1080/00031305.2016.1154108</a>.
+</div>
+<div id="ref-watanabe2010" class="csl-entry" role="listitem">
+Watanabe, Sumio. 2010. <span>“Asymptotic Equivalence of
+<span>B</span>ayes Cross Validation and Widely Applicable Information
+Criterion in Singular Learning Theory.”</span> <em>Journal of Machine
+Learning Research</em> 11: 3571–94.
+</div>
+<div id="ref-yaovehtarisimpsongelman2018" class="csl-entry" role="listitem">
+Yao, Yuling, Aki Vehtari, Daniel Simpson, and Andrew Gelman. 2018.
+<span>“Using Stacking to Average <span>B</span>ayesian Predictive
+Distributions.”</span> <em>Bayesian Analysis</em> 13 (3): 917–1007. <a href="https://doi.org/10.1214/17-BA1091">https://doi.org/10.1214/17-BA1091</a>.
 </div>
 </div>
 

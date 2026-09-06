@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -177,11 +177,6 @@ div.csl-indent {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -334,11 +329,12 @@ div.csl-indent {
   <li><a href="#boosting-versus-bagging" id="toc-boosting-versus-bagging" class="nav-link active" data-scroll-target="#boosting-versus-bagging"><span class="header-section-number">8.1</span> Boosting versus bagging</a></li>
   <li><a href="#shrinkage-and-the-learning-rate-trade-off" id="toc-shrinkage-and-the-learning-rate-trade-off" class="nav-link" data-scroll-target="#shrinkage-and-the-learning-rate-trade-off"><span class="header-section-number">8.2</span> Shrinkage and the learning-rate trade-off</a></li>
   <li><a href="#tree-depth-as-a-regularizer" id="toc-tree-depth-as-a-regularizer" class="nav-link" data-scroll-target="#tree-depth-as-a-regularizer"><span class="header-section-number">8.3</span> Tree depth as a regularizer</a></li>
-  <li><a href="#xgboost-a-regularized-second-order-boosting-system" id="toc-xgboost-a-regularized-second-order-boosting-system" class="nav-link" data-scroll-target="#xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.4</span> XGBoost: a regularized, second-order boosting system</a></li>
-  <li><a href="#lightgbm-histogram-splits-and-leaf-wise-growth" id="toc-lightgbm-histogram-splits-and-leaf-wise-growth" class="nav-link" data-scroll-target="#lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.5</span> LightGBM: histogram splits and leaf-wise growth</a></li>
-  <li><a href="#random-forest-gradient-boosting-or-lightgbm" id="toc-random-forest-gradient-boosting-or-lightgbm" class="nav-link" data-scroll-target="#random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.6</span> Random forest, gradient boosting, or LightGBM</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">8.7</span> A Bayesian perspective</a></li>
-  <li><a href="#where-part-2-leaves-off" id="toc-where-part-2-leaves-off" class="nav-link" data-scroll-target="#where-part-2-leaves-off"><span class="header-section-number">8.8</span> Where Part 2 leaves off</a></li>
+  <li><a href="#regularized-versus-unregularized-an-overfitting-curve" id="toc-regularized-versus-unregularized-an-overfitting-curve" class="nav-link" data-scroll-target="#regularized-versus-unregularized-an-overfitting-curve"><span class="header-section-number">8.4</span> Regularized versus unregularized: an overfitting curve</a></li>
+  <li><a href="#xgboost-a-regularized-second-order-boosting-system" id="toc-xgboost-a-regularized-second-order-boosting-system" class="nav-link" data-scroll-target="#xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.5</span> XGBoost: a regularized, second-order boosting system</a></li>
+  <li><a href="#lightgbm-histogram-splits-and-leaf-wise-growth" id="toc-lightgbm-histogram-splits-and-leaf-wise-growth" class="nav-link" data-scroll-target="#lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.6</span> LightGBM: histogram splits and leaf-wise growth</a></li>
+  <li><a href="#random-forest-gradient-boosting-or-lightgbm" id="toc-random-forest-gradient-boosting-or-lightgbm" class="nav-link" data-scroll-target="#random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.7</span> Random forest, gradient boosting, or LightGBM</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">8.8</span> A Bayesian perspective</a></li>
+  <li><a href="#where-part-2-leaves-off" id="toc-where-part-2-leaves-off" class="nav-link" data-scroll-target="#where-part-2-leaves-off"><span class="header-section-number">8.9</span> Where Part 2 leaves off</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -392,6 +388,8 @@ Note
 <p>For squared-error loss, the negative gradient is just the residual (the true value minus the predicted value), so “fit a tree to the residuals” is gradient boosting’s simplest case.</p>
 <p>For other loss functions, such as the log-loss used for a probability like rollback risk, the negative gradient works out to a different quantity: the true outcome (0 or 1) minus the predicted probability, the same “true value minus prediction” shape as the squared-error case above, just measured on a probability scale.</p>
 <p>The tree is fit to how far off that predicted probability was, not just whether the prediction crossed a decision threshold. The mechanism stays the same across loss functions: each tree is a small step in the direction that most reduces the loss.</p>
+<p>A boosted classifier fit on that probability, such as a boosted version of Chapter 7’s rollback classifier, is judged the same way Chapter 7 judges one: <a href="chapter-07-decision-trees-random-forests.html#fig-confusion-threshold" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> works through the confusion matrix, precision, recall, F1, and the ROC curve on the same rollback classifier’s held-out canary set, threshold by threshold. Gradient boosting changes how the underlying probability gets fit. What counts as a correct or costly prediction stays the same, so that whole toolkit carries over unchanged: the same confusion matrix, the same precision-recall trade-off as the threshold moves, the same ROC curve tracing true positive rate against false positive rate.</p>
+<p>There is no reason to rebuild any of it here. The rest of this chapter keeps measuring boosted models by prediction error on a continuous target, the way Part 2 has measured every model so far, and leaves the classification-metrics workout to Chapter 7’s figure.</p>
 <div id="fig-boosting-rounds" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-boosting-rounds-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -456,8 +454,38 @@ Note
 </div>
 </div>
 </section>
-<section id="xgboost-a-regularized-second-order-boosting-system" class="level2" data-number="8.4">
-<h2 data-number="8.4" class="anchored" data-anchor-id="xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.4</span> XGBoost: a regularized, second-order boosting system</h2>
+<section id="regularized-versus-unregularized-an-overfitting-curve" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="regularized-versus-unregularized-an-overfitting-curve"><span class="header-section-number">8.4</span> Regularized versus unregularized: an overfitting curve</h2>
+<div id="fig-overfitting-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-overfitting-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-boosting-fig-overfitting-curve.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-overfitting-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.3: Training and validation error by boosting round, on 500 API-latency records held out for this comparison, for an unregularized configuration (high learning rate, deep trees) against a regularized one (low learning rate, shallow trees). The unregularized run’s validation error turns upward within the first several rounds and plateaus while training error falls to zero; the regularized run’s validation error keeps declining through nearly the whole 400-round budget.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-overfitting-curve" class="quarto-xref">Figure&nbsp;<span>8.3</span></a> puts the chapter’s last three levers, learning rate, tree depth, and early stopping, to work together at once, on a dataset built only for this comparison: 500 simulated API records where queue depth, cache-miss rate, retry count, and payload size predict response latency in milliseconds. One gradient boosting model runs with a high learning rate and deep trees. The other runs with a low learning rate and shallow trees. Both are trained for the same 400-round budget, and every round’s prediction is scored against both the training and validation sets, so the chart shows the whole trajectory, round by round.</p>
+<p>The unregularized run’s validation error hits its lowest point within the first handful of rounds, then turns around and climbs to a plateau well above that minimum, while training error keeps falling until it reaches zero and stays there. Every round added past that early minimum fits noise specific to the 350 training rows, noise that will fail on requests the model has not seen yet. The training curve alone gives no hint of that.</p>
+<p>Regularization guards against a concrete production risk here. A retraining job that reports only the current round’s training loss would show this model improving for the entire run, since training error never turns around, while validation performance stalled out dozens of rounds earlier and never recovers. The regularized run never opens that gap: its validation error keeps sliding down through nearly the full round budget, training error trails below it without collapsing to zero, and the marked best round sits near the end of the 400-round budget, evidence that a lower learning rate and shallower trees buy far more useful rounds before the same reversal would set in.</p>
+<p>Computing both curves needs nothing beyond what the shrinkage figure earlier in this chapter does: fit each configuration once with a large round budget, call <code>staged_predict</code> to recover the model’s prediction after every individual round, and score each one against both the training and validation sets. The only new step is running that loop twice, once per configuration, on one shared axis, putting the two shapes side by side on the same chart.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A boosting pipeline that logs only the current round’s training loss cannot catch this reversal. Track validation error at the same cadence as training error throughout a run, or an unregularized configuration can look worse in production than the training log suggests.</p>
+</div>
+</div>
+</section>
+<section id="xgboost-a-regularized-second-order-boosting-system" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="xgboost-a-regularized-second-order-boosting-system"><span class="header-section-number">8.5</span> XGBoost: a regularized, second-order boosting system</h2>
 <p>XGBoost, introduced by Chen and Guestrin in 2016, is not simply a fast implementation of Friedman’s gradient boosting; it changes what each tree is optimizing for <span class="citation" data-cites="chen2016xgboost">(<a href="chapter-01-descriptive-statistics.html#ref-chen2016xgboost" role="doc-biblioref">Chen and Guestrin 2016</a>)</span>. Two changes account for most of its practical advantage.</p>
 <p>First, XGBoost adds an explicit regularization term to its objective function, penalizing both the number of leaves in a tree and the size of the prediction value at each leaf (an L2 penalty, with an L1 option available).</p>
 <p>This is the same idea as Chapter 4’s Ridge and Lasso penalties on regression coefficients, applied here to tree structure instead. A tree that fits the training data by growing an extra leaf, or by assigning a leaf a wildly large prediction, has to justify that against a concrete cost in the objective, not just fit whatever data it sees.</p>
@@ -467,11 +495,11 @@ Note
 <iframe src="../_generated/chapter-boosting-fig-xgboost-regularization.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-xgboost-regularization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.3: Training and validation error for the rollback-risk model as XGBoost’s <code>reg_lambda</code> grows. Training error rises the whole way, since a heavier penalty keeps shrinking every leaf’s prediction toward zero; validation error bottoms out around the marked point before creeping back up as the penalty starts blocking signal along with noise.
+Figure&nbsp;8.4: Training and validation error for the rollback-risk model as XGBoost’s <code>reg_lambda</code> grows. Training error rises the whole way, since a heavier penalty keeps shrinking every leaf’s prediction toward zero; validation error bottoms out around the marked point before creeping back up as the penalty starts blocking signal along with noise.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-xgboost-regularization" class="quarto-xref">Figure&nbsp;<span>8.3</span></a> makes the trade-off concrete. Training error climbs steadily as <code>reg_lambda</code> grows, since the penalty does what it is built to do: every leaf’s prediction gets pulled toward zero regardless of whether the training data supports it. Validation error tells the more useful story, sliding down to a minimum near the marked <code>reg_lambda</code> before turning back up. Left near zero, the penalty barely restrains an XGBoost model at this depth and learning rate; pushed far past the marked point, it starts discarding signal along with the noise. Tuning <code>reg_lambda</code> (typically alongside <code>reg_alpha</code> for the L1 option) means searching for that point the same way Chapter 4 searches for ridge and lasso’s regularization strength.</p>
+<p><a href="#fig-xgboost-regularization" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> makes the trade-off concrete. Training error climbs steadily as <code>reg_lambda</code> grows, since the penalty does what it is built to do: every leaf’s prediction gets pulled toward zero regardless of whether the training data supports it. Validation error tells the more useful story, sliding down to a minimum near the marked <code>reg_lambda</code> before turning back up. Left near zero, the penalty barely restrains an XGBoost model at this depth and learning rate; pushed far past the marked point, it starts discarding signal along with the noise. Tuning <code>reg_lambda</code> (typically alongside <code>reg_alpha</code> for the L1 option) means searching for that point the same way Chapter 4 searches for ridge and lasso’s regularization strength.</p>
 <p>Steering a car downhill by feel, a driver notices not just which way the road slopes but how sharply it curves ahead, and adjusts more carefully where the curve is sharp.</p>
 <p>Second, XGBoost uses a second-order Taylor approximation of the loss function at each step (Newton boosting), rather than the first-order gradient alone. In other words, it uses both the slope and the curvature of the loss to decide how to split.</p>
 <p>That produces more accurate split decisions than gradient information alone, particularly for loss functions where the curvature varies a lot across the data, such as log-loss where predictions sit close to 0 or 1.</p>
@@ -491,8 +519,8 @@ Tip
 </div>
 <p>Together, these choices are why XGBoost became the default entry in almost every tabular machine learning competition for several years after its release, and why it remains a standard production choice for structured data.</p>
 </section>
-<section id="lightgbm-histogram-splits-and-leaf-wise-growth" class="level2" data-number="8.5">
-<h2 data-number="8.5" class="anchored" data-anchor-id="lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.5</span> LightGBM: histogram splits and leaf-wise growth</h2>
+<section id="lightgbm-histogram-splits-and-leaf-wise-growth" class="level2" data-number="8.6">
+<h2 data-number="8.6" class="anchored" data-anchor-id="lightgbm-histogram-splits-and-leaf-wise-growth"><span class="header-section-number">8.6</span> LightGBM: histogram splits and leaf-wise growth</h2>
 <p>LightGBM, from Ke et al.&nbsp;at Microsoft Research, targets the same problem, gradient boosted trees, but optimizes specifically for training speed on large datasets <span class="citation" data-cites="ke2017lightgbm">(<a href="chapter-01-descriptive-statistics.html#ref-ke2017lightgbm" role="doc-biblioref">Ke et al. 2017</a>)</span>. Two design choices explain most of the difference from XGBoost’s default behavior.</p>
 <p><em>Histogram-based split finding</em> buckets each continuous feature into a fixed number of discrete bins (256 is a common default) before searching for the best split, rather than considering every observed value as a candidate split point.</p>
 <p>This makes each split search roughly proportional to the number of bins rather than the number of data points, a substantial speedup on large datasets that comes at the cost of some split precision.</p>
@@ -517,11 +545,11 @@ Tip
 <iframe src="../_generated/chapter-boosting-fig-leafwise-vs-levelwise.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-leafwise-vs-levelwise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.4: Training loss for the same leaf budget: leaf-wise growth reaches a lower loss with fewer leaves than level-wise growth needs.
+Figure&nbsp;8.5: Training loss for the same leaf budget: leaf-wise growth reaches a lower loss with fewer leaves than level-wise growth needs.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-leafwise-vs-levelwise" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> fits both growth strategies to the rollback-risk data and tracks training loss against the number of leaves used. For the same leaf budget, leaf-wise growth reaches a lower training loss, because it always spends its next leaf where it helps most instead of filling out a full level first.</p>
+<p><a href="#fig-leafwise-vs-levelwise" class="quarto-xref">Figure&nbsp;<span>8.5</span></a> fits both growth strategies to the rollback-risk data and tracks training loss against the number of leaves used. For the same leaf budget, leaf-wise growth reaches a lower training loss, because it always spends its next leaf where it helps most instead of filling out a full level first.</p>
 <p>Does that mean leaf-wise growth is a strict improvement? It is not, and LightGBM is explicit about the trade-off. Reaching a lower training loss faster is also what lets a leaf-wise tree overfit small datasets if left unconstrained, since it will happily grow one branch unusually deep chasing a handful of training points.</p>
 <p>LightGBM’s documentation recommends capping <code>max_depth</code> alongside <code>num_leaves</code> for smaller datasets specifically to guard against this. On large datasets, where there is enough data to make each split decision reliable, leaf-wise growth’s efficiency tends to win outright.</p>
 <p>LightGBM also introduces <em>gradient-based one-side sampling</em> (GOSS). Observations with small gradients are well fit by the current ensemble and contribute little new information, so GOSS keeps all the observations with large gradients and only a random sample of the small-gradient ones.</p>
@@ -553,19 +581,19 @@ Note
 </div>
 </div>
 </section>
-<section id="random-forest-gradient-boosting-or-lightgbm" class="level2" data-number="8.6">
-<h2 data-number="8.6" class="anchored" data-anchor-id="random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.6</span> Random forest, gradient boosting, or LightGBM</h2>
+<section id="random-forest-gradient-boosting-or-lightgbm" class="level2" data-number="8.7">
+<h2 data-number="8.7" class="anchored" data-anchor-id="random-forest-gradient-boosting-or-lightgbm"><span class="header-section-number">8.7</span> Random forest, gradient boosting, or LightGBM</h2>
 <div id="fig-model-comparison-size" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-model-comparison-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <iframe src="../_generated/chapter-boosting-fig-model-comparison-size.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-comparison-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.5: Validation error vs.&nbsp;training-set size for a random forest and a gradient boosting model. At the smallest training size the forest has lower error; the two lines cross as the data grows, and gradient boosting pulls ahead with a widening lead at the largest size shown.
+Figure&nbsp;8.6: Validation error vs.&nbsp;training-set size for a random forest and a gradient boosting model. At the smallest training size the forest has lower error; the two lines cross as the data grows, and gradient boosting pulls ahead with a widening lead at the largest size shown.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-model-comparison-size" class="quarto-xref">Figure&nbsp;<span>8.5</span></a> trains a random forest and a shallow-tree gradient boosting model on the rollback-risk data at increasing training-set sizes and compares validation error.</p>
+<p><a href="#fig-model-comparison-size" class="quarto-xref">Figure&nbsp;<span>8.6</span></a> trains a random forest and a shallow-tree gradient boosting model on the rollback-risk data at increasing training-set sizes and compares validation error.</p>
 <p>At the smallest sample size shown, the random forest has lower validation error. The two methods cross as the training set grows, and boosting’s advantage widens from there, since more data gives each additional tree a more reliable gradient signal to correct.</p>
 <p>In practice, the choice among a random forest, XGBoost, and LightGBM usually comes down to four questions.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -586,8 +614,8 @@ Note
 <p>How much does interpretability matter? A single decision tree (Chapter 7) is easy to read directly; a random forest and a boosted ensemble both need a variable-importance or SHAP-value layer (a method for splitting credit for one prediction among its input features) on top to explain a prediction, and neither is inherently easier to explain than the other.</p>
 <p>How much risk of overfitting is there in the data? On a small, noisy dataset, a random forest’s built-in averaging is a safer default than a boosted model’s sequential, error-chasing structure.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="8.7">
-<h2 data-number="8.7" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">8.7</span> A Bayesian perspective</h2>
+<section id="a-bayesian-perspective" class="level2" data-number="8.8">
+<h2 data-number="8.8" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">8.8</span> A Bayesian perspective</h2>
 <p>Boosting does not have as natural a Bayesian formulation as linear regression or trees do. There is no single, widely adopted “Bayesian XGBoost” the way there is a Bayesian linear model or BART (Chapter 7).</p>
 <p>Two threads are worth knowing regardless.</p>
 <p>The most practical one is <em>Bayesian hyperparameter optimization</em> for tuning a boosted model. Like a treasure hunter who, after a few digs, starts favoring spots near past finds while still checking occasional long shots, this approach learns from every trial where to dig next instead of digging at random.</p>
@@ -600,11 +628,11 @@ Note
 <iframe src="../_generated/chapter-boosting-fig-gp-hyperparameter-search.html" width="100%" height="560" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-hyperparameter-search-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.6: Validation-loss surface over (learning rate, max depth); a search only sees the points it has evaluated so far, and picks the next one by weighing a good predicted score against how unexplored that region still is. Move the slider.
+Figure&nbsp;8.7: Validation-loss surface over (learning rate, max depth); a search only sees the points it has evaluated so far, and picks the next one by weighing a good predicted score against how unexplored that region still is. Move the slider.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-gp-hyperparameter-search" class="quarto-xref">Figure&nbsp;<span>8.6</span></a> shows a validation-loss surface over learning rate and max depth for the rollback-risk model, with points marking the combinations a search has evaluated so far.</p>
+<p><a href="#fig-gp-hyperparameter-search" class="quarto-xref">Figure&nbsp;<span>8.7</span></a> shows a validation-loss surface over learning rate and max depth for the rollback-risk model, with points marking the combinations a search has evaluated so far.</p>
 <p>In other words, a Bayesian hyperparameter search treats “which combination should I try next” as itself a decision under uncertainty. It is the same posterior-driven decision-making idea Part 3 develops for A/B testing, just applied to model tuning instead of experiment design.</p>
 <p>Tools like <code>scikit-optimize</code>, <code>Optuna</code>, and <code>Hyperopt</code> implement this directly and typically reach a good hyperparameter setting in far fewer trials than grid search.</p>
 <p>The second thread is thinner and more research-oriented: some work has framed boosting itself as an approximate form of Bayesian inference, where the sequence of trees traces out something like a posterior distribution via functional gradient descent.</p>
@@ -623,8 +651,8 @@ Important
 </div>
 </div>
 </section>
-<section id="where-part-2-leaves-off" class="level2" data-number="8.8">
-<h2 data-number="8.8" class="anchored" data-anchor-id="where-part-2-leaves-off"><span class="header-section-number">8.8</span> Where Part 2 leaves off</h2>
+<section id="where-part-2-leaves-off" class="level2" data-number="8.9">
+<h2 data-number="8.9" class="anchored" data-anchor-id="where-part-2-leaves-off"><span class="header-section-number">8.9</span> Where Part 2 leaves off</h2>
 <p>Part 2 has moved from a single straight line (Chapter 4) through cross-validated model selection (Chapter 5), curves that bend (Chapter 6), and now trees that vote alone, in committee, or in sequence.</p>
 <p>Every one of these methods answers a version of the same question: what value do we expect the outcome to take, given these inputs? Each one simply brings more machinery to answering it well.</p>
 <p>Part 3 asks a different question: not what value to expect, but how confident to be in a decision built on top of that value. It returns to a place this book started, Chapter 1’s kidney-stone Simpson’s paradox, to show that no amount of modeling sophistication substitutes for an experiment that was designed correctly in the first place.</p>

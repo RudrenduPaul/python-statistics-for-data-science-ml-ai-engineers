@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -240,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -398,8 +393,13 @@ window.Quarto = {
   <li><a href="#waic-an-information-criterion-built-from-the-posterior" id="toc-waic-an-information-criterion-built-from-the-posterior" class="nav-link" data-scroll-target="#waic-an-information-criterion-built-from-the-posterior"><span class="header-section-number">10.2</span> WAIC: an information criterion built from the posterior</a></li>
   <li><a href="#psis-loo-the-more-trustworthy-alternative" id="toc-psis-loo-the-more-trustworthy-alternative" class="nav-link" data-scroll-target="#psis-loo-the-more-trustworthy-alternative"><span class="header-section-number">10.3</span> PSIS-LOO: the more trustworthy alternative</a></li>
   <li><a href="#waic-and-psis-loo-against-a-training-fit-baseline" id="toc-waic-and-psis-loo-against-a-training-fit-baseline" class="nav-link" data-scroll-target="#waic-and-psis-loo-against-a-training-fit-baseline"><span class="header-section-number">10.4</span> WAIC and PSIS-LOO against a training-fit baseline</a></li>
-  <li><a href="#reading-a-model-comparison" id="toc-reading-a-model-comparison" class="nav-link" data-scroll-target="#reading-a-model-comparison"><span class="header-section-number">10.5</span> Reading a model comparison</a></li>
-  <li><a href="#when-this-is-worth-the-setup-cost" id="toc-when-this-is-worth-the-setup-cost" class="nav-link" data-scroll-target="#when-this-is-worth-the-setup-cost"><span class="header-section-number">10.6</span> When this is worth the setup cost</a></li>
+  <li><a href="#when-waic-and-psis-loo-disagree" id="toc-when-waic-and-psis-loo-disagree" class="nav-link" data-scroll-target="#when-waic-and-psis-loo-disagree"><span class="header-section-number">10.5</span> When WAIC and PSIS-LOO disagree</a></li>
+  <li><a href="#reading-a-model-comparison" id="toc-reading-a-model-comparison" class="nav-link" data-scroll-target="#reading-a-model-comparison"><span class="header-section-number">10.6</span> Reading a model comparison</a></li>
+  <li><a href="#posterior-predictive-checks-a-different-question" id="toc-posterior-predictive-checks-a-different-question" class="nav-link" data-scroll-target="#posterior-predictive-checks-a-different-question"><span class="header-section-number">10.7</span> Posterior predictive checks: a different question</a></li>
+  <li><a href="#bayesian-model-averaging" id="toc-bayesian-model-averaging" class="nav-link" data-scroll-target="#bayesian-model-averaging"><span class="header-section-number">10.8</span> Bayesian model averaging</a></li>
+  <li><a href="#bayes-factors-and-why-this-chapter-did-not-lead-with-them" id="toc-bayes-factors-and-why-this-chapter-did-not-lead-with-them" class="nav-link" data-scroll-target="#bayes-factors-and-why-this-chapter-did-not-lead-with-them"><span class="header-section-number">10.9</span> Bayes factors, and why this chapter did not lead with them</a></li>
+  <li><a href="#when-this-is-worth-the-setup-cost" id="toc-when-this-is-worth-the-setup-cost" class="nav-link" data-scroll-target="#when-this-is-worth-the-setup-cost"><span class="header-section-number">10.10</span> When this is worth the setup cost</a></li>
+  <li><a href="#what-closer-to-the-truth-means" id="toc-what-closer-to-the-truth-means" class="nav-link" data-scroll-target="#what-closer-to-the-truth-means"><span class="header-section-number">10.11</span> What “closer to the truth” means</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -506,7 +506,7 @@ Important
 <p>The idea starts from a shortcut. Literally leaving out one observation, refitting, and repeating <span class="math inline">\(n\)</span> times is precisely as expensive for a Bayesian model as LOOCV was for the linear models in Chapter 5. PSIS-LOO instead reuses the posterior draws from the single full-data fit, reweighting them to approximate what a leave-one-out posterior would have looked like.</p>
 <p>The importance weight for observation <span class="math inline">\(i\)</span> under draw <span class="math inline">\(s\)</span> is proportional to <span class="math inline">\(1/p(y_i \mid
 \theta_s)\)</span>: a draw that explained <span class="math inline">\(y_i\)</span> well needs little adjustment to stand in for the leave-one-out posterior, and a draw that explained <span class="math inline">\(y_i\)</span> poorly needs a much larger adjustment.</p>
-<p>Raw importance weights like this have a well-known failure mode: a handful of huge weights can dominate the average and make the estimate unstable.</p>
+<p>Raw importance weights like this have a well-known weak point: a handful of huge weights can dominate the average and make the estimate unstable.</p>
 <p>PSIS smooths the largest weights by fitting a <em>generalized Pareto distribution</em>, built specifically to model how extreme values in a tail behave, to the largest handful of weights for each observation. It then replaces each of those raw, noisy weights with the smoothed value the fitted distribution predicts for a weight of that rank, rather than the observed value itself.</p>
 <p>Summing each observation’s PSIS-smoothed pointwise density across the whole dataset, the same way the lpd values summed into <span class="math inline">\(\widehat{\text{elpd}}_{\text{waic}}\)</span> above, produces <span class="math inline">\(\widehat{\text{elpd}}_{\text{loo}}\)</span>: an estimate of expected log predictive density built from an approximate leave-one-out posterior instead of the full-data posterior WAIC uses.</p>
 <p>That smoothing step produces a free diagnostic as a side effect: the shape parameter of the fitted Pareto distribution, called <span class="math inline">\(\hat{k}\)</span>, tells you directly whether the importance-sampling approximation can be trusted for that observation.</p>
@@ -558,8 +558,40 @@ Tip
 </div>
 </div>
 </section>
-<section id="reading-a-model-comparison" class="level2" data-number="10.5">
-<h2 data-number="10.5" class="anchored" data-anchor-id="reading-a-model-comparison"><span class="header-section-number">10.5</span> Reading a model comparison</h2>
+<section id="when-waic-and-psis-loo-disagree" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="when-waic-and-psis-loo-disagree"><span class="header-section-number">10.5</span> When WAIC and PSIS-LOO disagree</h2>
+<p>Every comparison in this chapter so far has WAIC and PSIS-LOO pointing the same way: agreeing on which model to prefer and differing only in how large the gap is. That agreement holds in the ordinary case, and it can still break once a single observation turns unusual enough.</p>
+<div id="fig-waic-loo-disagreement" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-waic-loo-disagreement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-model-selection-fig-waic-loo-disagreement.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-waic-loo-disagreement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.4: Left: elpd_waic ranks payload_concurrent_noise slightly ahead of payload_concurrent; elpd_loo ranks them the other way once one observation’s importance ratios turn heavy-tailed. Right: the k-hat diagnostic for that same observation clears 0.7.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-waic-loo-disagreement" class="quarto-xref">Figure&nbsp;<span>10.4</span></a> refits payload_concurrent and payload_concurrent_noise from earlier in this chapter, this time with one observation given a small, rare chance per posterior draw of being badly missed by the model, the same mechanism <a href="#fig-khat-diagnostic" class="quarto-xref">Figure&nbsp;<span>10.2</span></a> used to produce a high k-hat.</p>
+<p>By elpd_waic, payload_concurrent_noise comes out ahead: -200.6 against payload_concurrent’s -202.4, a gain of 1.8. By elpd_loo, the ranking flips: payload_concurrent_noise falls to -204.3, a loss of 1.9 against the same baseline.</p>
+<p>The reason sits in how each quantity is built. WAIC’s penalty for the flagged observation, <span class="math inline">\(p_{\text{waic}}\)</span>, is the sample variance of its log-likelihood across posterior draws, and here that variance comes out at 0.229, unremarkable next to the rest of the model. PSIS-LOO’s Pareto-tail fit sees something the plain variance misses: the k-hat for that same observation reaches 0.945, well past the 0.7 line this chapter treats as a warning throughout.</p>
+<p>A rare but severe miss barely moves a sample variance computed across thousands of draws, since one bad observation contributes only a small share to an average over all of them. PSIS-LOO’s tail-shape estimate responds to the same miss directly, because it is built from the largest weights specifically rather than averaged across every draw. The 0.229-versus-0.945 gap between the two metrics is that difference, made visible on one observation.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When WAIC and PSIS-LOO disagree on which model is better, trust PSIS-LOO’s ranking and read its k-hat values before trusting either number. A k-hat past 0.7 on the observation driving the disagreement means the next step is refitting without that point. The k-hat is the diagnostic built to catch this kind of disagreement, so let it make the call.</p>
+</div>
+</div>
+<p>In production terms, a flagged k-hat here is the same signal <a href="#fig-khat-diagnostic" class="quarto-xref">Figure&nbsp;<span>10.2</span></a>’s outlier gave: an observation the posterior is not confidently accounting for. WAIC has no equivalent signal to raise; it reports one penalized score and stops. A team that only checked WAIC on this dataset would have quietly picked the noise-augmented model to deploy, on a ranking one unstable observation produced by chance.</p>
+</section>
+<section id="reading-a-model-comparison" class="level2" data-number="10.6">
+<h2 data-number="10.6" class="anchored" data-anchor-id="reading-a-model-comparison"><span class="header-section-number">10.6</span> Reading a model comparison</h2>
 <p>Here is what that comparison looks like the way a PyMC and ArviZ workflow produces it in practice, rather than as three separate bar charts. Fitting each candidate model and computing PSIS-LOO looks like this:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
@@ -645,11 +677,11 @@ Warning
 <iframe src="../_generated/chapter-bayes-model-selection-fig-elpd-compare.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-elpd-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10.4: The same three models plotted by elpd_loo with a standard-error bar around each point, best model first. <code>payload_concurrent</code> and <code>payload_concurrent_noise</code> overlap heavily; <code>payload_only</code> sits far enough left that its error bar never comes close to the other two.
+Figure&nbsp;10.5: The same three models plotted by elpd_loo with a standard-error bar around each point, best model first. <code>payload_concurrent</code> and <code>payload_concurrent_noise</code> overlap heavily; <code>payload_only</code> sits far enough left that its error bar never comes close to the other two.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-elpd-compare" class="quarto-xref">Figure&nbsp;<span>10.4</span></a> puts the table’s first three columns on an axis: each point is a model’s elpd_loo, and the horizontal bar through it is one standard error in each direction. The overlap between the top two error bars is the same “well within noise” story the <code>d_elpd</code>/<code>dSE</code> columns tell numerically; the gap between those two and <code>payload_only</code>’s bar is the same seven-standard- error separation, visible directly rather than computed from the table.</p>
+<p><a href="#fig-elpd-compare" class="quarto-xref">Figure&nbsp;<span>10.5</span></a> puts the table’s first three columns on an axis: each point is a model’s elpd_loo, and the horizontal bar through it is one standard error in each direction. The overlap between the top two error bars is the same “well within noise” story the <code>d_elpd</code>/<code>dSE</code> columns tell numerically; the gap between those two and <code>payload_only</code>’s bar is the same seven-standard- error separation, visible directly rather than computed from the table.</p>
 <p>Read the last two columns first: <code>d_elpd</code> is the gap between each model’s elpd_loo and the best model’s, and <code>dSE</code> is the standard error on that specific gap. That is a different quantity from the plain <code>SE</code> column, which is the standard error of each model’s own elpd_loo estimate considered on its own, with no reference to any other model in the table.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -668,8 +700,159 @@ Warning
 <p>The comparison between <code>payload_concurrent</code> and <code>payload_concurrent_noise</code> is the opposite story: a 0.8-point gap against a standard error of 0.7 is well within noise.</p>
 <p>PSIS-LOO is not claiming the noise feature hurts the model here. It is correctly refusing to reward a feature that added no signal, which is the right answer. A table that reported only elpd_loo without dSE would tempt a reader into treating a coin flip as a finding.</p>
 </section>
-<section id="when-this-is-worth-the-setup-cost" class="level2" data-number="10.6">
-<h2 data-number="10.6" class="anchored" data-anchor-id="when-this-is-worth-the-setup-cost"><span class="header-section-number">10.6</span> When this is worth the setup cost</h2>
+<section id="posterior-predictive-checks-a-different-question" class="level2" data-number="10.7">
+<h2 data-number="10.7" class="anchored" data-anchor-id="posterior-predictive-checks-a-different-question"><span class="header-section-number">10.7</span> Posterior predictive checks: a different question</h2>
+<div id="fig-ppc-check" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppc-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-model-selection-fig-ppc-check.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppc-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.6: Left: the observed latency distribution (bold) against 25 datasets simulated from the fitted model’s posterior (thin). Right: the number of simulated requests over 150ms, against the four observed; almost none of 5,000 simulated datasets produced that many.
+</figcaption>
+</figure>
+</div>
+<p>Every diagnostic in this chapter so far, lpd, WAIC, PSIS-LOO, has asked one question in different ways: how well does this model predict data it has not seen, compared with another model asking the same question. A posterior predictive check asks something else: does this model’s own generated data look anything like the data it was fit to, with no other model in the room to compare against.</p>
+<p><a href="#fig-ppc-check" class="quarto-xref">Figure&nbsp;<span>10.6</span></a> fits the chapter’s usual payload-and-concurrency latency model to a dataset where a small share of requests hit a cold-start path, an unwarmed connection pool, say, adding a large delay on top of the usual latency. Posterior predictive checking draws parameter values from the posterior, simulates a full new dataset from each draw, and compares those simulated datasets against the one on hand <span class="citation" data-cites="gelmanmengstern1996">(<a href="chapter-01-descriptive-statistics.html#ref-gelmanmengstern1996" role="doc-biblioref">Gelman, Meng, and Stern 1996</a>)</span>. In PyMC and ArviZ:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> latency_model:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    ppc <span class="op">=</span> pm.sample_posterior_predictive(idata, random_seed<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(ppc, kind<span class="op">=</span><span class="st">"kde"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The left panel of <a href="#fig-ppc-check" class="quarto-xref">Figure&nbsp;<span>10.6</span></a> overlays the observed latency density against densities from 25 simulated datasets. The bulk of the distribution matches well; the observed density’s right shoulder sits past where almost every simulated curve ends.</p>
+<p>A visual overlay like that raises a suspicion without settling it, so the right panel turns that suspicion into a number. Pick a test statistic that targets the part of the data the model might be getting wrong, here the count of requests over 150ms, compute it on the observed data (<span class="math inline">\(T_{\text{obs}} = 4\)</span>) and on each of 5,000 simulated datasets, and read off the <em>Bayesian p-value</em>:</p>
+<p><span class="math display">\[p_B = P(T_{\text{sim}} \geq T_{\text{obs}} \mid y_{\text{obs}})\]</span></p>
+<p>A model whose posterior predictive distribution reflects the data well should produce this statistic near the observed value about as often as not, putting <span class="math inline">\(p_B\)</span> somewhere in the middle of its range. Here it came out at 0 out of 5,000: not one simulated dataset produced four or more requests over 150ms, against an average of well under one per simulated dataset.</p>
+<p>Why this is worth running even after WAIC and PSIS-LOO have picked a winner: those two quantities only ever compare candidates against each other. If every candidate model shares the same Gaussian-noise assumption, and none of them expect a cold-start tail, PSIS-LOO will still confidently rank one of them best, because best-among-flawed-options is the question it is built to answer. A posterior predictive check asks a different one: is the winner any good on its own terms.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run a posterior predictive check alongside PSIS-LOO or WAIC, on whichever model they picked. Model comparison says which candidate predicts better; a posterior predictive check says whether every candidate is missing the same thing.</p>
+</div>
+</div>
+<p>For this dataset, the fix looks like Chapter 9’s noise-assumption swap: a heavier-tailed or mixture likelihood built to reproduce occasional large delays, checked against the same <span class="math inline">\(T_{\text{obs}} = 4\)</span> test statistic until <span class="math inline">\(p_B\)</span> lands somewhere unremarkable instead of at the edge of its range.</p>
+</section>
+<section id="bayesian-model-averaging" class="level2" data-number="10.8">
+<h2 data-number="10.8" class="anchored" data-anchor-id="bayesian-model-averaging"><span class="header-section-number">10.8</span> Bayesian model averaging</h2>
+<div id="fig-model-averaging" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-averaging-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-model-selection-fig-model-averaging.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-averaging-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.7: Predicted latency for one new request (low payload, high concurrency) under each of the three candidate models, plus the weight-blended posterior predictive distribution. payload_only’s prediction sits apart from the other two; its near-zero weight keeps it from moving the blend despite that gap.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-model-averaging" class="quarto-xref">Figure&nbsp;<span>10.7</span></a> picks up the three models from the “Reading a model comparison” table and asks a different question than <code>az.compare()</code> answers. <code>az.compare()</code> ranks models and leaves an analyst to pick the best row. Model averaging blends every candidate’s posterior predictive distribution into one, weighted by how much predictive support each model earned.</p>
+<p>The weights come from elpd_loo directly, turning each model’s elpd_loo into a weight and normalizing so the weights sum to one, the softmax construction pseudo-BMA weighting is built on <span class="citation" data-cites="yaovehtarisimpsongelman2018">(<a href="chapter-01-descriptive-statistics.html#ref-yaovehtarisimpsongelman2018" role="doc-biblioref">Yao et al. 2018</a>)</span>:</p>
+<p><span class="math display">\[w_k = \frac{\exp(\widehat{\text{elpd}}_{\text{loo},k})}{\sum_j \exp(\widehat{\text{elpd}}_{\text{loo},j})}, \qquad p(y_{\text{new}} \mid \text{data}) = \sum_k w_k\, p(y_{\text{new}} \mid M_k, \text{data})\]</span></p>
+<p>Plugging in the elpd_loo values from earlier gives payload_concurrent a weight of 0.70, payload_concurrent_noise 0.30, and payload_only a weight indistinguishable from zero. The seven-standard-error elpd_loo gap between payload_only and the other two translates into an exponentially small weight: adding a model to the blend does not hand it a share of the vote no matter how badly it lost.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> np.exp(elpd_loo <span class="op">-</span> elpd_loo.<span class="bu">max</span>())</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>weights <span class="op">/=</span> weights.<span class="bu">sum</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>membership <span class="op">=</span> rng.choice(<span class="bu">len</span>(models), size<span class="op">=</span>n_draws, p<span class="op">=</span>weights)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>blended_draws <span class="op">=</span> np.concatenate([</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    predictive_draws[k][membership <span class="op">==</span> k] <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(models))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For a new request with a low payload size and near-peak concurrency, the three models disagree by a wide margin. payload_only, blind to the concurrency spike, predicts 66.9ms; both payload_concurrent and payload_concurrent_noise predict about 82.5ms. The weighted blend lands at 82.5ms, close to the 82.4ms picking payload_concurrent alone from <code>az.compare()</code>’s top row would give.</p>
+<p>The near-agreement is informative on its own. Model averaging pulls a prediction away from the single best model only when the models it is blending disagree with each other and hold comparable weight. payload_only disagrees plenty here but holds no weight, so it changes nothing; payload_concurrent_noise holds meaningful weight (30%) but agrees closely with payload_concurrent on this prediction, since its one added coefficient is a coin flip centered near zero. Averaging earns its keep specifically when two live candidates make different predictions, a narrower condition than simply having more than one row in the table.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Reach for a weighted blend instead of <code>az.compare()</code>’s top row when two or more models sit within a few standard errors of each other and a downstream decision needs the full predictive uncertainty a single point forecast cannot supply. When one model is standard errors ahead, picking it outright and blending it end up in the same place.</p>
+</div>
+</div>
+</section>
+<section id="bayes-factors-and-why-this-chapter-did-not-lead-with-them" class="level2" data-number="10.9">
+<h2 data-number="10.9" class="anchored" data-anchor-id="bayes-factors-and-why-this-chapter-did-not-lead-with-them"><span class="header-section-number">10.9</span> Bayes factors, and why this chapter did not lead with them</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>log_bf10 <span class="op">=</span> (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    log_marginal_likelihood(X_payload_concurrent, latency, sigma, prior_var<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span> log_marginal_likelihood(X_payload_only, latency, sigma, prior_var<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre class="text"><code>log_bf10 = 76.08</code></pre>
+<p>Every comparison so far in this chapter has asked which model predicts new data with more accuracy. There is an older question sitting underneath it: given the data collected, which model was more probable to have produced it, integrating over every value each model’s parameters could plausibly have taken rather than evaluating at the value the data happened to favor. The <em>Bayes factor</em> answers that question directly, and the code above computes it for the same payload-only-versus-payload-and-concurrency comparison this chapter opened with: a log Bayes factor of 76.08 decisively favors including concurrent-request count, the same conclusion the 72.8-point elpd_loo gap from earlier reached from a different direction.</p>
+<p>Why reach for this on top of a predictive-accuracy comparison the chapter has made: a Bayes factor answers a question that does not need a held-out prediction task to define what “better” means, only which generative story is more probable. That framing suits a strict either/or engineering decision, does a rollout ship the new pricing formula or keep the old one, where no obvious “predicts better on new data” framing is available.</p>
+<p>How to compute it: this chapter’s models are conjugate Gaussian, so the marginal likelihood integral has a closed form, <span class="math inline">\(y \sim \mathcal{N}(0,\ \sigma_{\text{prior}}^2 XX^\top + \sigma^2
+I)\)</span>, and the ratio of two such densities is the Bayes factor with no sampler needed. Most Bayesian workflows do not get this shortcut. One route embeds both candidates inside a single <em>encompassing model</em> with a binary indicator <span class="math inline">\(z\)</span>: <span class="math inline">\(z=0\)</span> selects <span class="math inline">\(M_0\)</span>’s coefficient structure and <span class="math inline">\(z=1\)</span> selects <span class="math inline">\(M_1\)</span>’s, both feeding one shared likelihood, with a prior <span class="math inline">\(P(z=1)=0.5\)</span>. Fitting that joint model, the posterior odds <span class="math inline">\(P(z=1 \mid y) / P(z=0 \mid y)\)</span> equal the Bayes factor because the prior odds start at 1:</p>
+<p><span class="math display">\[BF_{10} = \frac{p(y \mid M_1)}{p(y \mid M_0)} = \frac{P(z=1 \mid y) / P(z=0 \mid y)}{P(z=1) / P(z=0)}, \qquad p(y \mid M_k) = \int p(y \mid \theta, M_k)\, p(\theta \mid M_k)\, d\theta\]</span></p>
+<p>A second route fits each candidate separately with a sampler built to produce a marginal likelihood estimate as a byproduct of sampling, since NUTS does not. Both routes exist because the marginal likelihood integral above rarely has a closed form outside a conjugate setup like this chapter’s.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">prior_var</th>
+<th style="text-align: right;">log BF (noise feature vs.&nbsp;not)</th>
+<th style="text-align: right;">d_elpd_loo (noise feature vs.&nbsp;not)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">-0.05</td>
+<td style="text-align: right;">-0.12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.39</td>
+<td style="text-align: right;">-0.97</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">-1.26</td>
+<td style="text-align: right;">-0.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">-2.38</td>
+<td style="text-align: right;">-0.84</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1,000</td>
+<td style="text-align: right;">-3.52</td>
+<td style="text-align: right;">-0.84</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10,000</td>
+<td style="text-align: right;">-4.67</td>
+<td style="text-align: right;">-0.84</td>
+</tr>
+</tbody>
+</table>
+<p>That table reruns the payload_concurrent-versus-payload_concurrent_noise comparison from earlier, a feature with no effect on the data-generating process, across a widening prior on the noise coefficient. As the prior widens, the Bayes factor swings from barely favoring exclusion (-0.05) to strongly favoring it (-4.67), purely from prior width, with nothing about the data changing. The elpd_loo gap on the same comparison barely moves once the prior is wide enough to stop constraining the fit (-0.97 to -0.84).</p>
+<p>Sample size tells a matching story. Tripling the dataset, then tripling it again, with the same underlying effect between payload_only and payload_concurrent, pushes the log Bayes factor from 76.1 to 167.6 to 509.9: a number that keeps growing without a natural stopping point, answering “is this decisive” only against itself. elpd_loo’s gap grows too, but it comes bundled with dSE, a standard-error count that stays a portable measure of confidence no matter how much data produced it.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bayes factors answer a legitimate question but are sensitive to two things predictive-accuracy metrics mostly are not: the width of the prior on any coefficient the comparison hinges on, and the sample size, in a way that keeps growing without a reference scale. Reach for WAIC or PSIS-LOO by default; reach for a Bayes factor only when the question is which generative story is more probable, not which model predicts better, and the prior has been chosen and defended as carefully as the likelihood <span class="citation" data-cites="kassraftery1995">(<a href="chapter-01-descriptive-statistics.html#ref-kassraftery1995" role="doc-biblioref">Kass and Raftery 1995</a>)</span>.</p>
+</div>
+</div>
+</section>
+<section id="when-this-is-worth-the-setup-cost" class="level2" data-number="10.10">
+<h2 data-number="10.10" class="anchored" data-anchor-id="when-this-is-worth-the-setup-cost"><span class="header-section-number">10.10</span> When this is worth the setup cost</h2>
 <p>Fitting three Bayesian models with PyMC and comparing them with ArviZ is more machinery than running <code>cross_val_score</code> three times with scikit-learn. For routine model tuning, such as choosing a regularization strength or comparing two or three feature sets, Chapter 5’s k-fold cross-validation remains the faster, more standardized default.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -686,16 +869,40 @@ Note
 </div>
 <p>PSIS-LOO earns its cost in cases k-fold CV cannot reach cleanly: when the model needs to be Bayesian for other reasons, such as a hierarchical structure across services or customer segments, or the Bayesian A/B testing framework Chapter 14 builds in full.</p>
 <p>It also earns its cost when the dataset is small enough that refitting <span class="math inline">\(k\)</span> times introduces meaningful variance in the CV estimate itself, or when the <span class="math inline">\(\hat{k}\)</span> diagnostic’s built-in warning about influential points is worth having for its own sake.</p>
-<p>Chapter 5 ended by promising that Part 3 would need PSIS-LOO for this reason. Chapter 14’s Bayesian A/B testing framework is where that promise gets collected, using <code>az.compare()</code> to check whether adding a segment-level effect to an experiment’s model improves its predictions or only makes it more elaborate.</p>
+<p>Chapter 5 ended by promising that Part 3 would need PSIS-LOO for this reason. Chapter 14’s “Hierarchical A/B testing” section is where that promise gets collected, using <code>az.compare()</code> to check whether adding a segment-level effect to an experiment’s model improves its predictions or only makes it more elaborate.</p>
+</section>
+<section id="what-closer-to-the-truth-means" class="level2" data-number="10.11">
+<h2 data-number="10.11" class="anchored" data-anchor-id="what-closer-to-the-truth-means"><span class="header-section-number">10.11</span> What “closer to the truth” means</h2>
+<p>This chapter has repeated one claim in different forms: some models sit closer to the process generating the data than others, and lpd, WAIC, and PSIS-LOO each measure distance from that target in their own way. That claim has a formal name.</p>
+<p><em>Kullback-Leibler divergence</em> measures how much information is lost when one distribution, <span class="math inline">\(q\)</span>, stands in for another, <span class="math inline">\(p\)</span>:</p>
+<p><span class="math display">\[D_{KL}(p \parallel q) = \sum_x p(x) \log \frac{p(x)}{q(x)}\]</span></p>
+<p>A model that assigns high probability everywhere the data-generating process does loses little; a model that assigns low probability somewhere that process visits often loses a great deal, no matter how well it does everywhere else.</p>
+<p>Akaike’s original insight behind AIC <span class="citation" data-cites="akaike1974">(<a href="chapter-01-descriptive-statistics.html#ref-akaike1974" role="doc-biblioref">Akaike 1974</a>)</span>, and Watanabe’s generalization behind WAIC <span class="citation" data-cites="watanabe2010">(<a href="chapter-01-descriptive-statistics.html#ref-watanabe2010" role="doc-biblioref">Watanabe 2010</a>)</span>, is that expected log predictive density is, up to a constant that does not depend on which model is being scored, the same quantity as negative KL divergence from a fitted model to the unknown data-generating process. Maximizing elpd and minimizing KL divergence to that unknown process are the same optimization problem, seen from opposite ends.</p>
+<p><a href="#fig-lpd-per-point" class="quarto-xref">Figure&nbsp;<span>10.1</span></a>, <a href="#fig-waic-ploo-complexity" class="quarto-xref">Figure&nbsp;<span>10.3</span></a>, and <a href="#fig-elpd-compare" class="quarto-xref">Figure&nbsp;<span>10.5</span></a> have been building this formal version of the claim one figure at a time. elpd_waic and elpd_loo are the closest computable stand-in this chapter has for how far a model sits from the process that produced the data, the one quantity that never shows up in a dataset no matter how much of it gets collected.</p>
 </section>
 <section id="references" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-akaike1974" class="csl-entry" role="listitem">
+Akaike, Hirotugu. 1974. <span>“A New Look at the Statistical Model Identification.”</span> <em>IEEE Transactions on Automatic Control</em> 19 (6): 716–23. <a href="https://doi.org/10.1109/TAC.1974.1100705">https://doi.org/10.1109/TAC.1974.1100705</a>.
+</div>
+<div id="ref-gelmanmengstern1996" class="csl-entry" role="listitem">
+Gelman, Andrew, Xiao-Li Meng, and Hal Stern. 1996. <span>“Posterior Predictive Assessment of Model Fitness via Realized Discrepancies.”</span> <em>Statistica Sinica</em> 6 (4): 733–807.
+</div>
+<div id="ref-kassraftery1995" class="csl-entry" role="listitem">
+Kass, Robert E., and Adrian E. Raftery. 1995. <span>“<span>B</span>ayes Factors.”</span> <em>Journal of the American Statistical Association</em> 90 (430): 773–95. <a href="https://doi.org/10.1080/01621459.1995.10476572">https://doi.org/10.1080/01621459.1995.10476572</a>.
+</div>
 <div id="ref-kumar2019arviz" class="csl-entry" role="listitem">
 Kumar, Ravin, Colin Carroll, Ari Hartikainen, and Osvaldo Martin. 2019. <span>“<span>ArviZ</span>: A Unified Library for Exploratory Analysis of <span>B</span>ayesian Models in <span>P</span>ython.”</span> <em>Journal of Open Source Software</em> 4 (33): 1143. <a href="https://doi.org/10.21105/joss.01143">https://doi.org/10.21105/joss.01143</a>.
 </div>
 <div id="ref-vehtarigelmangabry2017" class="csl-entry" role="listitem">
 Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical <span>B</span>ayesian Model Evaluation Using Leave-One-Out Cross-Validation and <span>WAIC</span>.”</span> <em>Statistics and Computing</em> 27 (5): 1413–32. <a href="https://doi.org/10.1007/s11222-016-9696-4">https://doi.org/10.1007/s11222-016-9696-4</a>.
+</div>
+<div id="ref-watanabe2010" class="csl-entry" role="listitem">
+Watanabe, Sumio. 2010. <span>“Asymptotic Equivalence of <span>B</span>ayes Cross Validation and Widely Applicable Information Criterion in Singular Learning Theory.”</span> <em>Journal of Machine Learning Research</em> 11: 3571–94.
+</div>
+<div id="ref-yaovehtarisimpsongelman2018" class="csl-entry" role="listitem">
+Yao, Yuling, Aki Vehtari, Daniel Simpson, and Andrew Gelman. 2018. <span>“Using Stacking to Average <span>B</span>ayesian Predictive Distributions.”</span> <em>Bayesian Analysis</em> 13 (3): 917–1007. <a href="https://doi.org/10.1214/17-BA1091">https://doi.org/10.1214/17-BA1091</a>.
 </div>
 </div>
 

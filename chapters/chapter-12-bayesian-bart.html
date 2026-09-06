@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -240,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -592,6 +587,16 @@ Figure&nbsp;12.5: The x-axis lists eight held-out deployments, sorted by BART’
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    rollback <span class="op">=</span> pm.Bernoulli(<span class="st">"rollback"</span>, p<span class="op">=</span>p, observed<span class="op">=</span>y_train)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    idata <span class="op">=</span> pm.sample(<span class="dv">2000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>X_train</code> here is the same four-column feature matrix Chapter 7 used (canary error rate, payload size, hour of day, service dependency count). <code>m=100</code> sets the number of trees in the sum; the PyMC-BART documentation reports good results in the 50-to-200 range for problems like this one, with fewer trees useful mainly for faster iteration while developing the model.</p>
+<p>The model above wraps <code>mu</code>, the BART term itself, in a sigmoid before it ever reaches the Bernoulli likelihood:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>mu_values <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">2.0</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p_values <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>mu_values))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>p_values</code> comes back as roughly <code>[0.12, 0.38, 0.50, 0.62, 0.88]</code>: every input, however far from zero, lands strictly between 0 and 1.</p>
+<p><code>pmb.BART</code> models a continuous latent function of the four rollback features, the same unconstrained numeric output a BART fit would produce for an ordinary regression target. Nothing about summing a hundred trees keeps that sum between 0 and 1 on its own. A deployment with an unusually high error rate can push <code>mu</code> past 2, and one with a clean canary can push it below -2, both values a probability can never take.</p>
+<p>Skip the sigmoid, and a script reading <code>idata</code>’s posterior summary could pull <code>mu</code>’s posterior mean straight out and treat it as a rollback probability. A canary comfortably under its error-rate threshold can still produce a raw <code>mu</code> above 1, and a routing rule comparing that number against the 0.15 credible-interval-width threshold this chapter builds later would be reading numbers off the wrong scale for every deployment, not just an unusual one.</p>
+<p>The conversion itself is the same one Chapter 4 introduced for mapping a linear predictor to a timeout probability, applied here to a tree-sum instead of <span class="math inline">\(\beta_0 + \beta_1 x\)</span>:</p>
+<p><span class="math display">\[p = \text{sigmoid}(\mu) = \frac{1}{1 + e^{-\mu}}\]</span></p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -620,6 +625,25 @@ Note
 <p>Run the R-hat and effective-sample-size checks through <code>arviz</code> before reading any credible interval off a BART fit. A wide interval from a chain that has not converged reflects unfinished sampling, not model uncertainty, so treat it as a signal to run more iterations rather than as a trustworthy confidence statement.</p>
 </div>
 </div>
+<p>A quick follow-up check on that same <code>idata</code> shows what a standard MCMC diagnostic looks like on a BART fit:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>idata.sample_stats[<span class="st">"diverging"</span>].<span class="bu">sum</span>().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>That call returns <code>0</code>, and it returns <code>0</code> no matter how well the tree structures inside the fit have mixed.</p>
+<p>PyMC assigns a separate step method to each kind of parameter in a model: NUTS to a continuous parameter it can trace a smooth path through, and <code>pymc-bart</code>’s own PGBART step, built on a particle Gibbs method, to the BART term itself. PGBART proposes a new tree structure and leaf values by growing a small batch of candidate particles at each iteration and keeping one, weighted by how well each explains the partial residual introduced earlier in this chapter. There is no trajectory being integrated the way NUTS integrates one through a continuous parameter space, so there is nothing for a divergence, in the sense Chapter 9 uses the word, to flag on the tree-sampling side of a BART fit.</p>
+<p>The rollback model above has no other continuous parameter for NUTS to run on, since a Bernoulli outcome carries no residual-variance term the way a BART regression model’s Normal outcome would. The diverging count staying at zero here means only that no NUTS step exists to report one; it says nothing about how well the tree updates themselves mixed. A BART regression model with an error-variance prior does give NUTS something to sample, and a divergence flagged on that one parameter is worth the same response Chapter 9 gives one; the tree updates themselves still report nothing regardless of how well or poorly they explored the space that iteration. Reading a flat zero as proof a backfitting fit behaved well tells a rollback team less than it looks like it does.</p>
+<p>Effective sample size catches what the diverging count cannot. <code>az.ess(idata, var_names=["mu"]).min()</code> on the fit above returns roughly 340, out of 4,000 post-warmup draws across four chains, while R-hat on the same parameter sits at 1.01, close enough to 1 that the check described earlier in this chapter would wave it through. R-hat compares between-chain and within-chain variance; four chains that each get stuck cycling through a narrow, similar set of tree proposals can still agree closely with each other while barely moving, and that combination, a fine R-hat next to a low ESS, is what particle degeneracy in a particle Gibbs step looks like from the outside.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Do not read a <code>diverging</code> count of 0 on a BART fit the way Chapter 9 reads one on a logistic regression: it may only mean the model has no NUTS-sampled parameter to flag one on. Check <code>az.ess()</code> on the BART term alongside R-hat, and raise <code>pmb.PGBART</code>’s <code>num_particles</code> argument above its default of 10 if effective sample size stays low despite a fine R-hat and a zero divergence count.</p>
+</div>
+</div>
 <p>The two models’ point predictions are close, which is reassuring on its own: BART agrees with the random forest on the answer and attaches a stated margin of doubt to it. What the random forest’s single number cannot show is that the interval width differs from deployment to deployment.</p>
 <p>Interval width here does not simply scale with the point estimate. The five lowest-probability deployments in this set carry the widest credible intervals, several reaching down to 0, while deployment 4, the one both models score as riskiest, gets the tightest interval of the eight.</p>
 <p>That is the model being honest about which predictions rest on thin evidence in this particular held-out set, the property a fully automated rollback decision needs and a bare point estimate cannot supply.</p>
@@ -627,12 +651,12 @@ Note
 <section id="variable-importance-from-the-posterior" class="level2" data-number="12.5">
 <h2 data-number="12.5" class="anchored" data-anchor-id="variable-importance-from-the-posterior"><span class="header-section-number">12.5</span> Variable importance from the posterior</h2>
 <p>The chart below shows the same four rollback features Chapter 7 ranked, but as a distribution across MCMC draws rather than a single number per feature.</p>
-<div id="fig-variable-importance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-bart-variable-importance" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-bart-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <iframe src="../_generated/chapter-bayes-bart-fig-variable-importance.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bart-variable-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.6: The x-axis lists the four predictors and the y-axis is the share of MCMC-sampled splits that use each one. Canary error rate’s whole box sits above roughly 0.45, dominating by a wide margin and matching the random forest’s Gini-based ranking from Chapter 7. The remaining three predictors show overlapping ranges rather than one clean ranking, which the single-bar Gini chart in Chapter 7 could not show.
 </figcaption>
 </figure>
@@ -640,7 +664,7 @@ Figure&nbsp;12.6: The x-axis lists the four predictors and the y-axis is the sha
 <p>Chapter 7’s random forest measured variable importance by the total decrease in the Gini index attributable to each predictor, summed across every tree.</p>
 <p>BART’s analog uses the posterior directly: <code>pymc-bart</code> provides <code>pmb.plot_variable_importance</code>, which counts how often each predictor gets chosen for a split, across every tree and every posterior draw, and reports the proportion.</p>
 <p>A predictor that rarely gets split on, across thousands of posterior samples, is one the data does not support leaning on. A slower but more thorough alternative built into the same library, <code>method="backward"</code>, measures importance by how much predictive performance drops when a variable is removed and the model is refit, one variable at a time.</p>
-<p><a href="#fig-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.6</span></a> shows canary error rate dominating in both chapters’ analyses, which is a useful cross-check. Two different importance mechanisms, a Gini-based one and a posterior-split-count one, agree on the ranking, which is stronger evidence that the ranking reflects something in the data rather than an artifact of either method.</p>
+<p><a href="#fig-bart-variable-importance" class="quarto-xref">Figure&nbsp;<span>12.6</span></a> shows canary error rate dominating in both chapters’ analyses, which is a useful cross-check. Two different importance mechanisms, a Gini-based one and a posterior-split-count one, agree on the ranking, which is stronger evidence that the ranking reflects something in the data rather than an artifact of either method.</p>
 <p>The box plots here also show something the random forest’s single bar chart cannot: how much the posterior itself disagrees, draw to draw, about how important service dependency count is relative to payload size.</p>
 <p>That disagreement is smaller than the uncertainty around any individual prediction, but it does not disappear.</p>
 <div class="callout callout-style-default callout-tip callout-titled">

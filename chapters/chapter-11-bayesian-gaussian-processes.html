@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -92,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -240,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -398,9 +393,12 @@ window.Quarto = {
   <li><a href="#the-kernel-the-one-modeling-choice-that-matters" id="toc-the-kernel-the-one-modeling-choice-that-matters" class="nav-link" data-scroll-target="#the-kernel-the-one-modeling-choice-that-matters"><span class="header-section-number">11.2</span> The kernel: the one modeling choice that matters</a></li>
   <li><a href="#from-prior-to-posterior-conditioning-on-data" id="toc-from-prior-to-posterior-conditioning-on-data" class="nav-link" data-scroll-target="#from-prior-to-posterior-conditioning-on-data"><span class="header-section-number">11.3</span> From prior to posterior: conditioning on data</a></li>
   <li><a href="#choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" id="toc-choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself" class="nav-link" data-scroll-target="#choosing-the-length-scale-marginal-likelihood-or-a-prior-on-the-kernel-itself"><span class="header-section-number">11.4</span> Choosing the length-scale: marginal likelihood, or a prior on the kernel itself</a></li>
-  <li><a href="#what-the-credible-band-buys-honest-extrapolation" id="toc-what-the-credible-band-buys-honest-extrapolation" class="nav-link" data-scroll-target="#what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.5</span> What the credible band buys: honest extrapolation</a></li>
-  <li><a href="#more-than-one-input-at-a-time" id="toc-more-than-one-input-at-a-time" class="nav-link" data-scroll-target="#more-than-one-input-at-a-time"><span class="header-section-number">11.6</span> More than one input at a time</a></li>
-  <li><a href="#when-the-closed-form-runs-out" id="toc-when-the-closed-form-runs-out" class="nav-link" data-scroll-target="#when-the-closed-form-runs-out"><span class="header-section-number">11.7</span> When the closed form runs out</a></li>
+  <li><a href="#full-bayesian-hyperparameters-sampling-the-length-scale-instead-of-optimizing-it" id="toc-full-bayesian-hyperparameters-sampling-the-length-scale-instead-of-optimizing-it" class="nav-link" data-scroll-target="#full-bayesian-hyperparameters-sampling-the-length-scale-instead-of-optimizing-it"><span class="header-section-number">11.5</span> Full Bayesian hyperparameters: sampling the length-scale instead of optimizing it</a></li>
+  <li><a href="#what-the-credible-band-buys-honest-extrapolation" id="toc-what-the-credible-band-buys-honest-extrapolation" class="nav-link" data-scroll-target="#what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.6</span> What the credible band buys: honest extrapolation</a></li>
+  <li><a href="#more-than-one-input-at-a-time" id="toc-more-than-one-input-at-a-time" class="nav-link" data-scroll-target="#more-than-one-input-at-a-time"><span class="header-section-number">11.7</span> More than one input at a time</a></li>
+  <li><a href="#periodic-structure-composing-kernels-for-signals-that-repeat" id="toc-periodic-structure-composing-kernels-for-signals-that-repeat" class="nav-link" data-scroll-target="#periodic-structure-composing-kernels-for-signals-that-repeat"><span class="header-section-number">11.8</span> Periodic structure: composing kernels for signals that repeat</a></li>
+  <li><a href="#when-the-outcome-is-a-label-gaussian-process-classification" id="toc-when-the-outcome-is-a-label-gaussian-process-classification" class="nav-link" data-scroll-target="#when-the-outcome-is-a-label-gaussian-process-classification"><span class="header-section-number">11.9</span> When the outcome is a label: Gaussian process classification</a></li>
+  <li><a href="#when-the-closed-form-runs-out" id="toc-when-the-closed-form-runs-out" class="nav-link" data-scroll-target="#when-the-closed-form-runs-out"><span class="header-section-number">11.10</span> When the closed form runs out</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -615,8 +613,57 @@ Tip
 </div>
 </div>
 </section>
-<section id="what-the-credible-band-buys-honest-extrapolation" class="level2" data-number="11.5">
-<h2 data-number="11.5" class="anchored" data-anchor-id="what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.5</span> What the credible band buys: honest extrapolation</h2>
+<section id="full-bayesian-hyperparameters-sampling-the-length-scale-instead-of-optimizing-it" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="full-bayesian-hyperparameters-sampling-the-length-scale-instead-of-optimizing-it"><span class="header-section-number">11.5</span> Full Bayesian hyperparameters: sampling the length-scale instead of optimizing it</h2>
+<p>The chart below fits the same RBF-plus-noise kernel to eight concurrent-load observations twice: once the way every fit so far in this chapter has, by optimizing the length-scale to a single best value, and once by placing a prior on the length-scale, signal variance, and noise, then sampling their posterior with PyMC.</p>
+<div id="fig-full-bayes-hyperparams" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-full-bayes-hyperparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-gp-fig-full-bayes-hyperparams.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-full-bayes-hyperparams-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.6: Left: both fits predict a similar posterior mean, but the full-Bayesian band (blue) runs about 1.6 times wider than the point-estimate band (orange) near the observed points and close to twice as wide at the highest utilization shown. Right: the sampled length-scale posterior spreads from roughly 0.09 to 0.41, with a mean of 0.22, while the point estimate (dashed vertical line) lands at 0.15, near the lower edge of that spread rather than at its center.
+</figcaption>
+</figure>
+</div>
+<p>Picture two analysts handed the same eight readings. One reports the single trend line that best explains them and states a margin of error around that one line. The other is not sure the trend’s steepness is the one number the first analyst found, so she carries several plausible steepnesses forward and reports a wider, more honest margin as a result. Both analysts have the same eight readings. The second is doing the job the PyMC fit below does for the length-scale.</p>
+<p>A prior on the length-scale, signal variance, and noise means none of the three collapses to a single number before the posterior is computed. <code>pm.gp.Marginal</code> still exploits the same closed-form conditioning this chapter opened with, since the observation likelihood is still Gaussian, but now that conditioning happens conditional on each sampled hyperparameter draw rather than on one optimized value, and NUTS explores the resulting three-dimensional hyperparameter posterior directly:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>coords <span class="op">=</span> {<span class="st">"obs_id"</span>: np.arange(<span class="bu">len</span>(rho))}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model(coords<span class="op">=</span>coords) <span class="im">as</span> full_bayes_model:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    rho_data <span class="op">=</span> pm.Data(<span class="st">"rho_data"</span>, rho, dims<span class="op">=</span><span class="st">"obs_id"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    ell <span class="op">=</span> pm.Gamma(<span class="st">"ell"</span>, alpha<span class="op">=</span><span class="fl">2.0</span>, beta<span class="op">=</span><span class="fl">8.0</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    eta <span class="op">=</span> pm.HalfNormal(<span class="st">"eta"</span>, sigma<span class="op">=</span><span class="fl">50.0</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    sigma_n <span class="op">=</span> pm.HalfNormal(<span class="st">"sigma_n"</span>, sigma<span class="op">=</span><span class="fl">10.0</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> eta <span class="op">**</span> <span class="dv">2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">1</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    gp <span class="op">=</span> pm.gp.Marginal(cov_func<span class="op">=</span>cov)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    gp.marginal_likelihood(<span class="st">"latency_obs"</span>, X<span class="op">=</span>rho_data[:, <span class="va">None</span>], y<span class="op">=</span>latency, sigma<span class="op">=</span>sigma_n)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    trace <span class="op">=</span> pm.sample(<span class="dv">1000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    f_pred <span class="op">=</span> gp.conditional(<span class="st">"f_pred"</span>, Xnew<span class="op">=</span>grid[:, <span class="va">None</span>])</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> pm.sample_posterior_predictive(trace, var_names<span class="op">=</span>[<span class="st">"f_pred"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>gp.marginal_likelihood</code> plays the same role here that <code>.fit()</code> played for <code>scikit-learn</code> earlier, except the length-scale, signal variance, and noise passed into it are now random variables with priors instead of numbers an optimizer chose. <code>gp.conditional</code>, together with <code>pm.sample_posterior_predictive</code>, then produces a predictive distribution that carries the hyperparameters’ own uncertainty forward into every prediction, rather than conditioning on one fixed setting the way <code>.predict()</code> does.</p>
+<p>The <code>Gamma(alpha=2, ...)</code> shape for the length-scale prior above is not specific to this example: it is a common choice across the Gaussian process literature (documented in Betancourt’s Gaussian process case studies and PyMC’s own example gallery) because it keeps positive support while pulling the prior away from implausibly small length-scales, a mode that would otherwise let the fit chase noise.</p>
+<p><a href="#fig-full-bayes-hyperparams" class="quarto-xref">Figure&nbsp;<span>11.6</span></a> shows what that costs and buys on this eight-point dataset. The length-scale posterior’s 95% interval runs from about 0.09 to 0.41, comfortably containing the point estimate of 0.15 near its lower end but also reaching more than twice as far. The noise posterior tells the same story: its 95% interval, roughly 1.8 ms to 14.1 ms, comfortably contains the 3 ms noise this dataset was generated with, but says nothing sharper than that range with only eight points to work from.</p>
+<p>Eight points is a small-N situation, the case the previous section flagged as the one where the difference matters most. <code>scikit-learn</code>’s optimizer has to commit to a single length-scale even though the data barely constrains which one is right; PyMC’s posterior instead reports that the data barely constrains it, and widens every downstream prediction to match. Neither fit is wrong. The point estimate is a reasonable summary of a distribution the full Bayesian fit makes visible in full.</p>
+<p>That visibility costs compute: sampling a three-parameter posterior with NUTS took several seconds on eight points in the run behind this figure, against a fraction of a second for the optimizer’s single search. On the hundreds-to-low-thousands datasets this book has worked with throughout, where the marginal likelihood surface has enough data to pin the length-scale down tightly, that cost buys little the point estimate did not report on its own. It earns its keep specifically when the dataset is small enough, or the decision resting on the fit is high-stakes enough, that the gap between “here is one plausible length-scale” and “here is how much the data lets that length-scale vary” changes what a reader should conclude.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run the full Bayesian fit on a handful of representative small subsets before committing to it for an entire pipeline. If the point-estimate and full-posterior predictive bands stay close across those subsets, the extra sampling cost is not buying anything the optimizer did not provide on its own.</p>
+</div>
+</div>
+</section>
+<section id="what-the-credible-band-buys-honest-extrapolation" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="what-the-credible-band-buys-honest-extrapolation"><span class="header-section-number">11.6</span> What the credible band buys: honest extrapolation</h2>
 <p><a href="#fig-extrapolation" class="quarto-xref">Figure&nbsp;<span>11.4</span></a>, shown earlier in this chapter, is the situation Chapter 6 flagged as dangerous for an alerting threshold: the region of highest interest is the region with the least data.</p>
 <p>Past the observed range, the credible band widens sharply, which is the correct behavior: the kernel’s correlation between a query point and the training data decays with distance.</p>
 <p>Far enough past the last observation, the posterior reverts toward the prior: wide and uninformative. A smoothing spline’s fitted curve, by contrast, keeps extrapolating along whatever polynomial trend the boundary basis functions imply, with no built-in signal that the curve has left the region it was trained on.</p>
@@ -635,8 +682,8 @@ Important
 </div>
 </div>
 </section>
-<section id="more-than-one-input-at-a-time" class="level2" data-number="11.6">
-<h2 data-number="11.6" class="anchored" data-anchor-id="more-than-one-input-at-a-time"><span class="header-section-number">11.6</span> More than one input at a time</h2>
+<section id="more-than-one-input-at-a-time" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="more-than-one-input-at-a-time"><span class="header-section-number">11.7</span> More than one input at a time</h2>
 <p>Every figure in this chapter used a single predictor, utilization, to keep the plots readable as two-dimensional curves. Nothing about the kernel or the posterior formula requires that. Chapter 4’s OLS model predicted latency from payload size and concurrent-request count together.</p>
 <p>A Gaussian process handles the same two-predictor setup by measuring distance between points in that two-dimensional input space instead of along a single line, typically with a separate length-scale per input dimension (an “automatic relevance determination” kernel, in the terminology <code>scikit-learn</code> and most other GP libraries use).</p>
 <p>A short length-scale on one dimension and a long length-scale on another is itself a form of variable-importance signal: the model has learned that the function changes quickly along the first input and barely reacts to the second, without anyone hand-coding that conclusion in advance.</p>
@@ -659,11 +706,11 @@ Tip
 <iframe src="../_generated/chapter-bayes-gp-fig-ard-length-scales.html" width="100%" height="480" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ard-length-scales-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.6: Two predictors, payload size and concurrent-request utilization, on inputs standardized to the same scale so the two length-scales are directly comparable. Concurrent-request utilization fits a length-scale under 1, since latency swings sharply as utilization approaches capacity. Payload size fits a length-scale over 20, since latency barely moves across its whole observed range once utilization is accounted for.
+Figure&nbsp;11.7: Two predictors, payload size and concurrent-request utilization, on inputs standardized to the same scale so the two length-scales are directly comparable. Concurrent-request utilization fits a length-scale under 1, since latency swings sharply as utilization approaches capacity. Payload size fits a length-scale over 20, since latency barely moves across its whole observed range once utilization is accounted for.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-ard-length-scales" class="quarto-xref">Figure&nbsp;<span>11.6</span></a> makes the point concrete: an automatic-relevance-determination kernel fit to both predictors at once returns a length-scale twenty-five times longer for payload size than for concurrent-request utilization, without anyone telling the model in advance which predictor mattered more.</p>
+<p><a href="#fig-ard-length-scales" class="quarto-xref">Figure&nbsp;<span>11.7</span></a> makes the point concrete: an automatic-relevance-determination kernel fit to both predictors at once returns a length-scale twenty-five times longer for payload size than for concurrent-request utilization, without anyone telling the model in advance which predictor mattered more.</p>
 <p>The same <span class="math inline">\(O(n^3)\)</span> cost applies regardless of how many input dimensions there are, since it depends only on the number of observations, not the number of predictors. That is one reason a GP scales more gracefully with feature count than it does with dataset size.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -679,12 +726,134 @@ Note
 </div>
 </div>
 </section>
-<section id="when-the-closed-form-runs-out" class="level2" data-number="11.7">
-<h2 data-number="11.7" class="anchored" data-anchor-id="when-the-closed-form-runs-out"><span class="header-section-number">11.7</span> When the closed form runs out</h2>
+<section id="periodic-structure-composing-kernels-for-signals-that-repeat" class="level2" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="periodic-structure-composing-kernels-for-signals-that-repeat"><span class="header-section-number">11.8</span> Periodic structure: composing kernels for signals that repeat</h2>
+<p>The chart below fits two kernels to three days of hourly latency and asks both to predict the fourth, unobserved day.</p>
+<div id="fig-periodic-kernel" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-periodic-kernel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-gp-fig-periodic-kernel.html" width="100%" height="540" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-periodic-kernel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.8: The dotted line is the true mean latency behind the data: a slow four-day drift plus a business-hours peak near 2pm each day. Markers show the first three days, the only data either model sees; the shaded region marks the fourth day, held out. The RBF-only fit (orange, dashed) never reproduces the afternoon bump: its mean drifts downward across the whole fourth day, and the single highest point it does reach in that window falls at 2am, half a cycle from the true 2pm peak, with a credible band about three times as wide as the alternative. The RBF-plus-periodic fit (blue) tracks the true curve through the fourth day, peak included, and closes most of the way in on that day’s latency values.
+</figcaption>
+</figure>
+</div>
+<p>A commuter who has watched traffic build for three straight afternoons does not need a fourth afternoon to guess when tomorrow’s rush hour starts. An RBF kernel, on its own, cannot make that same guess: it only measures how close two points sit on the input axis, so hour 38 and hour 62, both mid-afternoon on different days, look no more related to it than hour 38 and hour 50.</p>
+<p>Every kernel used so far in this chapter, RBF and Matern alike, shares that property: correlation depends only on distance between two points, with no notion that some pairs of points sit in the same phase of a repeating cycle. Chapter 7’s rollback classifier treats hour of day as a feature carrying signal on its own; a GP asked to model a metric with that same daily rhythm needs a kernel built to notice it.</p>
+<p>The <em>periodic kernel</em>, most commonly the <code>ExpSineSquared</code> form, supplies that missing structure directly:</p>
+<p><span class="math display">\[k_{\text{periodic}}(x, x') = \sigma_f^2 \exp\!\left(-\frac{2 \sin^2\!\left(\pi |x - x'| / p\right)}{\ell^2}\right).\]</span></p>
+<p>The period <span class="math inline">\(p\)</span> sets how often the pattern repeats (24 hours for a daily cycle, 168 for a weekly one); the length-scale <span class="math inline">\(\ell\)</span> sets how much the shape is allowed to drift from one cycle to the next, the periodic kernel’s counterpart to the RBF length-scale from earlier in this chapter.</p>
+<p>A periodic kernel alone would treat every day as a rescaled copy of every other day forever, with no way to represent the slow four-day drift in the figure above. Kernels compose: adding a periodic term to an RBF term lets one part of the sum absorb the smooth trend while the other absorbs the daily reshaping, and the two are estimated together from the same data. Rasmussen and Williams build a kernel this way, a smooth trend term added to a periodic term plus further terms for medium-term drift and noise, to model the rise and seasonal fall in the Mauna Loa atmospheric carbon dioxide record, one of the standard worked examples of kernel composition in the Gaussian process literature <span class="citation" data-cites="rasmussenwilliams2006">(<a href="chapter-01-descriptive-statistics.html#ref-rasmussenwilliams2006" role="doc-biblioref">Rasmussen and Williams 2006</a>)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.gaussian_process <span class="im">import</span> GaussianProcessRegressor</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.gaussian_process.kernels <span class="im">import</span> RBF, ExpSineSquared, WhiteKernel</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>kernel <span class="op">=</span> (</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    RBF(length_scale<span class="op">=</span><span class="fl">48.0</span>, length_scale_bounds<span class="op">=</span>(<span class="fl">10.0</span>, <span class="fl">200.0</span>))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> ExpSineSquared(length_scale<span class="op">=</span><span class="fl">1.0</span>, periodicity<span class="op">=</span><span class="fl">24.0</span>, periodicity_bounds<span class="op">=</span><span class="st">"fixed"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> WhiteKernel(<span class="fl">1.0</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>gp <span class="op">=</span> GaussianProcessRegressor(kernel<span class="op">=</span>kernel, normalize_y<span class="op">=</span><span class="va">True</span>, n_restarts_optimizer<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>gp.fit(hours.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), latency)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Fixing <code>periodicity_bounds="fixed"</code> at 24 hours instead of letting the optimizer search for it is deliberate. The length-scale in earlier sections came from data because nothing else pins it down; a metric’s period, by contrast, is usually known ahead of time from the process generating it (a day, a week, a billing cycle), and three or four observed cycles is a thin basis for the same marginal-likelihood search to also discover that period from noise. Fix what is known ahead of time and let the optimizer spend its search on what is not.</p>
+<p><a href="#fig-periodic-kernel" class="quarto-xref">Figure&nbsp;<span>11.8</span></a> shows the payoff on the held-out fourth day: the RBF-only fit’s root-mean- squared error against the true curve is about 13.8 ms, against about 1.2 ms for the fit with the periodic term added, and the RBF-only credible band stays roughly three times as wide across that same day. Both models see the identical three days of data; only the kernel’s assumptions differ.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Add a periodic term whenever a metric is known to repeat on a fixed cycle, hour of day or day of week, rather than asking a plain RBF or Matern kernel to infer that structure from a handful of observed cycles. Fix the period at its known value and let the optimizer fit the length-scale and noise around it.</p>
+</div>
+</div>
+</section>
+<section id="when-the-outcome-is-a-label-gaussian-process-classification" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="when-the-outcome-is-a-label-gaussian-process-classification"><span class="header-section-number">11.9</span> When the outcome is a label: Gaussian process classification</h2>
+<p>The chart below fits a Gaussian process classifier to ninety synthetic request-payload observations, each labeled as flagged or not flagged by an anomaly filter, and compares it against a plain logistic regression fit to the same data.</p>
+<div id="fig-gp-classification-boundary" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gp-classification-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-bayes-gp-fig-classification-boundary.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gp-classification-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.9: The x-axis is request payload size in kilobytes and the y-axis is the fitted probability of being flagged as anomalous; markers near the bottom and top show individual clear (0) and flagged (1) observations, jittered so overlapping points stay visible. The true flag rate (dotted) peaks near both edges of the range and drops close to zero in the middle. The GP posterior mean (blue) tracks that same shape, rising back above 0.65 at both edges after falling under 0.10 near the middle, with the credible band (shaded) widening wherever fewer observations sit nearby. The logistic regression fit (orange, dashed) stays close to flat across the whole range, moving only from about 0.26 to 0.38, since one coefficient cannot make the flag rate rise on both sides of a safe middle range at once.
+</figcaption>
+</figure>
+</div>
+<p>A lookout watching one corridor for trouble notices someone slipping in near the entrance and someone else causing a commotion near the far end, with a quiet stretch in between where nothing happens. A rule that only tracks how far along the corridor something is, and moves its alarm threshold one direction as that distance grows, cannot describe both trouble spots without also raising the alarm through the quiet stretch between them. A logistic regression’s single coefficient is that kind of one-direction rule.</p>
+<p>A Gaussian process classifier keeps the same latent function this chapter has built up all along, a smooth curve drawn from a GP prior and reshaped by conditioning on data, but routes that curve through a link function before it reaches the observed outcome instead of reading it off directly. The sigmoid link squeezes the latent function’s unbounded output into a valid probability between 0 and 1, and a Bernoulli likelihood then treats each observed flag as a coin flip weighted by that probability.</p>
+<p>The engineering consequence shows up directly in the fitted logistic regression coefficient behind the orange curve: 0.030, close enough to zero that the model barely distinguishes any payload size from any other. Averaged across two flagged regions pulling in opposite directions, a single-direction rule settles for a probability that hovers near the overall flag rate everywhere, useless for either clearing traffic with confidence or catching it. A filter built on that fit would let small and large payloads through at close to the same rate as the safe middle range, defeating the purpose of screening on payload size at all. The GP classifier’s latent function is free to bend twice, so it recovers both flagged regions and the safe range between them from the same ninety labels.</p>
+<p>Fitting this model means giving up the closed form the rest of this chapter relied on. A Bernoulli likelihood is not Gaussian, so <code>pm.gp.Marginal</code>’s algebraic shortcut, integrating the latent function out in closed form, no longer applies. <code>pm.gp.Latent</code> samples the latent function directly instead, and NUTS explores its posterior jointly with the length-scale:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>coords <span class="op">=</span> {<span class="st">"obs_id"</span>: np.arange(<span class="bu">len</span>(payload_kb))}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pm.Model(coords<span class="op">=</span>coords) <span class="im">as</span> gp_classifier:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    payload_data <span class="op">=</span> pm.Data(<span class="st">"payload_data"</span>, payload_scaled, dims<span class="op">=</span><span class="st">"obs_id"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    ell <span class="op">=</span> pm.Gamma(<span class="st">"ell"</span>, alpha<span class="op">=</span><span class="fl">2.0</span>, beta<span class="op">=</span><span class="fl">3.0</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> pm.gp.cov.ExpQuad(<span class="dv">1</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    gp <span class="op">=</span> pm.gp.Latent(cov_func<span class="op">=</span>cov)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> gp.prior(<span class="st">"f"</span>, X<span class="op">=</span>payload_data[:, <span class="va">None</span>], dims<span class="op">=</span><span class="st">"obs_id"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> pm.Deterministic(<span class="st">"p"</span>, pm.math.invlogit(f), dims<span class="op">=</span><span class="st">"obs_id"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    pm.Bernoulli(<span class="st">"flagged_obs"</span>, p<span class="op">=</span>p, observed<span class="op">=</span>flagged, dims<span class="op">=</span><span class="st">"obs_id"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    trace <span class="op">=</span> pm.sample(<span class="dv">1000</span>, tune<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    f_pred <span class="op">=</span> gp.conditional(<span class="st">"f_pred"</span>, Xnew<span class="op">=</span>grid_scaled[:, <span class="va">None</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> pm.sample_posterior_predictive(trace, var_names<span class="op">=</span>[<span class="st">"f_pred"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>pm.math.invlogit</code> is the sigmoid link, applied to the sampled latent function <code>f</code> rather than to a linear combination of coefficients the way ordinary logistic regression applies it. Once sampling finishes, <code>gp.conditional</code> extends that same latent function to new payload sizes, and <code>expit</code> on the resulting samples turns them back into probabilities for the curve in <a href="#fig-gp-classification-boundary" class="quarto-xref">Figure&nbsp;<span>11.9</span></a>.</p>
+<p>The length-scale posterior for this fit comes out short, a mean of about 0.40 on the standardized payload scale, short enough to let the fitted curve bend twice within the observed range instead of settling on one smooth trend. A longer length-scale prior would push the fit back toward something closer to the logistic regression curve, unable to represent both flagged regions at once. Formally, the model places a GP prior on a latent function and a Bernoulli likelihood on top of a sigmoid-transformed draw from it:</p>
+<p><span class="math display">\[f \sim \mathcal{GP}(0, k(x, x')), \qquad p(x) = \sigma(f(x)), \qquad y_i \sim
+\text{Bernoulli}(p(x_i)).\]</span></p>
+<p>Every kernel this chapter has covered, RBF, Matern, or a periodic-plus-trend composite, plugs into <span class="math inline">\(k(x, x')\)</span> here the same way it plugged into the regression posterior earlier; only the likelihood on top of the latent function changes.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the credible band around a fitted classification boundary looks too narrow in a region far from any observation, adding a linear kernel term the way this chapter composes RBF and periodic kernels earlier is a standard fix: it lets the model’s uncertainty grow honestly with distance from the data instead of collapsing back toward the prior mean too quickly on the probability scale.</p>
+</div>
+</div>
+</section>
+<section id="when-the-closed-form-runs-out" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="when-the-closed-form-runs-out"><span class="header-section-number">11.10</span> When the closed form runs out</h2>
 <p>Everything in this chapter relied on a Gaussian process with Gaussian observation noise, which is the one case with a closed-form posterior.</p>
-<p>Two situations break that closed form and push toward the tools Chapter 9 introduces for other models: a non-Gaussian likelihood (for instance, modeling a binary success/failure outcome with a GP-based classifier instead of a continuous latency value) and a dataset too large for the <span class="math inline">\(O(n^3)\)</span> matrix inversion to finish in reasonable time.</p>
+<p>Two situations break that closed form and push toward the tools Chapter 9 introduces for other models: a non-Gaussian likelihood, the classification case the previous section just walked through in full, and a dataset too large for the <span class="math inline">\(O(n^3)\)</span> matrix inversion to finish in reasonable time.</p>
 <p>Both push toward approximate inference: variational methods that summarize the posterior with a simpler distribution, or sparse GP approximations that summarize the training data itself with a smaller set of representative “inducing points.” <code>GPyTorch</code> and <code>GPflow</code> are the two libraries most commonly reached for once a problem crosses either of those lines.</p>
 <p>Both implement sparse and variational GP methods that scale well past the point where <code>scikit-learn</code>’s closed-form implementation becomes impractical, typically somewhere in the range of several thousand to tens of thousands of training points, depending on available memory.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A GP can earn its keep as a covariance structure buried inside a larger model, not only as the direct regression surface. A smoothly time-varying incident rate, for instance, can ride inside a Poisson GLM as a latent log-rate: <code>rate_gp = pm.gp.Latent(cov_func=...)</code>, <code>log_rate = rate_gp.prior("log_rate", X=time_bins)</code>, then <code>pm.Poisson("incidents", mu=pm.math.exp(log_rate), observed=incident_counts)</code>. The GP supplies a covariance structure over the latent quantity being modeled, a changepoint-free alternative to hand-coding a step change in the rate, and still needs <code>pm.gp.Latent</code> rather than <code>pm.gp.Marginal</code>, since a Poisson likelihood is as non-Gaussian as a Bernoulli one.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When inputs sit on a regular multi-dimensional grid, such as latency broken out by region and hour of day, a Kronecker-structured GP (<code>pm.gp.LatentKron</code>, built from one covariance function per axis) scales past the plain <span class="math inline">\(O(n^3)\)</span> cost flagged earlier in this chapter without falling back to sparse or variational approximation. It exploits the grid’s separability directly, at the cost of applying only when every combination of axis values is observed.</p>
+</div>
+</div>
 <p>For a dataset in the hundreds or low thousands, which covers most of the tabular, single-service metrics this book has worked with, the closed-form fit this chapter walked through is enough.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">

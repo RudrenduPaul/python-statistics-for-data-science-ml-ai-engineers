@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -58,7 +92,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -206,11 +240,6 @@ window.Quarto = {
       <a href="../">Applied Statistics for Data Science, Machine Learning, and AI Engineers</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
 </div>
     </div>
       </div>
@@ -366,8 +395,9 @@ window.Quarto = {
   <li><a href="#k-fold-cross-validation" id="toc-k-fold-cross-validation" class="nav-link" data-scroll-target="#k-fold-cross-validation"><span class="header-section-number">5.4</span> k-fold cross-validation</a></li>
   <li><a href="#choosing-k-the-bias-variance-trade-off" id="toc-choosing-k-the-bias-variance-trade-off" class="nav-link" data-scroll-target="#choosing-k-the-bias-variance-trade-off"><span class="header-section-number">5.5</span> Choosing k: the bias-variance trade-off</a></li>
   <li><a href="#cross-validation-for-model-selection-picking-lambda" id="toc-cross-validation-for-model-selection-picking-lambda" class="nav-link" data-scroll-target="#cross-validation-for-model-selection-picking-lambda"><span class="header-section-number">5.6</span> Cross-validation for model selection: picking lambda</a></li>
-  <li><a href="#what-cross-validation-does-not-fix" id="toc-what-cross-validation-does-not-fix" class="nav-link" data-scroll-target="#what-cross-validation-does-not-fix"><span class="header-section-number">5.7</span> What cross-validation does not fix</a></li>
-  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">5.8</span> A Bayesian perspective</a></li>
+  <li><a href="#building-k-fold-cross-validation-from-scratch-tuning-two-knobs-at-once" id="toc-building-k-fold-cross-validation-from-scratch-tuning-two-knobs-at-once" class="nav-link" data-scroll-target="#building-k-fold-cross-validation-from-scratch-tuning-two-knobs-at-once"><span class="header-section-number">5.7</span> Building k-fold cross-validation from scratch: tuning two knobs at once</a></li>
+  <li><a href="#what-cross-validation-does-not-fix" id="toc-what-cross-validation-does-not-fix" class="nav-link" data-scroll-target="#what-cross-validation-does-not-fix"><span class="header-section-number">5.8</span> What cross-validation does not fix</a></li>
+  <li><a href="#a-bayesian-perspective" id="toc-a-bayesian-perspective" class="nav-link" data-scroll-target="#a-bayesian-perspective"><span class="header-section-number">5.9</span> A Bayesian perspective</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/RudrenduPaul/python-statistics-for-data-science-ml-ai-engineers/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -548,8 +578,150 @@ Warning
 <p>With only 3 folds, each fold’s error estimate rests on a smaller, noisier training set, so the curve’s minimum can shift meaningfully from one run to the next. That instability stabilizes as <span class="math inline">\(k\)</span> grows.</p>
 <p>This same procedure, sweeping a candidate value and picking the one with the lowest cross-validated error, generalizes far past <span class="math inline">\(\lambda\)</span>: choosing a polynomial’s degree, a smoothing parameter, or the number of trees in a forest are all the same search, applied to a different knob.</p>
 </section>
-<section id="what-cross-validation-does-not-fix" class="level2" data-number="5.7">
-<h2 data-number="5.7" class="anchored" data-anchor-id="what-cross-validation-does-not-fix"><span class="header-section-number">5.7</span> What cross-validation does not fix</h2>
+<section id="building-k-fold-cross-validation-from-scratch-tuning-two-knobs-at-once" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="building-k-fold-cross-validation-from-scratch-tuning-two-knobs-at-once"><span class="header-section-number">5.7</span> Building k-fold cross-validation from scratch: tuning two knobs at once</h2>
+<div id="fig-knn-grid-search" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-knn-grid-search-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<iframe src="../_generated/chapter-cv-fig-knn-grid-search.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-knn-grid-search-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: Average five-fold cross-validated error for every combination of neighbor count and weighting scheme. The darkest cell, 25 neighbors with distance weighting, sits at a value neither hyperparameter reaches on its own.
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-knn-grid-search" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> comes from a mobile app team’s crash telemetry, a new dataset for this section, separate from the latency model used earlier in this chapter. For 240 fifteen-minute device-session windows, two features are logged: heap memory pressure as a percentage, and hours since the app process last restarted. The target is crashes observed per 1,000 sessions in that window. The team wants to predict expected crash rate for a new window from its two features using k-nearest-neighbor regression, averaging the crash rate of the <span class="math inline">\(k\)</span> most similar historical windows.</p>
+<p>That model carries two knobs: <span class="math inline">\(k\)</span>, how many neighboring windows to average, and how each neighbor’s vote counts, an unweighted average of all <span class="math inline">\(k\)</span> neighbors or a weighted average that lets nearer neighbors count for more. The lambda search earlier in this chapter swept one knob against cross-validated error. Two knobs at once turns that same search from a line into a grid: every combination of <span class="math inline">\(k\)</span> and weighting scheme gets its own k-fold cross-validated error, and the results land in a table, one hyperparameter along the rows, the other along the columns. A <em>grid search</em> cross-validates every candidate combination this way and reads the single winning cell off the resulting table.</p>
+<p>A one-at-a-time search, tuning one hyperparameter while holding the other fixed, can settle on a combination a full grid search would have improved on. Fixing the weighting scheme at its default, an unweighted average, and searching only over <span class="math inline">\(k\)</span> against this data lands on <span class="math inline">\(k=5\)</span>, the lowest error in that column, at 10.57. Checking whether distance weighting helps at that same <span class="math inline">\(k=5\)</span> makes things slightly worse, 10.62, so the one-at-a-time search stops there and ships <span class="math inline">\(k=5\)</span> with an unweighted average.</p>
+<p>The full grid tells a different story. <span class="math inline">\(k=25\)</span> with distance weighting reaches 10.05, roughly 5 percent lower error than the one-at-a-time search found, and that combination was never tested, because the one-at-a-time search had locked in <span class="math inline">\(k=5\)</span> before it touched the weighting knob at all. Distance weighting only pays off once <span class="math inline">\(k\)</span> is large enough that some included neighbors sit meaningfully farther away than others: at <span class="math inline">\(k=5\)</span>, every neighbor sits close by, so weighting them unevenly barely changes the prediction, while at <span class="math inline">\(k=25\)</span> an unweighted average starts diluting the prediction with neighbors that are considerably less similar. That interaction between the two knobs stays invisible to a one-at-a-time search.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Hyperparameters can interact. A one-at-a-time search, tuning each one while holding others at a default, can land on a locally reasonable answer that a joint search over all combinations would beat. Scoring the full grid is the only way to catch this.</p>
+</div>
+</div>
+<p>Building that grid from raw folds needs two loops layered on top of each other. The first assigns every observation a fold, the same fold-assignment step k-fold CV has used all chapter, written here as an explicit loop over every observation:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>fold_id <span class="op">=</span> np.empty(n, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>shuffled <span class="op">=</span> rng.permutation(n)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> position, row <span class="kw">in</span> <span class="bu">enumerate</span>(shuffled):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    fold_id[row] <span class="op">=</span> position <span class="op">%</span> k_folds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The second loop walks the hyperparameter grid, scoring every combination across all of the folds the first loop just assigned:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>cv_error <span class="op">=</span> np.empty((<span class="bu">len</span>(neighbor_grid), <span class="bu">len</span>(weight_grid)))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, k <span class="kw">in</span> <span class="bu">enumerate</span>(neighbor_grid):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, weighting <span class="kw">in</span> <span class="bu">enumerate</span>(weight_grid):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        fold_errors <span class="op">=</span> []</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> fold <span class="kw">in</span> <span class="bu">range</span>(k_folds):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            train_mask, val_mask <span class="op">=</span> fold_id <span class="op">!=</span> fold, fold_id <span class="op">==</span> fold</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            preds <span class="op">=</span> knn_predict(X[train_mask], y[train_mask], X[val_mask], k, weighting)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            fold_errors.append(np.mean((preds <span class="op">-</span> y[val_mask]) <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        cv_error[i, j] <span class="op">=</span> np.mean(fold_errors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The two outer loops walk the hyperparameter grid; the innermost loop is the same k-fold procedure defined earlier in this chapter, called once per grid cell instead of once overall. The resulting <code>cv_error</code> array is the pivot table <a href="#fig-knn-grid-search" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> renders as a heatmap:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">\(k\)</span> neighbors</th>
+<th style="text-align: right;">uniform weighting</th>
+<th style="text-align: right;">distance weighting</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16.46</td>
+<td style="text-align: right;">16.46</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10.92</td>
+<td style="text-align: right;">11.26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10.57</td>
+<td style="text-align: right;">10.62</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10.73</td>
+<td style="text-align: right;">10.33</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">10.67</td>
+<td style="text-align: right;">10.08</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">11.00</td>
+<td style="text-align: right;"><strong>10.05</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">11.45</td>
+<td style="text-align: right;">10.26</td>
+</tr>
+</tbody>
+</table>
+<p>Formally, a grid search minimizes cross-validated error over the Cartesian product of every hyperparameter’s candidate values:</p>
+<p><span class="math display">\[
+(\hat{k}, \hat{w}) = \underset{(k,\, w) \,\in\, \mathcal{K} \times \mathcal{W}}{\arg\min}
+\; \frac{1}{K}\sum_{f=1}^{K} \text{MSE}_f(k, w)
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal{K}\)</span> and <span class="math inline">\(\mathcal{W}\)</span> are the candidate grids for each hyperparameter, <span class="math inline">\(K\)</span> is the number of folds, and <span class="math inline">\(\text{MSE}_f(k, w)\)</span> is the validation error on fold <span class="math inline">\(f\)</span> for that combination. Nothing about the formula changes when a third or fourth hyperparameter joins the search; the grid gains another dimension, and the loop nests one level deeper.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A two-hyperparameter grid with <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_2\)</span> candidate values, scored by <span class="math inline">\(k\)</span>-fold CV, fits the model <span class="math inline">\(g_1 \times g_2 \times k\)</span> times. That cost grows fast: the modest <span class="math inline">\(7 \times 2\)</span> grid above, at 5 folds, means 70 separate fits. Coarsen the grid, or narrow it around a promising region, before adding a third hyperparameter to the search.</p>
+</div>
+</div>
+<p>Every line of the two loops above is what scikit-learn’s <code>GridSearchCV</code> and <code>cross_val_score</code> automate:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> GridSearchCV</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsRegressor</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>pipeline <span class="op">=</span> make_pipeline(StandardScaler(), KNeighborsRegressor())</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> GridSearchCV(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    pipeline,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    param_grid<span class="op">=</span>{</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kneighborsregressor__n_neighbors"</span>: [<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">25</span>, <span class="dv">40</span>],</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kneighborsregressor__weights"</span>: [<span class="st">"uniform"</span>, <span class="st">"distance"</span>],</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">"neg_mean_squared_error"</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>grid.fit(X, y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>scoring="neg_mean_squared_error"</code> comes back negative by convention: scikit-learn’s search tools always maximize a score, and mean squared error is something to minimize instead. Flip the sign on <code>grid.best_score_</code> before comparing it against a table of plain MSE values like the one above.</p>
+</div>
+</div>
+<p><code>GridSearchCV</code> builds its own folds internally, so its numbers will not match the table cell for cell, even though it searches the identical grid with the same cross-validation idea underneath. Reaching for it once the mechanism above makes sense trades a few lines of bookkeeping for a one-line call. Reaching for it before that mechanism makes sense trades away the only view into what the winning cell cost to find.</p>
+</section>
+<section id="what-cross-validation-does-not-fix" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="what-cross-validation-does-not-fix"><span class="header-section-number">5.8</span> What cross-validation does not fix</h2>
 <p>Cross-validation estimates test error under one working assumption: that the data is independently and identically distributed, so a fold selected at random is a fair stand-in for future data. Two common situations break that assumption in ways cross-validation cannot detect on its own.</p>
 <p>The first is data leakage: information from the validation fold sneaking into the training process through some channel other than the model fit itself.</p>
 <p>A feature engineered from the full dataset before the split, for instance a normalization computed across every observation rather than fit only on the training fold, leaks information about the validation fold into the training procedure. That leak makes cross-validated error look better than it will on data the pipeline has never seen at all.</p>
@@ -583,8 +755,8 @@ Important
 </div>
 <p>Time-ordered data calls for a variant such as rolling-origin or blocked cross-validation, where every training fold precedes its validation fold in time, rather than the random k-fold split this chapter has used throughout.</p>
 </section>
-<section id="a-bayesian-perspective" class="level2" data-number="5.8">
-<h2 data-number="5.8" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">5.8</span> A Bayesian perspective</h2>
+<section id="a-bayesian-perspective" class="level2" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="a-bayesian-perspective"><span class="header-section-number">5.9</span> A Bayesian perspective</h2>
 <p>Cross-validation is not the only way to ask whether a model will generalize; it is the frequentist answer to a question a Bayesian framework poses differently.</p>
 <p>Recall from Chapter 4’s Bayesian perspective that a Bayesian model treats each coefficient as a range of plausible values, the posterior distribution, rather than one fitted number. Model comparison in that framework asks how well the posterior predicts data it has not seen, the same underlying question cross-validation answers, approached from a different direction.</p>
 <p>The Bayesian analog most directly comparable to classical LOOCV is <em>leave-one-out cross-validation computed from posterior draws</em>, abbreviated PSIS-LOO, where a draw is one sampled parameter value out of the many an MCMC fit produces in place of a single point estimate.</p>
@@ -612,11 +784,11 @@ Note
 <iframe src="../_generated/chapter-cv-fig-elpd-by-complexity.html" width="100%" height="520" style="border:1px solid #ddd; border-radius:6px;" loading="lazy"></iframe>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-elpd-by-complexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5.4: ELPD rises with model complexity while the model is still capturing the underlying structure, peaking around degree 2, then falls as added flexibility starts fitting noise, the mirror image of the test-error curve in the first figure of this chapter.
+Figure&nbsp;5.5: ELPD rises with model complexity while the model is still capturing the underlying structure, peaking around degree 2, then falls as added flexibility starts fitting noise, the mirror image of the test-error curve in the first figure of this chapter.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-elpd-by-complexity" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> computes an ELPD approximation across the same range of model complexity as <a href="#fig-train-test-error" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>, and the two curves tell the same story from different directions: one falls after a point, the other rises after a point, and both mark the same transition from a model that generalizes to one that has started fitting noise.</p>
+<p><a href="#fig-elpd-by-complexity" class="quarto-xref">Figure&nbsp;<span>5.5</span></a> computes an ELPD approximation across the same range of model complexity as <a href="#fig-train-test-error" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>, and the two curves tell the same story from different directions: one falls after a point, the other rises after a point, and both mark the same transition from a model that generalizes to one that has started fitting noise.</p>
 <p>A closely related quantity, the Watanabe-Akaike information criterion (WAIC), estimates the same out-of-sample predictive accuracy from a different approximation <span class="citation" data-cites="vehtarigelmangabry2017">(<a href="chapter-01-descriptive-statistics.html#ref-vehtarigelmangabry2017" role="doc-biblioref">Vehtari, Gelman, and Gabry 2017</a>)</span>.</p>
 <p>It tends to agree closely with PSIS-LOO on well-behaved models, though WAIC has no equivalent to the Pareto-k diagnostic, which is one reason the <code>arviz</code> and <code>loo</code> software packages default to PSIS-LOO.</p>
 <p>None of this Bayesian machinery replaces classical k-fold cross-validation for most day-to-day model tuning: it requires committing to a full Bayesian model with priors on every parameter, which is a heavier lift than fitting a Lasso path, and k-fold CV remains simpler to explain to a stakeholder who has never heard the word posterior.</p>
