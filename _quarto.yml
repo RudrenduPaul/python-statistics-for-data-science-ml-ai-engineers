@@ -2,7 +2,8 @@ project:
   type: book
   output-dir: _book
   resources:
-    - llms.txt
+    - /llms.txt
+    - /robots.txt
 
 book:
   title: "Applied Statistics for Data Science, Machine Learning, and AI Engineers"
