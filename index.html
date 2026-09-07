@@ -96,21 +96,26 @@ ul.task-list li input[type="checkbox"] {
   "isAccessibleForFree": true,
   "inLanguage": "en",
   "genre": "Statistics, Machine Learning, Bayesian Methods",
+  "dateModified": "2026-09-07",
+  "numberOfPages": 15,
+  "keywords": "descriptive statistics, robust statistics, hypothesis testing, probability distributions, regression, multiple regression, cross-validation, regression splines, LOESS, generalized additive models, decision trees, random forests, gradient boosting, XGBoost, LightGBM, Bayesian regression, hierarchical models, Bayesian model selection, Bayes factors, Gaussian processes, Gaussian process classification, Bayesian Additive Regression Trees, BART, quantile regression, conformal prediction, Bayesian A/B testing, Python",
   "about": [
-    "Descriptive statistics",
+    "Descriptive and robust statistics",
     "Hypothesis testing",
     "Probability distributions",
-    "Regression modeling",
+    "Regression modeling (multiple regression, categorical encoding, regularization)",
     "Cross-validation",
+    "Regression splines, LOESS, and generalized additive models",
     "Decision trees and random forests",
     "Gradient boosting",
-    "Bayesian regression",
-    "Bayesian model selection",
-    "Gaussian processes",
+    "Bayesian regression (robust and hierarchical models)",
+    "Bayesian model selection and Bayes factors",
+    "Gaussian processes, including Gaussian process classification",
     "Bayesian Additive Regression Trees (BART)",
+    "Bayesian gradient boosting, quantile regression, and conformal prediction",
     "Bayesian A/B testing"
   ],
-  "description": "A free, open-source, interactive statistics handbook for data scientists, ML engineers, and AI engineers, covering descriptive statistics through Bayesian methods in Python with live, draggable Plotly figures and runnable code for every example."
+  "description": "A free, open-source, interactive statistics handbook for data scientists, ML engineers, and AI engineers, covering descriptive and robust statistics through Bayesian methods in Python with live, draggable Plotly figures and runnable code for every example."
 }
 </script>
 
@@ -412,6 +417,12 @@ Figure&nbsp;3: Shrink the prior variance with the slider and watch the fitted li
 <p><strong>How does Bayesian A/B testing differ from a classical significance test?</strong> Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant’s conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value.</p>
 <p><strong>Why does a random forest split on only a random subset of predictors at each split?</strong> Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively.</p>
 <p><strong>Why are boosted trees kept shallow while random forest trees are grown deep?</strong> A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects.</p>
+<p><strong>How does robust regression handle outliers differently than ordinary least squares?</strong> Ordinary least squares minimizes squared error, so one extreme point can pull the fitted line far from the rest of the data. Chapter 9 covers robust Bayesian regression with a Student-t likelihood, whose heavier tails keep an outlier from dominating the fit.</p>
+<p><strong>What is a hierarchical (multilevel) Bayesian model?</strong> A model that fits a per-group estimate for every group while letting each borrow statistical strength from a shared population distribution, so a sparsely observed group shrinks toward the population’s typical behavior instead of reporting a noisy estimate built from almost nothing. Chapter 9 and Chapter 14 cover this.</p>
+<p><strong>Can a Gaussian process be used for classification, not just regression?</strong> Yes. Chapter 11 covers Gaussian process classification, where a latent function passes through a sigmoid link into a Bernoulli likelihood, producing a flexible decision boundary a plain logistic regression cannot represent.</p>
+<p><strong>What is quantile regression, and how does it differ from predicting the mean?</strong> Quantile regression predicts a specific quantile of an outcome’s distribution, such as the 95th percentile, instead of its mean, catching tail behavior a mean-based model would miss. Chapter 13 covers this alongside conformal prediction, a distribution-free method for a prediction interval with a coverage guarantee.</p>
+<p><strong>What is a sample ratio mismatch (SRM) in A/B testing?</strong> A gap between an A/B test’s intended and observed traffic split, checked with a chi-square goodness-of-fit test; an undetected SRM invalidates the test’s conclusion regardless of how the outcome comparison came out. Chapter 14 covers this.</p>
+<p><strong>Can an A/B test look like a win on average while harming a subgroup of users?</strong> Yes. Chapter 14 covers a latent (unobserved) subgroup heterogeneity example, where a two-component mixture model surfaces a harmed subgroup that a single pooled analysis would miss.</p>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -428,7 +439,13 @@ Figure&nbsp;3: Shrink the prior variance with the slider and watch the fitted li
     {"@type": "Question", "name": "How does Ridge regression relate to a Gaussian prior?", "acceptedAnswer": {"@type": "Answer", "text": "Ridge regression's L2 penalty is mathematically equivalent to placing a Gaussian prior on the regression coefficients and taking the posterior mode. Chapter 4's preview and Chapter 9's full treatment both derive this."}},
     {"@type": "Question", "name": "How does Bayesian A/B testing differ from a classical significance test?", "acceptedAnswer": {"@type": "Answer", "text": "Chapter 14 covers this end to end: Bayesian A/B testing produces a posterior distribution over each variant's conversion rate, a win probability, and an expected-loss stopping rule, instead of a single p-value."}},
     {"@type": "Question", "name": "Why does a random forest split on only a random subset of predictors at each split?", "acceptedAnswer": {"@type": "Answer", "text": "Restricting each split to a random subset of predictors (Chapter 7) forces trees to occasionally split on weaker predictors instead of always defaulting to the strongest one, decorrelating the trees so averaging reduces variance more effectively."}},
-    {"@type": "Question", "name": "Why are boosted trees kept shallow while random forest trees are grown deep?", "acceptedAnswer": {"@type": "Answer", "text": "A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects."}}
+    {"@type": "Question", "name": "Why are boosted trees kept shallow while random forest trees are grown deep?", "acceptedAnswer": {"@type": "Answer", "text": "A random forest (Chapter 7) controls variance by averaging many deep, individually overfit trees. A boosted model (Chapter 8) keeps its trees shallow on purpose, often 2 to 6 levels, so no single tree overcorrects."}},
+    {"@type": "Question", "name": "How does robust regression handle outliers differently than ordinary least squares?", "acceptedAnswer": {"@type": "Answer", "text": "Ordinary least squares minimizes squared error, so one extreme point can pull the fitted line far from the rest of the data. Chapter 9 covers robust Bayesian regression with a Student-t likelihood, whose heavier tails keep an outlier from dominating the fit."}},
+    {"@type": "Question", "name": "What is a hierarchical (multilevel) Bayesian model?", "acceptedAnswer": {"@type": "Answer", "text": "A model that fits a per-group estimate for every group while letting each borrow statistical strength from a shared population distribution, so a sparsely observed group shrinks toward the population's typical behavior instead of reporting a noisy estimate built from almost nothing. Chapter 9 and Chapter 14 cover this."}},
+    {"@type": "Question", "name": "Can a Gaussian process be used for classification, not just regression?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 11 covers Gaussian process classification, where a latent function passes through a sigmoid link into a Bernoulli likelihood, producing a flexible decision boundary a plain logistic regression cannot represent."}},
+    {"@type": "Question", "name": "What is quantile regression, and how does it differ from predicting the mean?", "acceptedAnswer": {"@type": "Answer", "text": "Quantile regression predicts a specific quantile of an outcome's distribution, such as the 95th percentile, instead of its mean, catching tail behavior a mean-based model would miss. Chapter 13 covers this alongside conformal prediction, a distribution-free method for a prediction interval with a coverage guarantee."}},
+    {"@type": "Question", "name": "What is a sample ratio mismatch (SRM) in A/B testing?", "acceptedAnswer": {"@type": "Answer", "text": "A gap between an A/B test's intended and observed traffic split, checked with a chi-square goodness-of-fit test; an undetected SRM invalidates the test's conclusion regardless of how the outcome comparison came out. Chapter 14 covers this."}},
+    {"@type": "Question", "name": "Can an A/B test look like a win on average while harming a subgroup of users?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Chapter 14 covers a latent (unobserved) subgroup heterogeneity example, where a two-component mixture model surfaces a harmed subgroup that a single pooled analysis would miss."}}
   ]
 }
 </script>
